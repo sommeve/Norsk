@@ -263,7 +263,7 @@ window.SOMME = [
    forms:[['boll'+E+'en'+_,'het broodje','boll'+E+'a'+_],['boll'+E+'er'+_,'broodjes'],['boll'+E+'ene'+_,'de broodjes']],
    snb:'Vil du ha en bolle?', snl:'Wil je een broodje?',
    cmt:'Zacht zoet broodje (vaak met rozijnen of kaneel). Bergens kent maar twee geslachten → altijd "en bolle / bollen", nooit "bolla".'}),
- L({id:'sm_l_sjokolade', tlbl:'zn.',
+ L({id:'sm_l_sjokolade', deleted:true, tlbl:'zn.',
    phNB:'sju-ku-LAA-de', phNL:'cho-co-LA-de',
    hnb:'en <b>sjokolade</b> '+G+'♂'+_, hnl:'<b>chocolade</b>',
    bm:{s:'Jeg liker melkesjokolade.'},
@@ -296,7 +296,10 @@ window.SOMME = [
    bm:{h:'ei/en <b>pølse</b> '+G+'♀/♂'+_, s:'Jeg vil ha pølse med lompe.'},
    forms:[['pøls'+E+'en'+_,'de worst','pøls'+E+'a'+_],['pøls'+E+'er'+_,'worsten'],['pøls'+E+'ene'+_,'de worsten']],
    snb:'Eg vil ha pølse med lompe.', snl:'Ik wil een worst met lompe.',
-   cmt:'«pølse med lompe» = de Noorse hotdog in een dunne aardappelpannenkoek. Bergens: twee geslachten → pølsen, niet pølsa.'}),
+   cmt:'«pølse med lompe» = de Noorse hotdog in een dunne aardappelpannenkoek. Bergens: twee geslachten → pølsen, niet pølsa.',
+   /* v11.12.1 §48 — samengevoegd met polse */
+   labels:['somme','ep8','nils'], episodes:[8], nch:[26]
+  }),
  L({id:'sm_l_ketchup', tlbl:'zn.',
    phNB:'KETT-sjup', phNL:'KET-chup',
    hnb:'en <b>ketchup</b> '+G+'♂'+_, hnl:'<b>ketchup</b>',
@@ -312,7 +315,7 @@ window.SOMME = [
    cmt:'Klassieke Noorse doordeweekse kost. Vaste uitdrukking — de losse delen: fiskebolle (visballetje), hvit (wit), saus (saus).'}),
 
 /* ---------- LENE: dieren & huis ---------- */
- L({id:'sm_l_hund', tlbl:'zn.',
+ L({id:'sm_l_hund', deleted:true, tlbl:'zn.',
    phNB:'hunn', phNL:'HOND',
    hnb:'en <b>hund</b> '+G+'♂'+_, hnl:'een <b>hond</b>',
    bm:{s:'Jeg har en hund.'},
@@ -338,8 +341,11 @@ window.SOMME = [
    bm:{h:'et <b>hus</b> '+G+'φ'+_, s:'Vi bor i et gult hus.'},
    forms:[['hus'+E+'et'+_,'het huis'],['hus '+N+'(zelfde in mv.)'+_,'huizen'],['hus'+E+'ene'+_,'de huizen','hus'+E+'a'+_]],
    snb:'Vi bor i et gult hus.', snl:'Wij wonen in een geel huis.',
-   cmt:'Bergens zegt husene (door Johanne bevestigd); veel bokmål-sprekers zeggen husa.'}),
- L({id:'sm_l_hytte', tlbl:'zn.',
+   cmt:'Bergens zegt husene (door Johanne bevestigd); veel bokmål-sprekers zeggen husa.',
+   /* v11.12 §47 — samengevoegd met hus */
+   labels:['somme','ep1','nils'], nch:[7], kern:true
+  }),
+ L({id:'sm_l_hytte', deleted:true, tlbl:'zn.',
    phNB:'HUUT-te', phNL:'VA-kan-tie-huis-je',
    hnb:'en <b>hytte</b> '+G+'♂'+_, hnl:'een <b>hut</b> / <b>vakantiehuisje</b>',
    bm:{h:'ei/en <b>hytte</b> '+G+'♀/♂'+_, s:'Vi skal på hytta i helgen.'},
@@ -361,7 +367,10 @@ window.SOMME = [
    bm:{s:'Jeg fikk en fin gave.'},
    forms:[['gav'+E+'en'+_,'het cadeau'],['gav'+E+'er'+_,'cadeaus'],['gav'+E+'ene'+_,'de cadeaus']],
    snb:'Eg fikk en fin gave.', snl:'Ik kreeg een mooi cadeau.',
-   cmt:'"gave" is het gewone woord; "presang" klinkt feestelijker.'}),
+   cmt:'"gave" is het gewone woord; "presang" klinkt feestelijker.',
+   /* v11.12 §47 — samengevoegd met gave */
+   labels:['somme','ep1','nils'], episodes:[1], nch:[1]
+  }),
  L({id:'sm_l_presang', tlbl:'zn.',
    phNB:'pre-SANG', phNL:'CA-deau',
    hnb:'en <b>presang</b> '+G+'♂'+_, hnl:'een <b>cadeau</b> / <b>presentje</b>',
@@ -390,7 +399,10 @@ window.SOMME = [
    hnb:'å <b>lese</b>', hnl:'<b>lezen</b>',
    bm:{s:'Jeg leser en bok.'},
    forms:[['les'+E+'er'+_,'leest'],['les'+E+'te'+_,'las'],['har '+E+'lest'+_,'heeft gelezen']],
-   snb:'Eg leser en bok.', snl:'Ik lees een boek.'}),
+   snb:'Eg leser en bok.', snl:'Ik lees een boek.',
+   /* v11.12 §47 — samengevoegd met lese */
+   labels:['somme','ep4','nils'], episodes:[4], nch:[15]
+  }),
  L({id:'sm_l_lope', tlbl:'ww.',
    phNB:'LEU-pe', phNL:'REN-nen',
    hnb:'å <b>løpe</b>', hnl:'<b>rennen</b> / <b>hardlopen</b>',
@@ -398,14 +410,14 @@ window.SOMME = [
    forms:[['løp'+E+'er'+_,'rent'],[X+'løp'+_,'rende'],['har '+E+'løpt'+_,'heeft gerend']],
    snb:'Eg løper fort.', snl:'Ik ren snel.',
    cmt:'Onregelmatig in de verleden tijd: løp (geen uitgang).'}),
- L({id:'sm_l_ga', tlbl:'ww.',
+ L({id:'sm_l_ga', deleted:true, tlbl:'ww.',
    phNB:'goh', phNL:'GAAN / LO-pen',
    hnb:'å <b>gå</b>', hnl:'<b>gaan</b> / <b>te voet gaan</b>',
    bm:{s:'Vi går til skolen.'},
    forms:[['gå'+E+'r'+_,'gaat'],[X+'gikk'+_,'ging'],['har '+X+'gått'+_,'is gegaan']],
    snb:'Vi går til skolen.', snl:'Wij gaan te voet naar school.',
    cmt:'"gå" betekent in het Noors echt tE VOET gaan; met de auto is het "kjøre". Onregelmatig: gå – gikk – gått.'}),
- L({id:'sm_l_ri', tlbl:'ww.',
+ L({id:'sm_l_ri', deleted:true, tlbl:'ww.',
    phNB:'rie', phNL:'PAARD-rij-den',
    hnb:'å <b>ri</b>', hnl:'<b>paardrijden</b>',
    bm:{s:'Lene liker å ri på hest.'},
@@ -433,7 +445,7 @@ window.SOMME = [
    forms:[['gre'+E+'r seg'+_,'kamt zich'],['gre'+E+'dde seg'+_,'kamde zich'],['har gre'+E+'dd seg'+_,'heeft zich gekamd']],
    snb:'Hon grer seg foran speilet.', snl:'Zij kamt zich voor de spiegel.',
    cmt:'Wederkerend werkwoord — "seg" hoort erbij. Bergens: hon i.p.v. hun. Buigingsvormen door Claude aangevuld (tbc).'}),
- L({id:'sm_l_sove', tlbl:'ww.',
+ L({id:'sm_l_sove', deleted:true, tlbl:'ww.',
    phNB:'SOH-ve', phNL:'SLA-pen',
    hnb:'å <b>sove</b>', hnl:'<b>slapen</b>',
    bm:{s:'Jeg sover godt.'},
@@ -442,7 +454,7 @@ window.SOMME = [
    cmt:'Onregelmatig: sove – sov – sovet.'}),
 
 /* ---------- LENE: rest ---------- */
- L({id:'sm_l_kjedelig', tlbl:'bn.',
+ L({id:'sm_l_kjedelig', deleted:true, tlbl:'bn.',
    phNB:'CHEE-de-li', phNL:'SAAI',
    hnb:'<b>kjedelig</b>', hnl:'<b>saai</b> / <b>vervelend</b>',
    bm:{s:'Denne filmen er kjedelig.'},

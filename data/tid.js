@@ -32,14 +32,14 @@ function TAL(id,nb,nl,ph,phnl,cmt){
 window.TID = [
 
 /* ---------- WEEKDAGEN (ukedager) ---------- */
- DAG('mandag','mandag','maandag','MAN-dag','MAAN-dakh',
-     'In gewone spreektaal hoor je vaak «-da» in plaats van «-dag»: MAN-da.'),
- DAG('tirsdag','tirsdag','dinsdag','TIRS-dag','DINS-dakh',
-     'In Bergen géén retroflex: je hoort de r en de s apart, niet als «sj».'),
- DAG('onsdag','onsdag','woensdag','ONS-dag','WOENS-dakh',''),
- DAG('torsdag','torsdag','donderdag','TORS-dag','DON-der-dakh',''),
- DAG('fredag','fredag','vrijdag','FREE-dag','VRIJ-dakh',''),
- DAG('sondag','søndag','zondag','SÖN-dag','ZON-dakh',''),
+ Object.assign(DAG('mandag','mandag','maandag','MAN-dag','MAAN-dakh',
+     'In gewone spreektaal hoor je vaak «-da» in plaats van «-dag»: MAN-da.'),{deleted:true}),
+ Object.assign(DAG('tirsdag','tirsdag','dinsdag','TIRS-dag','DINS-dakh',
+     'In Bergen géén retroflex: je hoort de r en de s apart, niet als «sj».'),{deleted:true}),
+ Object.assign(DAG('onsdag','onsdag','woensdag','ONS-dag','WOENS-dakh',''),{deleted:true}),
+ Object.assign(DAG('torsdag','torsdag','donderdag','TORS-dag','DON-der-dakh',''),{deleted:true}),
+ Object.assign(DAG('fredag','fredag','vrijdag','FREE-dag','VRIJ-dakh',''),{deleted:true}),
+ Object.assign(DAG('sondag','søndag','zondag','SÖN-dag','ZON-dakh',''),{deleted:true}),
  /* zaterdag staat al in words.js als «lordag» (Side om side, aflevering 3) */
 
 /* ---------- MAANDEN (måneder) ---------- */
@@ -67,7 +67,7 @@ window.TID = [
  TAL('tall_6','seks','zes','seks','zes',''),
  TAL('tall_7','sju','zeven','sjuu','ZEE-ven',
      'Ook «syv» is correct bokmål; «sju» is de gewone spreekvorm.'),
- TAL('tall_8','åtte','acht','OT-te','acht',''),
+ Object.assign(TAL('tall_8','åtte','acht','OT-te','acht',''),{deleted:true}),
  TAL('tall_9','ni','negen','nii','NEE-ghen',''),
  TAL('tall_10','ti','tien','tii','tien',''),
  TAL('tall_11','elleve','elf','EL-ve','elf','De tweede e hoor je nauwelijks: «EL-ve».'),

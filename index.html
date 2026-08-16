@@ -12,9 +12,9 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
-<meta name="application-version" content="v11.11.1">
+<meta name="application-version" content="v11.12.1">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.11.1 (§46) — service-worker cache: sos-v11-14 -->
+<!-- Side om side · v11.12.1 (§48) — service-worker cache: sos-v11-16 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -611,7 +611,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.11.1</span>
+    <span class="vers" id="vers">v11.12.1</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -832,6 +832,177 @@ function bumpDay(field,n){ const k=todayKey(); const d=DAILY[k]||(DAILY[k]={ok:0
   scores=out; save('sos_scores_v6',scores); save('sos_mig_dir_v6',1);
 })();
 
+/* ===================== v11.12 §47 · DE DUBBELS ==========================
+   81 groepen stonden twee (soms drie) keer in de databestanden. De rijkste kaart blijft,
+   de rest kreeg `deleted:true` in zijn eigen databestand — er is niets uit een bestand
+   geknipt, dus terugdraaien is die vlag weghalen. Hieronder staat wie in wie opging.
+   DUPMERGE dient twee doelen:
+     1. de eenmalige verhuis van scores, favorieten, notities, correcties en fluo;
+     2. een blijvend slot: komt er via de synchronisatie of een import tóch nog een
+        eigen kaart met een verdwenen id binnen, dan blijft die uit de poel (zie buildPool).
+   TERUGROLLEN: zet SET.dupmig terug op 0 en zet sos_scores_pre1112_v6 terug. */
+const DUPMERGE = {
+  n_z_det_gjor_vondt_her:["n_z_det_gjor_vondt_her2"],
+  n_z_eg_studerer_medisin:["n_z_eg_studerer_medisin2"],
+  sm_l_gave:["gave"],
+  sm_l_hus:["hus"],
+  n_for_siden:["n_for_siden2"],
+  n_for_eksempel:["n_for_eksempel2"],
+  n_gjore_notater:["n_gjore_notater2"],
+  n_gaa_tur:["n_gaa_tur2"],
+  n_ha_det_travelt:["n_ha_det_travelt2"],
+  n_ha_lyst_til_aa:["n_ha_lyst_til_aa2"],
+  n_ha_raad_til:["n_ha_raad_til2"],
+  n_hver_eneste:["n_hver_eneste2"],
+  n_i_dag:["n_i_dag2"],
+  n_i_gaar:["n_i_gaar2"],
+  n_i_lopet_av:["n_i_lopet_av2"],
+  n_i_morgen2:["n_i_morgen"],
+  n_z_kan_eg_kjope_det:["n_z_kan_eg_kjope_det2","n_z_kan_eg_kjope_det3"],
+  n_kem:["kem"],
+  n_z_kordan_gaar_det:["s_alg1"],
+  n_midt_paa_natten:["n_midt_paa_natten2"],
+  n_om_bord:["n_om_bord2"],
+  n_paa_jobb:["n_paa_jobb2"],
+  n_paa_mandag2:["n_paa_mandag"],
+  n_paa_mandager:["n_paa_mandager2"],
+  n_paa_tilbud2:["n_paa_tilbud"],
+  n_spise_ute:["n_spise_ute2"],
+  n_ta_tid:["n_ta_tid2"],
+  n_takk_for_maten:["n_takk_for_maten2"],
+  n_takk_for_sist:["n_takk_for_sist2"],
+  n_hoyre:["n_til_hoyre"],
+  n_til_og_med2:["n_til_og_med"],
+  n_til_slutt2:["n_til_slutt"],
+  n_venstre:["n_til_venstre"],
+  n_tusen_takk:["n_tusen_takk2"],
+  n_vaer_saa_snill:["n_vaer_saa_snill2"],
+  n_bli_fodt:["n_bli_fodt2"],
+  n_bruke_penger:["n_bruke_penger2"],
+  n_bruke_som:["n_bruke_som2"],
+  n_drive_idrett:["n_drive_idrett2"],
+  n_folge_en_diett:["n_folge_en_diett2"],
+  n_komme:["komme"],
+  n_kunne:["kunne"],
+  sm_l_lese:["lese"],
+  n_ri:["sm_l_ri"],
+  n_sove:["sm_l_sove"],
+  n_sporre_etter_veien:["n_sporre_etter_veien2"],
+  n_stille_sporsmaal2:["n_stille_sporsmaal"],
+  n_ta_av:["n_ta_av2"],
+  n_ta_en_sjanse:["n_ta_en_sjanse2"],
+  n_ville:["ville"],
+  være:["n_vaere"],
+  n_vaere_forelsket_i:["n_vaere_forelsket_i2"],
+  n_vaere_sikker_paa:["n_vaere_sikker_paa2"],
+  n_aatte:["tall_8"],
+  n_bra:["bra"],
+  n_annen:["n_ei_anna","n_en_annen"],
+  n_ha_det_goy:["n_ha_det_goy2"],
+  n_hele_tida:["n_hele_tida2"],
+  n_hon_vil_gjerne_ha:["n_hon_vil_gjerne_ha2"],
+  n_z_hyggelig_aa_hilse_paa_deg:["n_z_hyggelig_aa_hilse_paa_deg2"],
+  n_i_hvert_fall:["n_i_hvert_fall2","n_i_hvert_fall3"],
+  n_z_i_like_maate:["n_z_i_like_maate2"],
+  n_i_rute:["n_i_rute2"],
+  n_i_tillegg:["n_i_tillegg2"],
+  n_i_vaar:["n_i_vaar2"],
+  n_ikkje_lenger:["n_ikkje_lenger2"],
+  n_z_jasaa:["n_z_jasaa2"],
+  n_kjedelig:["sm_l_kjedelig"],
+  n_legge_kortene_paa_bordet:["n_legge_kortene_paa_bordet2"],
+  n_fots_til_fots:["n_til_fots"],
+  n_vaer_saa_god2:["n_vaer_saa_god"],
+  n_bli_kjent:["n_bli_kjent2"],
+  n_finne_fram:["n_finne_fram2"],
+  n_faa:["få"],
+  n_gaa:["sm_l_ga","gå"],
+  n_se_paa_tv2:["n_se_paa_tv"],
+  skulle:["n_skulle"],
+  n_spare_penger:["n_spare_penger2"],
+  n_spille_en_rolle2:["n_spille_en_rolle"],
+  n_ta_en_titt_paa:["n_ta_en_titt_paa2"],
+  n_vaere_enig:["n_vaere_enig2"]
+};
+/* v11.12.1 §48 — tweede ronde: 13 groepen die in ronde 1 door de mazen vielen omdat hun
+   Noorse kop niet lettérlijk gelijk was (de zes weekdagen verschilden enkel in het ♂-teken). */
+const DUPMERGE2 = {
+  n_drive_med:["drive"],
+  n_full_av:["full"],
+  sm_l_polse:["polse"],
+  n_sjokolade:["sm_l_sjokolade"],
+  n_seg:["n_seg_selv"],
+  n_hytte:["sm_l_hytte"],
+  n_hund:["sm_l_hund"],
+  n_mandag:["mandag"],
+  n_tirsdag:["tirsdag"],
+  n_onsdag:["onsdag"],
+  n_torsdag:["torsdag"],
+  n_fredag:["fredag"],
+  n_sondag:["sondag"]
+};
+const DUPOF = {};   /* verdwenen id -> id van de overlevende, beide rondes samen */
+[DUPMERGE,DUPMERGE2].forEach(m=>Object.keys(m).forEach(k=>m[k].forEach(d=>DUPOF[d]=k)));
+
+function migDubbels(MAP,FLAG,BAK){
+  if(SET[FLAG]) return;
+  const OF={}; Object.keys(MAP).forEach(k=>MAP[k].forEach(d=>OF[d]=k));
+  /* 1 · eerst een volledige kopie wegschrijven, in een EIGEN sleutel (niet in sos_set_v6,
+        want die wordt bij élke instelling opnieuw bewaard). */
+  save(BAK, {v:FLAG, ts:Date.now(),
+    scores:scores, fav:[...FAV], notes:NOTES, corr:CORR, fluo:FLUO, user:USER});
+
+  /* 2 · scores: per richting (id|NL, id|NB) samensmelten.
+        De historiek met de MEESTE swipes wint; de ema wordt gewogen naar dat aantal;
+        `first` en `gfirst` worden de vroegste van de groep, `ts` de laatste. */
+  const n=s=>(s&&s.hist)?s.hist.length:0;
+  const seen={};
+  Object.keys(scores).forEach(function(k){
+    const i=k.lastIndexOf('|'); if(i<0) return;
+    const id=k.slice(0,i), suf=k.slice(i);
+    const tgt=OF[id]; if(!tgt) return;
+    const dst=tgt+suf, a=scores[dst], b=scores[k];
+    if(!a){ scores[dst]=b; }
+    else {
+      const win = n(b)>n(a) ? b : a, los = win===a ? b : a;
+      const na=n(win), nb=n(los), tot=na+nb;
+      const out={hist:(win.hist||[]).slice(-8)};
+      if(win.ema!=null&&los.ema!=null&&tot) out.ema=(win.ema*na+los.ema*nb)/tot;
+      else out.ema=(win.ema!=null)?win.ema:los.ema;
+      const mn=(x,y)=>(x&&y)?Math.min(x,y):(x||y);
+      if(mn(win.first,los.first))  out.first=mn(win.first,los.first);
+      if(mn(win.gfirst,los.gfirst))out.gfirst=mn(win.gfirst,los.gfirst);
+      const ts=Math.max(win.ts||0,los.ts||0); if(ts) out.ts=ts;
+      scores[dst]=out;
+    }
+    delete scores[k]; seen[id]=1;
+  });
+
+  /* 3 · favorieten, notities, correcties, fluo — verhuizen mee, niets gaat weg */
+  Object.keys(OF).forEach(function(d){
+    const t=OF[d];
+    if(FAV.has(d)){ FAV.add(t); FAV.delete(d); }
+    if(NOTES[d]){ NOTES[t]=NOTES[t] ? (NOTES[t]+' · '+NOTES[d]) : NOTES[d]; delete NOTES[d]; }
+    if(CORR[d]){  CORR[t]=CORR[t]  ? (CORR[t] +' · '+CORR[d])  : CORR[d];  delete CORR[d]; }
+    if(FLUO[d]){  FLUO[t]=[...new Set([].concat(FLUO[t]||[],FLUO[d]))].sort((a,b)=>a-b); delete FLUO[d]; }
+    /* een eigen (bewerkte) kaart met een verdwenen id gaat mee naar de prullenmand */
+    const u=USER.findIndex(x=>x.id===d); if(u>=0) USER[u].deleted=true;
+  });
+
+  /* 4 · de dagsets: verwijzingen omzetten zodat ☀15 en train vandaag niet breken */
+  const mapIds=a=>[...new Set((a||[]).map(id=>OF[id]||id))];
+  if(SET.train&&SET.train.ids)  SET.train.ids =mapIds(SET.train.ids);
+  if(SET.newday&&SET.newday.ids)SET.newday.ids=mapIds(SET.newday.ids);
+  if(SET.daySkip) Object.keys(SET.daySkip).forEach(function(id){
+    const t=OF[id]; if(t){ SET.daySkip[t]=SET.daySkip[id]; delete SET.daySkip[id]; } });
+
+  save('sos_scores_v6',scores); save('sos_fav_v6',[...FAV]); save('sos_notes_v6',NOTES);
+  save('sos_corr_v6',CORR); save('sos_fluo_v6',FLUO); save('sos_user_v6',USER);
+  SET[FLAG]=1; saveSet();
+}
+migDubbels(DUPMERGE , 'dupmig' , 'sos_scores_pre1112_v6');    /* v11.12   · 81 groepen */
+migDubbels(DUPMERGE2, 'dupmig2', 'sos_scores_pre11121_v6');   /* v11.12.1 · 13 groepen */
+
 /* ===================== SUPABASE SYNC ===================== */
 const SB_URL='https://uhpzabicbhvuxpdszxib.supabase.co';
 const SB_KEY='sb_publishable_wq_Xjq-7qVhmRrnbAsmpGg_rapM_oCb';
@@ -885,7 +1056,7 @@ let ITEMS=[], SOSALL=[];
 function buildPool(){
   const eps=[].concat(window.EP01||[],window.EP02||[],window.EP03||[]);
   SOSALL=eps;
-  ITEMS=[...WORDS,...SENTENCES,...eps,...(window.NILS||[]),...(window.SOMME||[]),...(window.HOME||[]),...(window.TID||[]),...USER].filter(x=>!x.deleted);
+  ITEMS=[...WORDS,...SENTENCES,...eps,...(window.NILS||[]),...(window.SOMME||[]),...(window.HOME||[]),...(window.TID||[]),...USER].filter(x=>!x.deleted&&!DUPOF[x.id]);   /* v11.12 §47 — DUPOF houdt de dubbels blijvend buiten de poel */
 }
 buildPool();
 const EPISODES=[1,2,3,4,5,6,7,8];

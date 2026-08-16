@@ -12,7 +12,7 @@ const Z=(o)=>Object.assign({type:'zin',episodes:[],src:'own'},o);
 window.SENTENCES = [
 
  /* Algemeen */
- Z({id:'s_alg1', labels:['alg'], src:'', bm:{nb:'Hvordan går det?', ph:'vor-DAN gohr deh?'}, nb:'Kordan går det?', nl:'Hoe gaat het?', ph:'kor-DAN gohr deh?'}),
+ Z({id:'s_alg1', deleted:true, labels:['alg'], src:'', bm:{nb:'Hvordan går det?', ph:'vor-DAN gohr deh?'}, nb:'Kordan går det?', nl:'Hoe gaat het?', ph:'kor-DAN gohr deh?'}),
  Z({id:'s_alg2', labels:['alg'], src:'', nb:'Det går fint, takk.', nl:'Het gaat goed, dank je.', ph:'deh gohr fient, tak'}),
  Z({id:'s_alg3', labels:['alg'], src:'', nb:'Kan du hjelpe meg?', nl:'Kan je me helpen?', ph:'kan duu YEL-pe mai?'}),
  Z({id:'s_alg4', labels:['alg'], src:'', bm:{nb:'Jeg forstår ikke helt.', ph:'jai for-STOHR IK-ke helt'}, nb:'Eg forstår ikkje helt.', nl:'Ik snap het niet helemaal.', ph:'eeg for-STOHR IK-kje helt'}),
