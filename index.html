@@ -12,9 +12,9 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
-<meta name="application-version" content="v11.15">
+<meta name="application-version" content="v11.15.1">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.15 (§51) — service-worker cache: sos-v11-19 -->
+<!-- Side om side · v11.15.1 (§52) — service-worker cache: sos-v11-20 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -583,7 +583,13 @@
      §45.4d — enkel de BOVENKANT ligt vast: de kaart begint bovenaan #stage en mag naar onder
      groeien. Wordt ze hoger dan het venster, dan schaalt turnFit() ze terug (transform-origin
      bovenaan) — er wordt nooit gescrold. */
-  .phone.turn .stage{overflow:hidden!important;}
+  /* v11.15.1 §52.1 — DE VEEG NAAST DE KAART. `.card` had `touch-action:pan-y`, maar `#stage`
+     stond op `auto`: begon je veeg in de LEGE zone naast of onder de kaart, dan pakte de browser
+     het gebaar af en kregen we een `pointercancel`. In de beurtstand staat de kaart bovenaan en
+     is de onderste helft van het scherm leeg — net waar je duim landt. Gemeten met echte
+     aanraakgebeurtenissen: veeg op de kaart = scoort, veeg ernaast = niets. `#stage` scrolt in
+     de beurtstand toch niet, dus `none` kost daar niets en maakt §45.4c eindelijk waar. */
+  .phone.turn .stage{overflow:hidden!important;touch-action:none;}
   .phone.turn .stage .scrollcard{width:auto;transform-origin:top center;}
   .phone.turn .stage .scrollcard:not(.focus){display:none;}
   .phone.turn .stage .scrollcard.focus{opacity:1!important;}
@@ -632,6 +638,11 @@
   .phone.land .bigsw.ok{background:var(--ok);}
   .phone.land .bigsw.bad{background:var(--wrong);}
   .phone.land .bigsw.down{transform:scale(.97);filter:brightness(.82);}
+  /* v11.15.1 §52.4 — BLEEK = «hier valt nog iets te onthullen». Zonder play staan de twee
+     knoppen licht zolang de antwoordkolom dicht is; een druk onthult dan in plaats van te
+     scoren. Zodra de kaart open ligt, worden ze gewoon groen en rood en scoren ze weer. */
+  .phone.land .bigsw.pale{opacity:.45;box-shadow:none;}
+  .phone.land .bigsw.pale small{opacity:.75;}
 
   /* §51.3 — de kaart houdt haar breedte uit PORTRAIT. In landscape is de portretbreedte
      precies de korte zijde van het scherm, en dat is daar 100vh; de kaart krijgt dus exact
@@ -660,7 +671,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.15</span>
+    <span class="vers" id="vers">v11.15.1</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -1726,11 +1737,23 @@ $('fgrid').addEventListener('click',e=>{ const pk=e.target.closest('[data-pick]'
 
 /* ---- v11.10 §44.12 · open / dicht van de selectierij ---- */
 $('fpack').addEventListener('click',function(e){ e.stopPropagation(); setCompact(false); });
+/* v11.15.1 §52.2 — DE SELECTIERIJ KLAPTE DICHT BIJ ELKE KEUZE. De test `menublk.contains(target)`
+   werkte niet meer, en niet door een fout in die test: de handler van de chip roept `render()`
+   aan, en die vervangt `srcrow.innerHTML`. Tegen dat de klik hier aankwam, hing de aangeklikte
+   knop niet meer in de pagina (gemeten: `isConnected=false`), dus gaf `contains()` netjes
+   `false` en las §44.12 dit als «een tik ergens anders». De verfijningsrij wérd gebouwd, ze
+   vouwde in hetzelfde ogenblik weg — vandaar «soms klapt hij terug». Dit gold voor élke chip,
+   niet enkel Somme. We onthouden nu in de VANGFASE dat de klik uit het menublok kwam; die
+   vlag overleeft het hertekenen wél. */
+let MBCLICK=false, MBAT=0;
+$('menublk').addEventListener('click',function(){ MBCLICK=true; MBAT=performance.now(); },true);
 document.addEventListener('click',function(e){
+  const inMenu = MBCLICK || $('menublk').contains(e.target);
+  MBCLICK=false;
   /* het zwevende snelheidsmenu sluit bij elke tik erbuiten */
   if(!$('spwrapHost').contains(e.target)) closeSpeed();
   if(!fpackOpen()) return;
-  if($('menublk').contains(e.target)) return;   /* binnen de open rij: gewoon kiezen */
+  if(inMenu) return;                            /* binnen de open rij: gewoon kiezen */
   setCompact(true);
 });
 /* v11.10 §44.9 — de richtingknop: NO? = je raadt het Noors · NL? = je raadt het Nederlands */
@@ -1764,7 +1787,11 @@ let drag=null;
 let topTick=false;
 $('stage').addEventListener('scroll',function(){
   /* v11.10 §44.12 — scrollen in de kaarten klapt de selectierij dicht. */
-  if(fpackOpen()) setCompact(true);
+  /* v11.15.1 §52.2 — maar enkel als JIJ scrolt. Een keuze in de rij roept `render()` aan en
+     zet daarna `stage.scrollTop = 0`; dat is óók een scroll-gebeurtenis, en die klapte de rij
+     dicht op het ogenblik dat de nieuwe verfijningsrij verscheen. Zelfde soort valkuil als
+     §45.7 bij het snelheidsmenu: een scroll die de app zelf veroorzaakt telt niet mee. */
+  if(fpackOpen() && performance.now()-MBAT>400) setCompact(true);
   /* v11.11 §45.7 — HIER stond ook `closeSpeed()`, en dat maakte het snelheidsmenu tijdens de
      lopende autoscroll onbruikbaar: openen pauzeert (§44.7), pauzeren laat de rijen en de
      leadruimte herberekenen, en die herberekening zet zelf een scroll-gebeurtenis op #stage —
@@ -1903,6 +1930,31 @@ $('stage').addEventListener('pointerup',e=>{
   /* v11.11 §45.4b — beurtstand: een tik onthult, waar je ook tikt. Staat de kolom al open,
      dan doet de tik wat §44.6 zegt: pauzeren of verdergaan. Zo blijft allebei bereikbaar,
      ook op stand 100 % (waar er niets vanzelf opengaat). */
+  /* v11.15.1 §52.3 — IN DE BEURTSTAND OP PORTRAIT SCOORT DE TIK. Er zijn daar geen knoppen
+     nodig: het scherm zelf is de knop. **Links = juist, rechts = fout** — dezelfde kant als de
+     veeg (§41.16), zodat de twee bedieningen niet tegen elkaar in werken.
+     - **Zonder play** onthult de EERSTE tik de dichte kolom; pas de tik daarna scoort.
+     - **Met play** onthult de tik niet meer (dat doet de klok op `turnPct`), dus élke tik scoort.
+     - **De fluo-markering blijft** op de antwoordkolom zodra die open ligt (keuze van JHS).
+       «Antwoord weer dicht» (§44.9) vervalt in de beurtstand — in de lijst blijft het gewoon.
+     - Pauzeren gaat voortaan met ▶ en de voortgangsbalk; de tik op het speelveld pauzeert niet
+       meer, want die scoort. Een LANGE druk (§29.8) blijft wel pauzeren en scoort niet.
+     In LANDSCAPE verandert er niets: daar doen de twee grote knoppen het werk (§51). */
+  if(TURN && !LAND){
+    if(held) return;
+    const sc=turnCard(); if(!sc) return;
+    if(!AS.on && turnIsHidden(sc)){ turnSetHide(sc,false); return; }
+    const cell=d.tgt.closest&&d.tgt.closest('.cell.hidecol');
+    if(cell && !turnIsHidden(sc)){
+      const i=+cell.dataset.row, arr=new Set(FLUO[d.id]||[]);
+      arr.has(i)?arr.delete(i):arr.add(i);
+      FLUO[d.id]=[...arr]; if(!FLUO[d.id].length) delete FLUO[d.id];
+      saveFluo(); cell.classList.toggle('fluo'); return;
+    }
+    const bx=$('phone').getBoundingClientRect();
+    turnScore(d.x0 < bx.left+bx.width/2);
+    return;
+  }
   if(TURN && AS.on){
     if(held) return;
     const sc=turnCard();
@@ -2548,6 +2600,7 @@ function turnRestartClock(){ TU.t0=performance.now(); TU.el=0; TU.shown=(turnPct
    draagt de veegverplaatsing en mag daar niet mee botsen. */
 function turnFit(){
   const host=$('lst'), st=$('stage'); if(!host||!st) return;
+  if(typeof landPaintBtns==='function') landPaintBtns();   /* v11.15.1 §52.4 */
   const sc=turnCard();
   [].slice.call(host.children).forEach(function(c){ if(c!==sc&&c.style.transform) c.style.transform=''; });
   if(!sc||!TURN){ if(sc) sc.style.transform=''; return; }
@@ -2701,7 +2754,7 @@ function applyLand(){
     if(on){ if(!TURN) turnToggle(); }
     else if(TURN){ toastn('Beurtstand aan — ze blijft aan na het terugdraaien.'); }
   }
-  landPaint();
+  landPaint(); landPaintBtns();
   if(TURN) turnFit();
 }
 /* §51.4.1 — de klok stilzetten zonder haar te verliezen. Bij het loslaten wordt de pauze
@@ -2716,6 +2769,14 @@ function landClockGo(){
   TU.hold=false; TU.t0=performance.now()-TU.el;
 }
 function landBtn(k){ return $(k==='g'?'bigOk':'bigBad'); }
+/* v11.15.1 §52.4 — de twee knoppen staan BLEEK zolang er nog iets te onthullen valt en er geen
+   play loopt. Een druk onthult dan (in plaats van te scoren); daarna staan ze vol groen en rood.
+   Tijdens de play blijven ze altijd vol: daar onthult de klok (uitdrukkelijke keuze van JHS). */
+function landPale(){ return LAND && !AS.on && turnIsHidden(turnCard()); }
+function landPaintBtns(){
+  const p=landPale();
+  ['g','r'].forEach(function(k){ const el=landBtn(k); if(el) el.classList.toggle('pale',p); });
+}
 function landClear(){
   ['g','r'].forEach(function(k){ if(LB[k]){ LB[k]=false; const el=landBtn(k); if(el) el.classList.remove('down'); } });
   LB.rel=0; landClockGo();
@@ -2740,9 +2801,11 @@ function landUp(k,e,cancel){
   LB.rel=0;
   if(cancel) return;                   /* §51.4.7 — weggegleden vóór het loslaten = annuleren */
   if(sim) return;                      /* §51.4.4 — exact gelijktijdig = geen score */
-  landScore(k==='g');
+  /* §52.4 — staat de knop bleek, dan onthult deze druk enkel; de volgende scoort. */
+  if(landPale()){ turnSetHide(turnCard(),false); landPaintBtns(); return; }
+  turnScore(k==='g');
 }
-function landScore(ok){
+function turnScore(ok){
   const sc=turnCard(); if(!sc) return;
   const id=sc.dataset.sc; if(!id) return;
   if(!(TURN&&AS.on)){
@@ -2760,7 +2823,7 @@ function landScore(ok){
      de kaart nog staat: de vorige score wordt eerst teruggedraaid (historiek, dagteller, de
      ↩✗-stapel én de groen/rode teller van de balk), niet dubbel geboekt.
      §51.4.5 — de kaart blijft daarna gewoon haar volle duur staan; scoren verzet de klok niet. */
-  if(LB.card===sc&&LB.snap) landUndo();
+  if(LB.card===sc&&LB.snap) turnScoreUndo();
   const k=skey(id);
   LB.card=sc;
   LB.snap={k:k, prev:scores[k]?JSON.parse(JSON.stringify(scores[k])):null,
@@ -2768,7 +2831,7 @@ function landScore(ok){
            bad:AS.badLog.length, ok:ok};
   asScore(ok,false,sc);
 }
-function landUndo(){
+function turnScoreUndo(){
   const s=LB.snap; if(!s) return;
   if(s.prev) scores[s.k]=s.prev; else delete scores[s.k];
   save('sos_scores_v6',scores);
