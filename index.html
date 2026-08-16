@@ -12,9 +12,9 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
-<meta name="application-version" content="v11.13">
+<meta name="application-version" content="v11.15">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.13 (§49) — service-worker cache: sos-v11-17 -->
+<!-- Side om side · v11.15 (§51) — service-worker cache: sos-v11-19 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -471,6 +471,8 @@
           opacity:0;transition:opacity .2s;pointer-events:none;z-index:25;}
   .toastn.on{opacity:.95;}
 
+  /* v11.15 §51 — de klasse `.land` wordt door JS gezet (matchMedia), zodat JS en CSS
+     gegarandeerd hetzelfde denken; de media-query blijft enkel voor wat ook zonder JS moet. */
   @media (orientation:landscape){ .phone{max-width:none;} .cmt{display:none;} }
   .hide{display:none!important;}
 
@@ -598,6 +600,53 @@
   .phone.turn.play.eye .stage .scrollcard.focus .cell.hidecol.blur,
   .phone.turn.play.eye .stage .scrollcard.focus .pho.blur{visibility:visible;}
   .phone.turn.play.eye .stage .scrollcard.focus .cell.hidecol.blur::after{content:none;}
+
+  /* ============ v11.15 §51 · DE BEURTSTAND IN LANDSCAPE ============ */
+  /* §51.1 — het speelveld is voortaan altijd een flexrij. In portrait zit er maar één kind in
+     (#stage) en gedraagt alles zich exact als vóór v11.15: dezelfde breedte, dezelfde
+     scrollbalk, dezelfde padding. In landscape komen de twee knoppen ernaast staan. */
+  .stagewrap{flex:1 1 auto;display:flex;min-height:0;min-width:0;}
+  .stagewrap>.stage{flex:1 1 auto;min-width:0;}
+  .bigsw{display:none;}
+
+  /* §51.2 — wat er verdwijnt in landscape. De bovenbalk, de tekstbalk (die hoort bij de
+     autoscroll), de selectierij, de dunne lijn, de lege snelheidsrij en de twee greepjes.
+     `.prow` (▶ · snelheid · ▤ · 🔀 · balk · teller) en `.statrow` blijven staan. */
+  .phone.land .top,
+  .phone.land .playbar, .phone.land #nlwrap,
+  .phone.land .menublk, .phone.land .fsep,
+  .phone.land #speedrow, .phone.land .mgrip, .phone.land .asgrip{display:none!important;}
+  /* het menublok mag in landscape nooit dichtgeklapt staan: `.statrow` zit in dezelfde wikkel */
+  .phone.land .normalbar{max-height:none!important;opacity:1!important;}
+
+  /* §51.3 — de twee grote knoppen. Links GROEN = juist, rechts ROOD = fout, volgens de
+     legende «◀ links vegen = juist · ▶ rechts = fout» van §41.16. Ze vullen de hoogte van
+     het speelveld. `touch-action:none` is nodig omdat de pauze aan pointerdown hangt. */
+  .phone.land .stagewrap{gap:8px;padding:6px 8px 2px;align-items:stretch;}
+  .phone.land .bigsw{display:flex;flex:1 1 0;min-width:52px;align-items:center;justify-content:center;
+        flex-direction:column;gap:3px;border:0;border-radius:16px;color:#fff;font-weight:800;
+        box-shadow:0 6px 14px rgba(20,30,60,.18);cursor:pointer;touch-action:none;
+        user-select:none;-webkit-user-select:none;transition:transform .06s,filter .06s;}
+  .phone.land .bigsw b{font-size:34px;line-height:1;}
+  .phone.land .bigsw small{font-size:11px;letter-spacing:.6px;opacity:.92;}
+  .phone.land .bigsw.ok{background:var(--ok);}
+  .phone.land .bigsw.bad{background:var(--wrong);}
+  .phone.land .bigsw.down{transform:scale(.97);filter:brightness(.82);}
+
+  /* §51.3 — de kaart houdt haar breedte uit PORTRAIT. In landscape is de portretbreedte
+     precies de korte zijde van het scherm, en dat is daar 100vh; de kaart krijgt dus exact
+     dezelfde breedte als rechtop, met de plafondwaarde van `.phone` (430 px) erbij.
+     Bovenaan uitgelijnd, onderaan AFGEKNIPT — geen scrollen, geen verkleinen (keuze van JHS). */
+  .phone.land .stagewrap>.stage{flex:0 0 auto;width:min(430px,100vh);overflow:hidden!important;}
+  .phone.land .stage .scrollcard{transform:none!important;}
+
+  /* §51.7 — de bladen (⚙ 📖 🔍 ＋ …) zijn op portrait getekend; in landscape schermvullend.
+     De overlay staat buiten `.phone`, dus deze regels hangen aan <body>. */
+  body.land .sheet{max-width:none;border-radius:0;height:100%;max-height:100%;
+        padding-top:10px;box-shadow:none;}
+  body.land .sheet .sgrip{display:none;}
+  /* de melding stond onderaan, waar in landscape de knoppenrij zit */
+  .phone.land .toastn{bottom:auto;top:8px;}
 </style>
 </head>
 <body>
@@ -611,11 +660,18 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.13</span>
+    <span class="vers" id="vers">v11.15</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
-  <div class="stage" id="stage"></div>
+  <!-- v11.15 §51.3 — het speelveld: in portrait enkel #stage (ongewijzigd), in landscape
+       links de groene en rechts de rode knop, met de kaart ertussen. De knoppen staan BUITEN
+       #stage, want render() vervangt de hele inhoud daarvan. -->
+  <div class="stagewrap" id="stagewrap">
+    <button class="bigsw ok" id="bigOk" title="juist"><b>✓</b><small>JUIST</small></button>
+    <div class="stage" id="stage"></div>
+    <button class="bigsw bad" id="bigBad" title="fout"><b>✗</b><small>FOUT</small></button>
+  </div>
 
   <div class="pin">
     <!-- v11.5 §38.3 — de autoscroll is geen apart scherm meer. Enkel de tekstbalk hoort nog bij
@@ -797,7 +853,13 @@ if([0,25,50,75,100].indexOf(+SET.turnPct)<0) SET.turnPct=50;
    TU = de klok van de lopende kaart (t0 = starttijd · el = verstreken ms, bevroren bij pauze ·
    shown = is de doelkolom van deze kaart al onthuld?). */
 let TURN=false;
-const TU={t0:0,el:0,shown:false};
+/* v11.15 §51 — `hold` erbij: zolang een van de twee grote landscape-knoppen ingedrukt is,
+   staat de klok stil. De pauze wordt bij het loslaten weggewerkt als een VERSCHUIVING van
+   `t0` (t0 = nu − el), niet als een gat — anders slaat de inhaalbeveiliging van §46.2 aan. */
+const TU={t0:0,el:0,shown:false,hold:false};
+/* v11.15 §51.1 — staat het toestel dwars? Wordt door applyLand() gezet vanuit matchMedia.
+   Staat hier bovenaan om dezelfde reden als TURN: turnFit() en render() lezen hem eerder. */
+let LAND=false;
 /* v11 §27.3: meerdere verfijningsrijen tegelijk — tijdelijk, niet bewaard */
 let subOpen=new Set();
 if(SET.eps===undefined) SET.eps=[];
@@ -1618,8 +1680,17 @@ function openCfg(){
    +[25,50,75,100].map(v=>'<button class="spb'+(v===t?' on':'')+'" data-n="'+v+'">'+v+'</button>').join('')
    +'</div></div>'
    +'<div class="hintbox">☀ <div>Nieuwe woorden komen uit wat je nog nooit gezien hebt; train haalt gekende woorden terug die je het langst niet meer gezien hebt.</div></div>'
+   /* v11.14 §50 — synchronisatie + back-up stonden in openFilter(), drie schermen diep. */
+   +'<div class="manage"><div class="lbl">Synchronisatie (tussen je toestellen)</div>'
+   +'<button class="mbtn" id="mSync">☁️ Nu synchroniseren — <span id="syncStat" style="font-weight:800;color:var(--accent)">'+syncState+'</span></button>'
+   +'<div class="lbl" style="margin-top:12px">Back-up &amp; beheer</div>'
+   +'<button class="mbtn" id="mExport">📤 Exporteer toevoegingen + scores</button>'
+   +'<button class="mbtn" id="mImport">📥 Importeer</button>'
+   +'<button class="mbtn" id="mReset">🗑️ Alle scores wissen…</button></div>'
    +'<div class="actions"><button class="btn cancel" id="c">Sluit</button></div>');
   $('c').onclick=closeSheet;
+  $('mSync').onclick=()=>syncNow();
+  $('mExport').onclick=openExport; $('mImport').onclick=openImport; $('mReset').onclick=openReset;
   function pick(box,fn){ $(box).querySelectorAll('.spb').forEach(function(b){ b.onclick=function(){
     fn(+b.dataset.n); saveSet();
     $(box).querySelectorAll('.spb').forEach(x=>x.classList.remove('on')); b.classList.add('on');
@@ -1720,8 +1791,12 @@ $('stage').addEventListener('pointerdown',e=>{
      onder de kaart: er staat er toch maar één, dus «eender waar» kan enkel die ene bedoelen
      (zoals §42.5 dat voor de autoscroll al deed). */
   if(!card && !(AS.on && AS.cur) && !(TURN && turnCard())) return;
+  /* v11.15 §51.3.2 — in LANDSCAPE scoort een veeg niet meer: dat gaat enkel nog via de twee
+     grote knoppen. `noswipe` legt dat vast bij het neerzetten van de vinger, zodat het niet
+     kan omslaan als het toestel halverwege de beweging draait. Tikken op de kaart zelf
+     (☆ favoriet, ✏️ potlood, fluo, onthullen) blijft wél gewoon werken. */
   drag={card:card,wrap:card?card.closest('.swwrap'):null,id:card?card.dataset.id:null,
-        pid:e.pointerId,captured:false,
+        pid:e.pointerId,captured:false,noswipe:LAND,
         x0:e.clientX,y0:e.clientY,axis:null,dx:0,dy:0,moved:false,tgt:e.target};
   /* v11.5.1 §40.4 — in de autoscroll geldt een veeg ALTIJD voor de kaart die op dat moment
      volledig zichtbaar is (de kaart in focus), net zoals een tik dat al deed (§29.7). De kaart
@@ -1743,6 +1818,9 @@ $('stage').addEventListener('pointerdown',e=>{
 },{passive:true});
 $('stage').addEventListener('pointermove',e=>{
   if(!drag) return; drag.dx=e.clientX-drag.x0; drag.dy=e.clientY-drag.y0;
+  /* v11.15 §51.3.2 — landscape: geen as, geen verplaatsing, geen tint. Wie toch veegt heeft
+     wél bewogen, dus het wordt ook geen tik: er gebeurt gewoon niets. */
+  if(drag.noswipe){ if(Math.abs(drag.dx)>6||Math.abs(drag.dy)>6) drag.moved=true; return; }
   if(!drag.axis){ if(Math.abs(drag.dx)<3&&Math.abs(drag.dy)<3) return;
     drag.axis=(Math.abs(drag.dx)>=Math.abs(drag.dy)*0.7)?'x':'y';
     clearTimeout(AS.holdT); }        /* bewegen = geen lange druk meer */
@@ -1811,7 +1889,9 @@ $('stage').addEventListener('pointerup',e=>{
      ALTIJD: tikken scoort nergens nog, alleen vegen scoort.
      v11.6 §41.21 — één uitzondering in ☀15: een tik op het bolletje van een nog niet gescoord
      item schuift dat item uit de dagset (uitgesteld, niet afgekeurd). */
-  if(d.tgt.closest && d.tgt.closest('.scoreblk')){ asDayDrop(d.id); return; }
+  /* v11.15 §51.6 — UITSTELLEN bestaat niet in landscape (bewust weggelaten door JHS). De tik
+     op het bolletje doet daar dus niets; in portrait blijft §41.21 ongewijzigd. */
+  if(d.tgt.closest && d.tgt.closest('.scoreblk')){ if(!LAND) asDayDrop(d.id); return; }
   /* v11.2 §29.7 · v11.6 §41.8 — een tik op de kaartenzone pauzeert of speelt verder. Zacht:
      het menublok blijft staan zoals het staat. Scoren doet die tik niet meer (§41.20). */
   /* v11.10 §44.12 — staat de selectierij open, dan is de EERSTE tik op de kaarten enkel
@@ -2472,6 +2552,10 @@ function turnFit(){
   [].slice.call(host.children).forEach(function(c){ if(c!==sc&&c.style.transform) c.style.transform=''; });
   if(!sc||!TURN){ if(sc) sc.style.transform=''; return; }
   sc.style.transform='';
+  /* v11.15 §51.3 — in LANDSCAPE wordt er niet geschaald: de kaart staat bovenaan uitgelijnd
+     en wordt onderaan afgeknipt («pech voor hoge kaarten», beslist door JHS). Zo blijven de
+     eerste rijen en de klankregel altijd op dezelfde plaats staan. */
+  if(LAND) return;
   const avail=st.clientHeight-6, h=sc.offsetHeight;
   if(h>avail && avail>24 && h>0) sc.style.transform='scale('+Math.max(.35,avail/h).toFixed(4)+')';
 }
@@ -2515,6 +2599,7 @@ function turnAdvance(){
   if(!nx){ turnRound(); return; }
   if(cur) cur.classList.remove('focus');
   nx.classList.add('focus');
+  LB.card=null; LB.snap=null;      /* v11.15 §51.4.6 — nieuwe kaart, niets meer terug te draaien */
   asRefreshCards();
   turnSyncCur();
   turnSetHide(nx,turnPct()>0);
@@ -2530,6 +2615,7 @@ function turnRound(){
   if(AS.cur) AS.cur.classList.remove('focus');
   AS.cur=null; AS.idx=0;
   AS.nok=0; AS.nbad=0;
+  LB.card=null; LB.snap=null;            /* v11.15 §51.4.6 — nieuwe ronde, niets terug te draaien */
   render();                              /* render() zet zelf de focus op de eerste kaart */
   $('stage').scrollTop=0;
   asRefreshCards(); AS.n=AS.cards.length;
@@ -2542,6 +2628,10 @@ function turnRound(){
    Op stand 100 % valt de kolom dus samen met het wisselen — dat is «nooit vanzelf onthullen»,
    en zo is het ook bedoeld: dan onthul je met een tik. */
 function turnTick(){
+  /* v11.15 §51.4.1 — een ingedrukte landscape-knop zet de klok stil. Omdat de onthulling
+     (`turnReveal`) en de balk (`asBarProgress`) allebei uit dezelfde klok lezen, bevriezen
+     die vanzelf mee: één regel volstaat. */
+  if(TU.hold) return;
   TU.el=performance.now()-TU.t0;
   const per=turnPer(), p=turnPct();
   /* v11.11.1 §46.2 — SCHERM UIT, DAN TERUG. De browser stopt met hertekenen zodra je de app
@@ -2570,11 +2660,142 @@ function turnToggle(){
     if(AS.on && asBlocked()){ asExit(); }
     else if(AS.on){ asApplyLead(); asRefreshCards(); asSetFocus(); asNewSegment(); }
   }
-  asRenderSpeeds(); asPaintPlay(); asDrawBar();
+  asRenderSpeeds(); asPaintPlay(); asDrawBar(); landPaint();
   toastn(TURN?'Beurtstand — één kaart, geen scrollen.':'Lijst.');
 }
+
+/* ================= v11.15 §51 · DE BEURTSTAND IN LANDSCAPE =================
+   Draai je het toestel dwars, dan schakelt de app naar de beurtstand en blijft daar ook na
+   het terugdraaien. De lijst en de autoscroll bestaan niet in landscape; scoren gaat er enkel
+   nog via de twee grote knoppen naast de kaart (links groen = juist, rechts rood = fout).
+   De hele stand hangt aan de klasse `.land`, die HIER gezet wordt op basis van matchMedia —
+   zo lezen CSS en JS gegarandeerd hetzelfde. */
+const LANDMQ=window.matchMedia('(orientation:landscape)');
+/* §51.4.4 — «exact gelijktijdig loslaten» bestaat niet in JS: twee pointerup's komen altijd
+   na elkaar. Alles binnen dit venster geldt als gelijktijdig, en dan wordt er NIET gescoord —
+   veiliger dan willekeurig een van de twee boeken. */
+const LANDSIM=40;
+const LB={g:false,r:false,rel:0,card:null,snap:null};
+
+/* §51.1.3 — de beurtstandknop staat blauw maar op slot zolang het toestel dwars staat.
+   De reshuffle (#btnShuf) blijft gewoon werken; die is ook in de beurtstand zinvol. */
+function landPaint(){
+  const b=$('btnTurn'); if(!b) return;
+  b.disabled=LAND;
+  b.classList.toggle('on',TURN);
+  b.title=LAND?'beurtstand — vast zolang het toestel dwars staat':'beurtstand / lijst';
+}
+function applyLand(){
+  const on=!!LANDMQ.matches;
+  if(on!==LAND){
+    LAND=on;
+    $('phone').classList.toggle('land',on);
+    document.body.classList.toggle('land',on);
+    /* §51.1.4 — draaien pauzeert een lopende play. Anders begin je blind aan een kaart die
+       al half voorbij is. JHS drukt zelf ▶. Zacht, zodat het menu niet opspringt. */
+    if(AS.on&&AS.playing) asPause(true);
+    landClear();                       /* een ingedrukte knop overleeft het draaien niet */
+    /* §51.1.1 — landscape = ALTIJD de beurtstand. §51.1.2 — en dat blijft zo na het
+       terugdraaien; één kort toastje, zodat je niet zonder het te merken je lijststand kwijt
+       bent (renderPin/landPaint zetten #btnTurn dan vanzelf blauw). */
+    if(on){ if(!TURN) turnToggle(); }
+    else if(TURN){ toastn('Beurtstand aan — ze blijft aan na het terugdraaien.'); }
+  }
+  landPaint();
+  if(TURN) turnFit();
+}
+/* §51.4.1 — de klok stilzetten zonder haar te verliezen. Bij het loslaten wordt de pauze
+   weggewerkt als een VERSCHUIVING van t0 (t0 = nu − el), niet als een gat: anders ziet
+   turnTick() een sprong van tientallen seconden en slaat de inhaalbeveiliging van §46.2 aan. */
+function landClockStop(){
+  if(TU.hold||!(TURN&&AS.on&&AS.playing)) return;
+  TU.el=performance.now()-TU.t0; TU.hold=true;
+}
+function landClockGo(){
+  if(!TU.hold) return;
+  TU.hold=false; TU.t0=performance.now()-TU.el;
+}
+function landBtn(k){ return $(k==='g'?'bigOk':'bigBad'); }
+function landClear(){
+  ['g','r'].forEach(function(k){ if(LB[k]){ LB[k]=false; const el=landBtn(k); if(el) el.classList.remove('down'); } });
+  LB.rel=0; landClockGo();
+}
+function landDown(k,e){
+  if(LB[k]) return;
+  LB[k]=true;
+  const el=landBtn(k); el.classList.add('down');
+  try{ el.setPointerCapture(e.pointerId); }catch(_){}
+  landClockStop();                     /* §51.4.1 — indrukken pauzeert, ook de onthulling */
+}
+function landUp(k,e,cancel){
+  if(!LB[k]) return;
+  LB[k]=false;
+  const el=landBtn(k); el.classList.remove('down');
+  try{ el.releasePointerCapture(e.pointerId); }catch(_){}
+  /* §51.4.3 — is de andere knop nog ingedrukt, dan blijft de klok gepauzeerd en doet deze
+     knop niets. De LAATSTE die je loslaat geeft de score. */
+  if(LB.g||LB.r){ if(!cancel) LB.rel=performance.now(); return; }
+  landClockGo();                       /* §51.4.2 — verder op exact dezelfde stand */
+  const sim=!!LB.rel&&(performance.now()-LB.rel)<=LANDSIM;
+  LB.rel=0;
+  if(cancel) return;                   /* §51.4.7 — weggegleden vóór het loslaten = annuleren */
+  if(sim) return;                      /* §51.4.4 — exact gelijktijdig = geen score */
+  landScore(k==='g');
+}
+function landScore(ok){
+  const sc=turnCard(); if(!sc) return;
+  const id=sc.dataset.sc; if(!id) return;
+  if(!(TURN&&AS.on)){
+    /* §51.5 — de handmatige beurtstand: er loopt geen klok, dus een tik scoort én gaat
+       meteen naar de volgende kaart. Anders sta je stil. */
+    scoreItem(id,ok?1:0,false);
+    if(ok) AS.nok++; else AS.nbad++;
+    asTint(sc,ok?1:0,ok?0:1);
+    setTimeout(function(){ asTint(sc,0,0); },380);
+    turnStep(1);
+    asDrawBar(); renderPin();
+    return;
+  }
+  /* §51.4.6 — de LAATSTE score telt. Druk je groen en daarna toch rood, dan geldt rood zolang
+     de kaart nog staat: de vorige score wordt eerst teruggedraaid (historiek, dagteller, de
+     ↩✗-stapel én de groen/rode teller van de balk), niet dubbel geboekt.
+     §51.4.5 — de kaart blijft daarna gewoon haar volle duur staan; scoren verzet de klok niet. */
+  if(LB.card===sc&&LB.snap) landUndo();
+  const k=skey(id);
+  LB.card=sc;
+  LB.snap={k:k, prev:scores[k]?JSON.parse(JSON.stringify(scores[k])):null,
+           day:JSON.parse(JSON.stringify(DAILY[todayKey()]||{ok:0,bad:0,new:0,add:0})),
+           bad:AS.badLog.length, ok:ok};
+  asScore(ok,false,sc);
+}
+function landUndo(){
+  const s=LB.snap; if(!s) return;
+  if(s.prev) scores[s.k]=s.prev; else delete scores[s.k];
+  save('sos_scores_v6',scores);
+  DAILY[todayKey()]=s.day; saveDaily();
+  if(AS.badLog.length>s.bad){ AS.badLog.length=s.bad; asUpdUndo(); }
+  if(s.ok) AS.nok=Math.max(0,AS.nok-1); else AS.nbad=Math.max(0,AS.nbad-1);
+  LB.snap=null; LB.card=null;
+  syncPushSoon();
+}
+/* §51.8 — pointerdown/up/cancel met setPointerCapture, GEEN click: met click krijg je de
+   pauze niet, want die begint bij het indrukken en eindigt bij het loslaten. Of je vinger bij
+   het loslaten nog op de knop stond, meten we zelf: door de vangst blijft de knop het doel,
+   ook als je ernaast loslaat, en dan geldt §51.4.7 (annuleren). */
+['g','r'].forEach(function(k){
+  const el=landBtn(k); if(!el) return;
+  el.addEventListener('pointerdown',function(e){ e.preventDefault(); landDown(k,e); });
+  el.addEventListener('pointerup',function(e){
+    const r=el.getBoundingClientRect();
+    const out=e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom;
+    landUp(k,e,out); });
+  el.addEventListener('pointercancel',function(e){ landUp(k,e,true); });
+});
+if(LANDMQ.addEventListener) LANDMQ.addEventListener('change',function(){ applyLand(); });
+else if(LANDMQ.addListener) LANDMQ.addListener(function(){ applyLand(); });
+
 /* de kaart mag herschalen als het venster van maat verandert (menu open/dicht, draaien) */
-window.addEventListener('resize',function(){ if(TURN) turnFit(); });
+window.addEventListener('resize',function(){ applyLand(); if(TURN) turnFit(); });
 /* v11.6 §41.15 — het greepje onderaan: menublok tonen of verbergen, in beide standen */
 $('mgrip').onclick=function(){ asSetMenu(!MENUON); };
 /* §38.4 · v11.6 §41.25 — het greepje van de tekstbalk staat achter TXTBAR; het blijft
@@ -2736,7 +2957,7 @@ function addChart(data){
 }
 function renderStats(){
   const data=statsData(14);
-  const html='<div class="sthdr"><button class="bk" id="stBack">←</button>📊 Voortgang<button class="gnb" id="stFilter">⚙️ filter &amp; back-up</button></div>'
+  const html='<div class="sthdr"><button class="bk" id="stBack">←</button>📊 Voortgang<button class="gnb" id="stFilter">🔍 filter &amp; weergave</button></div>'
     +'<div class="tiles">'
     +'<div class="tile"><div class="v">🔥 '+streak()+'</div><div class="k">dagen op rij</div></div>'
     +'<div class="tile"><div class="v">'+pct7()+'<small>%</small></div><div class="k">juist (7 dgn)</div></div>'
@@ -2782,19 +3003,12 @@ function openFilter(){
     +frow('missing','❓','Ontbrekende vertaling','NB of NL nog leeg — vraag partner',filters.missing)
     +frow('showAns','👁️','Noors meteen tonen','kaarten niet wazig starten',SET.showAns,'set')
     +'<div class="actions"><button class="btn cancel" id="fclear">Wis filter</button><button class="btn save" id="fapply">Toon resultaten</button></div>'
-    +'<div class="manage"><div class="lbl">Synchronisatie (tussen je toestellen)</div>'
-    +'<button class="mbtn" id="mSync">☁️ Nu synchroniseren — <span id="syncStat" style="font-weight:800;color:var(--accent)">'+syncState+'</span></button>'
-    +'<div class="lbl" style="margin-top:12px">Back-up &amp; beheer</div>'
-    +'<button class="mbtn" id="mExport">📤 Exporteer toevoegingen + scores</button>'
-    +'<button class="mbtn" id="mImport">📥 Importeer</button>'
-    +'<button class="mbtn" id="mReset">🗑️ Alle scores wissen…</button></div>');
-  $('mSync').onclick=()=>syncNow();
+    );
   ov.querySelectorAll('.sw').forEach(s=>s.onclick=function(){ const k=s.dataset.f;
     if(s.dataset.kind==='set'){ SET.showAns=!SET.showAns; saveSet(); s.classList.toggle('on',SET.showAns); }
     else { filters[k]=!filters[k]; s.classList.toggle('on',filters[k]); } });
   $('fclear').onclick=()=>{ filters={own:false,missing:false}; SET.fsel=null; saveSet(); closeSheet(); render(); };
   $('fapply').onclick=()=>{ closeSheet(); render(); };
-  $('mExport').onclick=openExport; $('mImport').onclick=openImport; $('mReset').onclick=openReset;
 }
 /* v11 §27.11 — exportversie 11; `who` zit in de items zelf, import van v10 en lager blijft werken */
 function openExport(){ const data=JSON.stringify({v:11,items:USER,scores:scores,fav:[...FAV],notes:NOTES,corr:CORR,fluo:FLUO,daily:DAILY,gnote:GNOTE});
@@ -2964,6 +3178,9 @@ asSetMenu(true);
 /* v11.10 §44.9 — de bewaarde richting meteen op de knop en op .phone zetten */
 paintDir();
 render();
+/* v11.15 §51.1 — meteen kijken hoe het toestel ligt: start je in landscape, dan sta je
+   onmiddellijk in de beurtstand met de twee knoppen ernaast. */
+applyLand();
 syncPull().then(function(ok){ render(); if(ok!==false) syncPush(); });
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
 </script>

@@ -303,7 +303,7 @@ window.GRAMMAR = [
    {sub:'4. Wat de klankspelling niet toont',
     rule:'Twee dingen die je zelf moet meenemen, omdat geen enkele Nederlandse letter ze weergeeft.',
     ex:[['de keel-r','Bergens spreekt de r achter in de keel uit, zoals het Frans. Zie Bergensk §5.'],['de toon','Noors heeft twee woordmelodieën. Die leer je door te luisteren, niet door te lezen.']],
-    note:'Ook de lengte is een '+b('benadering')+': hij is nagekeken waar de klankspelling in v11.13 veranderde, niet woord voor woord over de hele lijst.'},
+    note:'De lengte klopt overal waar een '+b('dubbele medeklinker')+' volgt (dan is de klinker altijd kort: '+X+'HUG-ge-li'+_+', '+X+'SJUL-ling'+_+'). Vóór een '+b('groep medeklinkers')+' — '+X+'luust'+_+', '+X+'snaart'+_+' — is ze nog niet nagekeken; daar wacht ik op Johanne.'},
  ]},
 
 ];

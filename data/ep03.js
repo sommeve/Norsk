@@ -15,7 +15,7 @@ window.EP03 = [
  Z({id:'e3_07', t:'01:13', nb:'Skål!', nl:'Proost!', ph:'skohl!'}),
  Z({id:'e3_08', t:'01:40', nb:'Jeg har en idé.', nl:'Ik heb een idee.', ph:'jai har en ie-DEH'}),
  Z({id:'e3_09', t:'01:49', nb:'Siden vi ikke kan komme til festen, kan festen komme til oss.', nl:'Omdat we niet naar het feest kunnen, kan het feest naar ons komen.', ph:'SIE-den vie IK-ke kan KOM-me til FES-ten, kan FES-ten KOM-me til oss'}),
- Z({id:'e3_10', t:'01:54', nb:'Flyttefest!', nl:'Verhuisfeest!', ph:'FLUUT-te-fest!'}),
+ Z({id:'e3_10', t:'01:54', nb:'Flyttefest!', nl:'Verhuisfeest!', ph:'FLUT-te-fest!'}),
  Z({id:'e3_11', t:'01:59', nb:'Vi kan ha et gigantisk spisebord her.', nl:'We kunnen hier een gigantische eettafel zetten.', ph:'vie kan ha et gi-GAN-tisk SPIE-se-boor haer'}),
  Z({id:'e3_12', t:'02:03', nb:'Vi kjøper inn skikkelig bra mat.', nl:'We kopen echt goed eten in.', ph:'vie SJEU-per in SJIK-ke-li braa maat'}),
  Z({id:'e3_13', t:'02:11', nb:'Vi må kjøpe flere stoler.', nl:'We moeten meer stoelen kopen.', ph:'vie moh SJEU-pe FLEE-re STOO-ler'}),
