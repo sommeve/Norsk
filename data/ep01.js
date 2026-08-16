@@ -10,7 +10,7 @@
 const Z=(o)=>Object.assign({type:'zin',labels:['sos'],episodes:[1],src:'sos'},o);
 
 window.EP01 = [
- Z({id:'e1_01', t:'00:11', nb:'Er de nye eierne hjemme?', nl:'Zijn de nieuwe eigenaars thuis?', ph:'aer die NUU-e ÆI-er-ne YEM-me?'}),
+ Z({id:'e1_01', t:'00:11', nb:'Er de nye eierne hjemme?', nl:'Zijn de nieuwe eigenaars thuis?', ph:'aer die NUU-e AEI-er-ne YEM-me?'}),
  Z({id:'e1_02', t:'00:34', nb:'Hvor morsomt syns du det var?', nl:'Hoe grappig vond je het?', ph:'vor MO-sjomt suuns duu deh vaar?'}),
  Z({id:'e1_03', t:'00:39', nb:'Jeg syns det var ganske hysterisk.', nl:'Ik vond het best hilarisch.', ph:'jai suuns deh vaar GAN-ske huus-TEE-risk'}),
  Z({id:'e1_04', t:'02:20', nb:'Ha en god dag, da.', nl:'Fijne dag nog.', ph:'ha en goe daag, da'}),
@@ -26,18 +26,18 @@ window.EP01 = [
  Z({id:'e1_14', t:'05:30', nb:'Vi er midt i en sånn flytting.', nl:'We zitten midden in een verhuis.', ph:'vie aer mit ie en son FLUUT-ting'}),
  Z({id:'e1_15', t:'05:36', nb:'Midt i middagen?', nl:'Midden in het avondeten?', ph:'mit ie MID-daa-gn?'}),
  Z({id:'e1_16', t:'05:40', nb:'Hei, Celine. Hyggelig.', nl:'Hoi, Celine. Aangenaam.', ph:'hai, se-LIEN. HUUG-ge-li'}),
- Z({id:'e1_17', t:'06:30', nb:'Har dere barn, eller?', nl:'Hebben jullie kinderen, of?', ph:'har DÈ-re baan, EL-ler?'}),
+ Z({id:'e1_17', t:'06:30', nb:'Har dere barn, eller?', nl:'Hebben jullie kinderen, of?', ph:'har DEE-re baan, EL-ler?'}),
  Z({id:'e1_18', t:'06:37', nb:'Det passer bra.', nl:'Dat komt goed uit.', ph:'deh PAS-ser braa'}),
  Z({id:'e1_19', t:'07:01', nb:'Det er slitsomt å flytte.', nl:'Verhuizen is vermoeiend.', ph:'deh aer SLIT-somt oh FLUUT-te'}),
- Z({id:'e1_20', t:'07:03', nb:'Godt å ta en pause.', nl:'Fijn om een pauze te nemen.', ph:'got oh ta en PÆU-se'}),
+ Z({id:'e1_20', t:'07:03', nb:'Godt å ta en pause.', nl:'Fijn om een pauze te nemen.', ph:'got oh ta en PAEU-se'}),
  Z({id:'e1_21', t:'07:37', nb:'Er det frokost snart?', nl:'Is er straks ontbijt?', ph:'aer deh FROO-kost snaart?'}),
  Z({id:'e1_22', t:'07:42', nb:'Jeg er kjempesulten.', nl:'Ik heb enorme honger.', ph:'jai aer SJEM-pe-sul-tn'}),
  Z({id:'e1_23', t:'09:23', nb:'Vi kommer tilbake senere.', nl:'We komen later terug.', ph:'vie KOM-mer til-BAA-ke SEE-ne-re'}),
- Z({id:'e1_24', t:'09:32', nb:'Hjertelig takk!', nl:'Hartelijk dank!', ph:'YÆR-te-li tak!'}),
+ Z({id:'e1_24', t:'09:32', nb:'Hjertelig takk!', nl:'Hartelijk dank!', ph:'YAER-te-li tak!'}),
  Z({id:'e1_25', t:'09:35', nb:'Bare hyggelig. Ha det!', nl:'Graag gedaan. Dag!', ph:'BAA-re HUUG-ge-li. ha deh!'}),
  Z({id:'e1_26', t:'10:40', nb:'Nå roer vi oss helt ned.', nl:'Nu kalmeren we helemaal.', ph:'noh ROO-er vie oss helt neh'}),
  Z({id:'e1_27', t:'11:49', nb:'Ja. Selvfølgelig!', nl:'Ja. Natuurlijk!', ph:'ja. sel-FEUL-ge-li!'}),
- Z({id:'e1_28', t:'11:53', nb:'Hva heter dere?', nl:'Hoe heten jullie?', ph:'va HEE-ter DÈ-re?'}),
+ Z({id:'e1_28', t:'11:53', nb:'Hva heter dere?', nl:'Hoe heten jullie?', ph:'va HEE-ter DEE-re?'}),
  Z({id:'e1_29', t:'12:01', nb:'Jeg heter Sander.', nl:'Ik heet Sander.', ph:'jai HEE-ter SAN-der'}),
 ];
 })();

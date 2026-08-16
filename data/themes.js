@@ -15,7 +15,7 @@ window.SENTENCES = [
  Z({id:'s_alg1', deleted:true, labels:['alg'], src:'', bm:{nb:'Hvordan går det?', ph:'vor-DAN gohr deh?'}, nb:'Kordan går det?', nl:'Hoe gaat het?', ph:'kor-DAN gohr deh?'}),
  Z({id:'s_alg2', labels:['alg'], src:'', nb:'Det går fint, takk.', nl:'Het gaat goed, dank je.', ph:'deh gohr fient, tak'}),
  Z({id:'s_alg3', labels:['alg'], src:'', nb:'Kan du hjelpe meg?', nl:'Kan je me helpen?', ph:'kan duu YEL-pe mai?'}),
- Z({id:'s_alg4', labels:['alg'], src:'', bm:{nb:'Jeg forstår ikke helt.', ph:'jai for-STOHR IK-ke helt'}, nb:'Eg forstår ikkje helt.', nl:'Ik snap het niet helemaal.', ph:'eeg for-STOHR IK-kje helt'}),
+ Z({id:'s_alg4', labels:['alg'], src:'', bm:{nb:'Jeg forstår ikke helt.', ph:'jai for-STOHR IK-ke helt'}, nb:'Eg forstår ikkje helt.', nl:'Ik snap het niet helemaal.', ph:'eeg for-STOHR I-sje helt'}),
  Z({id:'s_alg5', labels:['alg'], src:'', nb:'Kan du si det en gang til?', nl:'Kan je dat nog een keer zeggen?', ph:'kan duu sie deh en gang til?'}),
 
  /* Slapen */
@@ -25,14 +25,14 @@ window.SENTENCES = [
 
  /* Keuken (zinnen; keuken-woorden staan in words.js) */
  Z({id:'s_kok1', labels:['keuken'], src:'', bm:{nb:'Hva skal vi lage til middag?', ph:'va skal vie LAA-ge til MID-dag?'}, nb:'Ka skal vi lage til middag?', nl:'Wat gaan we maken voor het avondeten?', ph:'ka skal vie LAA-ge til MID-dag?'}),
- Z({id:'s_kok2', labels:['keuken'], src:'', nb:'Maten er ferdig!', nl:'Het eten is klaar!', ph:'MAA-tn aer FÆR-di!'}),
+ Z({id:'s_kok2', labels:['keuken'], src:'', nb:'Maten er ferdig!', nl:'Het eten is klaar!', ph:'MAA-tn aer FAER-di!'}),
  Z({id:'s_kok3', labels:['keuken'], src:'', nb:'Vil du ha en kopp kaffe?', nl:'Wil je een kopje koffie?', ph:'vil duu ha en kop KAF-fe?'}),
 
  /* Kinderen */
  Z({id:'s_kid1', labels:['gezin'], src:'', nb:'Har du gjort leksene dine?', nl:'Heb je je huiswerk gemaakt?', ph:'har duu yoert LEK-se-ne DIE-ne?', pc:'Voor Emma (13) & Lene (11).'}),
  Z({id:'s_kid2', labels:['gezin'], src:'', nb:'Er du sulten?', nl:'Heb je honger?', ph:'aer duu SUL-tn?'}),
  Z({id:'s_kid3', labels:['gezin'], src:'', nb:'Kom, så spiser vi.', nl:'Kom, dan gaan we eten.', ph:'kom, soh SPIE-ser vie'}),
- Z({id:'s_own1', labels:['gezin'], src:'own', nb:'Er Lene fornøyd?', nl:'Is Lene blij?', ph:'aer LEE-ne for-NÖYD?', pc:'Eigen toevoeging.'}),
+ Z({id:'s_own1', labels:['gezin'], src:'own', nb:'Er Lene fornøyd?', nl:'Is Lene blij?', ph:'aer LEE-ne for-NEUYD?', pc:'Eigen toevoeging.'}),
 
  /* Sport / buiten */
  Z({id:'s_spo1', labels:['sport'], src:'', nb:'Skal vi gå en tur i fjellet?', nl:'Zullen we een wandeling in de bergen maken?', ph:'skal vie goh en tuur ie FYEL-le?'}),
@@ -41,17 +41,17 @@ window.SENTENCES = [
  /* Liefde ❤️ — door Claude naar het Noors vertaald */
  Z({id:'s_hart1', labels:['hart'], nb:'Har du lyst til å elske?', nl:'Heb je zin om te vrijen?', ph:'har duu luust til oh EL-ske?'}),
  Z({id:'s_hart2', labels:['hart'], bm:{nb:'Jeg vil holde deg hele natten.', ph:'jai vil HOL-le dai HEE-le NAT-tn'}, nb:'Eg vil holde deg hele natten.', nl:'Ik wil je heel de nacht vasthouden.', ph:'eeg vil HOL-le dai HEE-le NAT-tn'}),
- Z({id:'s_hart3', labels:['hart'], nb:'Du er så deilig varm.', nl:'Je bent zo lekker warm.', ph:'duu aer soh DÆI-li varm'}),
+ Z({id:'s_hart3', labels:['hart'], nb:'Du er så deilig varm.', nl:'Je bent zo lekker warm.', ph:'duu aer soh DAEI-li varm'}),
  Z({id:'s_hart4', labels:['hart'], nb:'Du er kjempemyk.', nl:'Je bent superzacht.', ph:'duu aer SJEM-pe-muuk'}),
  Z({id:'s_hart5', labels:['hart'], bm:{nb:'Jeg er helt gal etter leppene dine.', ph:'jai aer helt gaal ET-ter LEP-pe-ne DIE-ne'}, nb:'Eg er helt gal etter leppene dine.', nl:'Ik ben gek op je lippen.', ph:'eeg aer helt gaal ET-ter LEP-pe-ne DIE-ne'}),
  Z({id:'s_hart6', labels:['hart'], nb:'Du har kjempemyke lepper.', nl:'Je hebt superzachte lippen.', ph:'duu har SJEM-pe-muu-ke LEP-per'}),
  Z({id:'s_hart7', labels:['hart'], bm:{nb:'Jeg setter på litt avslappende musikk.', ph:'jai SET-ter poh lit AAV-slap-pen-de muu-SIK'}, nb:'Eg setter på litt avslappende musikk.', nl:'Ik zal wat rustgevende muziek opzetten.', ph:'eeg SET-ter poh lit AAV-slap-pen-de muu-SIK'}),
- Z({id:'s_hart8', labels:['hart'], bm:{nb:'Får jeg gi deg et lite kyss?', ph:'fohr jai jie dai et LIE-te chuus?'}, nb:'Får eg gi deg et lite kyss?', nl:'Mag ik je een kusje geven?', ph:'fohr eeg jie dai et LIE-te chuus?'}),
+ Z({id:'s_hart8', labels:['hart'], bm:{nb:'Får jeg gi deg et lite kyss?', ph:'fohr jai jie dai et LIE-te sjuus?'}, nb:'Får eg gi deg et lite kyss?', nl:'Mag ik je een kusje geven?', ph:'fohr eeg jie dai et LIE-te sjuus?'}),
  Z({id:'s_hart9', labels:['hart'], nb:'Du har en nydelig rumpe.', nl:'Je hebt een prachtig achterwerk.', ph:'duu har en NUU-de-li RUM-pe'}),
  Z({id:'s_hart10', labels:['hart'], bm:{nb:'Får jeg massere ryggen din?', ph:'fohr jai ma-SEE-re RUUG-gn dien?'}, nb:'Får eg massere ryggen din?', nl:'Mag ik je rug masseren?', ph:'fohr eeg ma-SEE-re RUUG-gn dien?', phNL:'makh ik jə rukh ma-SEE-rən?',
     pc:'Andere lichaamsdelen: brystene (borsten) · rumpa (billen) · beina (benen) · lårene (dijen) · nakken (nek).'}),
  Z({id:'s_hart11', labels:['hart'], bm:{nb:'Får jeg skjemme deg litt bort?', ph:'fohr jai SJEM-me dai lit boort?'}, nb:'Får eg skjemme deg litt bort?', nl:'Mag ik je wat verwennen?', ph:'fohr eeg SJEM-me dai lit boort?', phNL:'makh ik jə wat vər-WEN-nən?'}),
- Z({id:'s_hart12', labels:['hart'], bm:{nb:'Hvor vil du bli kjælt?', ph:'vor vil duu blie chelt?'}, nb:'Kor vil du bli kjælt?', nl:'Waar wil je verwend worden?', ph:'kor vil duu blie chelt?', phNL:'waar wil jə vər-WENT WOR-dən?'}),
+ Z({id:'s_hart12', labels:['hart'], bm:{nb:'Hvor vil du bli kjælt?', ph:'vor vil duu blie sjelt?'}, nb:'Kor vil du bli kjælt?', nl:'Waar wil je verwend worden?', ph:'kor vil duu blie sjelt?', phNL:'waar wil jə vər-WENT WOR-dən?'}),
 
 ];
 

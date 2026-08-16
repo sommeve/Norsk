@@ -76,10 +76,10 @@ window.TID = [
  TAL('tall_14','fjorten','veertien','FJOR-ten','VEER-tien',''),
  TAL('tall_15','femten','vijftien','FEM-ten','VIJF-tien',''),
  TAL('tall_16','seksten','zestien','SEIS-ten','ZES-tien','Let op: de k hoor je niet — «SEIS-ten».'),
- TAL('tall_17','sytten','zeventien','SÖT-ten','ZEE-ven-tien',''),
+ TAL('tall_17','sytten','zeventien','SEUT-ten','ZEE-ven-tien',''),
  TAL('tall_18','atten','achttien','AT-ten','ACHT-tien',''),
  TAL('tall_19','nitten','negentien','NIT-ten','NEE-ghen-tien',''),
- TAL('tall_20','tjue','twintig','KJUU-e','TWIN-tikh',
-     'Ook «tyve» bestaat, maar «tjue» is vandaag de gewone vorm. Of de tj- in Bergen als «sj» klinkt: tbc — voorleggen aan Johanne.')
+ TAL('tall_20','tjue','twintig','SJUU-e','TWIN-tikh',
+     'Ook «tyve» bestaat, maar «tjue» is vandaag de gewone vorm. De tj- staat hier als «sj», net als de kj- (§49); of dat in Bergen ook écht zo klinkt: tbc — voorleggen aan Johanne.')
 ];
 })();

@@ -271,7 +271,7 @@ window.GRAMMAR = [
    {sub:'6. Ikkje in plaats van ikke',
     rule:'Johanne zegt '+b('ikkje')+', niet "ikke". Zo staat het ook op de kaarten; het bokmål "ikke" komt op de BM-regel.',
     ex:[['Eg vet ikkje.','Ik weet het niet.'],['Det går ikkje.','Dat gaat niet.']],
-    note:''+b('kj')+' blijft '+b('kj')+': '+b('kjøtt')+' klinkt niet als "sjøtt". Die sj-uitspraak hoor je bij jongeren elders, maar niet in het Bergens dat thuis gesproken wordt.'},
+    note:'Je schrijft '+b('ikkje')+', maar je zegt '+X+'I-sje'+_+' — de '+b('k')+' hoor je niet. Johanne bevestigde dat (2026-08-16). Dat geldt voor de hele '+b('kj')+'-familie: '+b('kjøtt')+', '+b('kjøre')+', '+b('kjøpe')+'. Zie de sectie '+b('Uitspraak')+'.'},
    {sub:'7. Ikkje plakt vast aan het werkwoord',
     rule:'In gewone spreektaal smelt '+b('ikkje')+' samen met het werkwoord ervoor tot één woord met een apostrof. Dit hoor je de hele dag door.',
     ex:[["vi'kje",'wil niet (vil ikkje)'],["va'kje",'was niet (var ikkje)'],["gid'kje",'heb geen zin (gidder ikkje)'],["kan'kje",'kan niet (kan ikkje)']],
@@ -284,6 +284,26 @@ window.GRAMMAR = [
     rule:'Johanne gaf een lijst woorden door die in Bergen dagelijks vallen maar die een Oslo-Noor niet zou zeggen. Ze staan in de app onder de bron '+b('Somme')+'.',
     ex:[['boss · bosspann','afval · vuilnisbak (søppel · søppelkasse)'],['smau','steegje (smal gate)'],['pottemone','portefeuille (lommebok)'],['hallaien','hoi! (hallo/hei)'],['hellsike(s)','waanzinnig, ongelooflijk (vanvittig/utrolig)']],
     note:b('hellsike')+' is een verzachte vloek (van "helvete") — herkennen is nuttig, zelf gebruiken beter niet waar de kinderen bij zijn.'},
+ ]},
+
+ /* v11.13 §49 — de klankspelling: één sleutel, zoals een Nederlandstalige leest. */
+ {id:'uitspraak', title:'Uitspraak (klankspelling)', blocks:[
+   {sub:'1. Hoe je de klankspelling leest',
+    rule:'De grijze regel onder een woord is '+b('geen Noorse spelling')+' — het is een hulpje dat je gewoon '+b('als Nederlands')+' voorleest. Drie afspraken en je kunt hem lezen.',
+    ex:[['HOOFDLETTERS','de lettergreep met de klemtoon: '+X+'SJEU-le-skaap'+_],['dubbele klinker = lang','duu (du) · maat (mat) · tegenover: sint, femm'],['koppelteken = lettergreep','a-LEE-ne, MEE-ning-en']],
+    note:'De Noorse '+b('spelling')+' verandert hier niets van: je schrijft nog altijd '+b('kjøleskap')+' en '+b('ikkje')+'. De klankspelling zegt alleen hoe het klinkt.'},
+   {sub:'2. De klanktabel',
+    rule:'Vijf Noorse letters bestaan niet in het Nederlands. Ze staan in de klankspelling altijd zo:',
+    ex:[['æ  →  '+X+'ae'+_,'være → '+X+'VAE-re'+_+' · her → '+X+'haer'+_],['ø  →  '+X+'eu'+_,'møte → '+X+'MEU-te'+_+' · kjøpe → '+X+'SJEU-pe'+_],['y  →  '+X+'u'+_,'syng → '+X+'sung'+_+' · myk → '+X+'MUUK'+_],['å  →  '+X+'oh'+_,'på → '+X+'poh'+_+' · går → '+X+'gohr'+_],['øy →  '+X+'euy'+_,'høyre → '+X+'HEUY-re'+_+' · gøy → '+X+'GEUY'+_],['ei →  '+X+'aei'+_,'veien → '+X+'VAEI-en'+_+' · deg → '+X+'daei'+_]],
+    note:'Vroeger stonden dezelfde klanken door elkaar als '+X+'Æ/È'+_+', '+X+'Ö'+_+', '+X+'Ü'+_+' en '+X+'CH'+_+'. Sinds v11.13 is dat overal gelijkgetrokken; je vindt die tekens niet meer terug.'},
+   {sub:'3. De kj-klank: altijd sj',
+    rule:''+b('kj')+' en '+b('tj')+' klinken in Bergen als '+b('sj')+' — en de '+b('k')+' hoor je niet. Johanne bevestigde het (2026-08-16): '+b('ikkje')+' klinkt als '+X+'I-sje'+_+', zonder hoorbare k.',
+    ex:[['ikkje → '+X+'I-sje'+_,'niet'],['kjøre → '+X+'SJEU-re'+_,'rijden'],['kjøleskap → '+X+'SJEU-le-skaap'+_,'koelkast'],['kjenne → '+X+'SJEN-ne'+_,'kennen'],["vi'kje · kan'kje → "+X+"VI-sje · KAN-sje"+_,'wil niet · kan niet']],
+    note:'De Noorse sj zit '+b('iets scherper')+' dan de Nederlandse sj — een tikje richting de Duitse ch van '+b('ich')+'. Eén keer weten volstaat; op de kaarten staat overal gewoon '+X+'sj'+_+'. '+b('tjue')+' (20) staat ook als '+X+'SJUU-e'+_+', maar dat is nog '+b('(tbc)')+'.'},
+   {sub:'4. Wat de klankspelling niet toont',
+    rule:'Twee dingen die je zelf moet meenemen, omdat geen enkele Nederlandse letter ze weergeeft.',
+    ex:[['de keel-r','Bergens spreekt de r achter in de keel uit, zoals het Frans. Zie Bergensk §5.'],['de toon','Noors heeft twee woordmelodieën. Die leer je door te luisteren, niet door te lezen.']],
+    note:'Ook de lengte is een '+b('benadering')+': hij is nagekeken waar de klankspelling in v11.13 veranderde, niet woord voor woord over de hele lijst.'},
  ]},
 
 ];
