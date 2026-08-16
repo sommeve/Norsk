@@ -1,0 +1,30 @@
+# ============================================================
+# INBOX — snelle rijstrook om content toe te voegen buiten de app
+# ------------------------------------------------------------
+# Typ hier gewoon woorden/zinnen die je wil bijleren. Bij de
+# volgende build lees + vertaal ik dit, zet ik het in de app
+# (met klankspelling + vervoegingen) en maak ik deze txt leeg.
+#
+# FORMAAT (plat, met pipe "|"):
+#   Onder een sectiekop staat het label/thema.
+#   -- NB -- = je typt Noors,  -- NL -- = je typt Nederlands.
+#   Eén kant volstaat; de rest vul ik aan.
+#   Woord | (optionele extra info)     of    hele zin
+# ============================================================
+
+== WOORDEN ==
+-- NB --
+# bv:  kjærlighet | liefde
+
+-- NL --
+# bv:  wortel
+
+== KEUKEN ==
+-- NL --
+# bv:  pollepel
+
+== LIEFDE ==
+-- NB --
+# bv:  Jeg savner deg.
+
+# (voeg zelf secties toe: == SPORT ==, == KINDEREN ==, ... )
