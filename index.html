@@ -640,8 +640,12 @@
      onthullen valt staan ze BLEEK en onthult een druk in plaats van te scoren.
      De tik op het speelveld van §52.3 blijft er gewoon naast bestaan: een druk op de knop
      bereikt `#stage` niet, dus er wordt nooit dubbel gescoord. */
+  /* v11.18 §55.4 — «turn mode: make the green/red buttons double» (JHS). «Dubbel» = enkel de
+     HOOGTE en enkel in PORTRAIT: 96 × 120 in plaats van 96 × 60. In landscape blijven ze
+     ongewijzigd («in landscape zijn ze goed»); die regels staan in het §51.3-blok hieronder.
+     Omdat §53.2 portrait en landscape al gesplitst had, is dit precies één waarde. */
   .phone.turn:not(.land) .bigsw{display:flex;position:absolute;bottom:8px;z-index:6;
-        width:96px;height:60px;align-items:center;justify-content:center;flex-direction:column;gap:1px;
+        width:96px;height:120px;align-items:center;justify-content:center;flex-direction:column;gap:1px;
         border:0;border-radius:16px;color:#fff;font-weight:800;cursor:pointer;touch-action:none;
         user-select:none;-webkit-user-select:none;opacity:.55;
         box-shadow:0 4px 12px rgba(20,30,60,.16);transition:transform .06s,filter .06s,opacity .12s;}
@@ -707,6 +711,48 @@
   body.land .sheet .sgrip{display:none;}
   /* de melding stond onderaan, waar in landscape de knoppenrij zit */
   .phone.land .toastn{bottom:auto;top:8px;}
+
+  /* ============ v11.18 §55.2 · RIJ 1 IN LANDSCAPE ============ */
+  /* JHS: «the 2nd row (with the config,...) is not visible in landscape mode, except: the BO?
+     and the BM button move to the 1st row (only in landscape) to the right of the progress
+     bar». `#btnDir` en `#btnBM` worden door `landRow1()` FYSIEK verplaatst naar `.prow` en bij
+     het terugdraaien even fysiek teruggezet in `.statrow`. Verplaatsen in plaats van kopiëren:
+     zo blijft er één knop met één id, en blijven alle handlers en al het inkleuren
+     (`renderPin`, `btnDir.onclick`, `btnBM.onclick`) ongewijzigd werken. */
+  #btnFull{display:none;}
+  .phone.land .prow #btnFull{display:inline-flex;}
+  /* het schermvullende selectiepaneel — «shows the full selection menu of colored buttons and
+     sos/nils/... in full height, until i click that button again». Het paneel bevat niet zijn
+     eigen kopie: `fullMove()` verhuist `#fgrid`, `#srcrow` en `#subrows` hierheen en daarna
+     weer terug naar `#menublk`. Eén waarheid, geen tweede stel knoppen om bij te houden. */
+  .fullsel{display:none;position:absolute;inset:0;z-index:40;background:var(--pg);
+        padding:8px;overflow:auto;overscroll-behavior:contain;}
+  .fullsel.on{display:block;}
+  /* het paneel dekt het hele toestel af, MAAR niet de knop waarmee je het weer sluit
+     («until i click that button again»). Rij 1 en rij 2 komen daarom boven het paneel te
+     liggen zolang het open staat; `fullOpen()` zet de onderrand van het paneel er net boven. */
+  .phone.fullon .pin{position:relative;z-index:41;}
+  .fullsel .fgrid,.fullsel .srcrow{margin-bottom:6px;}
+
+  /* ============ v11.18 §55.3 · HET EINDE VAN DE REEKS ============ */
+  /* JHS: «when i am at the end, the last card remains there eternally which is not good».
+     Het eindscherm VERVANGT de kaart, dus het staat BINNEN `#stage` (keuze 3 van C5.5) en niet
+     als laag erboven. `#lst` en de twee opvulblokken van de autoscroll gaan dicht. */
+  .phone.fin #lst,.phone.fin #astop,.phone.fin #asbot,.phone.fin .none{display:none!important;}
+  /* er is geen kaart meer, dus er valt niets meer te scoren: de groene en de rode knop gaan
+     mee weg. Ze doen op het eindscherm toch niets (`turnCard()` is dan leeg) en zouden enkel
+     de indruk wekken dat er nog iets te beoordelen valt. */
+  .phone.fin .bigsw{display:none!important;}
+  /* #stage wordt een kolom-flex zolang het eindscherm er staat: `min-height:100%` op het kind
+     zou een definitieve hoogte van de ouder vragen die er in een flexkolom niet is. */
+  .phone.fin .stage{display:flex;flex-direction:column;overflow:hidden!important;}
+  .finish{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+        gap:10px;padding:24px 18px;text-align:center;cursor:pointer;
+        user-select:none;-webkit-user-select:none;}
+  .finish b{font-size:26px;font-weight:900;color:var(--accent);line-height:1.15;}
+  .finish span{font-size:15px;font-weight:700;color:var(--muted);line-height:1.35;}
+  .phone.land .finish b{font-size:22px;}
+  .phone.land .finish span{font-size:13.5px;}
 </style>
 </head>
 <body>
@@ -720,7 +766,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.17</span>
+    <span class="vers" id="vers">v11.18</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -766,13 +812,16 @@
         </div>
         <!-- v11.7 §42.7 — scrollpositie / totaal in de selectie, náást de balk -->
         <span class="pcnt" id="pcnt"></span>
+        <!-- v11.18 §55.2 — enkel in landscape zichtbaar: het schermvullende selectiemenu.
+             #btnDir en #btnBM schuiven er door landRow1() vóór, na de teller. -->
+        <button class="abtn" id="btnFull" title="volledig selectiemenu">☰</button>
       </div>
     </div>
     <div class="normalbar" id="normalbar">
       <!-- v11.6 §41.17 — rij 1: acht knoppen, ⇈ vooraan recht onder ▶; ◀▶ staat bovenaan -->
       <!-- v11.10 §44.5/§44.9 — ⇈ is weg (▶ volstaat), 🔀 staat in de speelrij,
            NO?/NL? komt erbij, links van BM. Zeven knoppen van 38×38. -->
-      <div class="statrow">
+      <div class="statrow" id="statrow">
         <!-- v11.11 §45.5 — getekende zwart-witte iconen i.p.v. ⚙ 📖 👁 🔍 -->
         <button class="abtn cog" id="btnCfg" title="instellingen"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.1"/><circle cx="12" cy="12" r="7.3"/><path d="M12 2.7v2M12 19.3v2M2.7 12h2M19.3 12h2M5.4 5.4l1.4 1.4M17.2 17.2l1.4 1.4M18.6 5.4l-1.4 1.4M6.8 17.2l-1.4 1.4"/></svg></button>
         <button class="abtn" id="btnGram" title="grammatica"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.6C10.3 5.3 8.2 4.7 5 4.7v12.7c3.2 0 5.3.6 7 1.9 1.7-1.3 3.8-1.9 7-1.9V4.7c-3.2 0-5.3.6-7 1.9z"/><path d="M12 6.6v12.7"/></svg></button>
@@ -801,6 +850,9 @@
       </div>
     </div>
   </div>
+  <!-- v11.18 §55.2 — het schermvullende selectiepaneel (enkel landscape). Het is LEEG:
+       fullMove() verhuist #fgrid, #srcrow en #subrows hierheen en daarna weer terug. -->
+  <div class="fullsel" id="fullsel"><div id="fullselin"></div></div>
   <!-- v11.6 §41.15 — het enige greepje dat overblijft: menublok tonen / verbergen -->
   <div class="mgrip" id="mgrip" title="menu tonen / verbergen"><i></i></div>
   <div class="toastn" id="toastn"></div>
@@ -1594,6 +1646,10 @@ function buildDeck(){
 
 /* ===================== RENDER ===================== */
 function render(){
+  /* v11.18 §55.3 — het eindscherm staat BINNEN #stage, en renderList() vervangt daar de hele
+     inhoud. Eén regel hier zorgt dat het eindscherm vanzelf verdwijnt zodra er opnieuw
+     getekend wordt (andere selectie, schudden, import, …) en de vlag nooit blijft hangen. */
+  if(typeof finClear==='function') finClear();
   if(mode==='voc') renderList();
   else if(mode==='gram') renderGram();
   else if(mode==='stats') renderStats();
@@ -1811,6 +1867,9 @@ function onCtl(a){
 }
 $('btnGram').onclick=()=>onCtl('gram');
 $('btnShuf').onclick=()=>onCtl('shuf');
+/* v11.18 §55.2 — uiterst rechts in rij 1 (enkel landscape): het volledige selectiemenu
+   schermvullend open, en bij een tweede tik weer dicht. */
+$('btnFull').onclick=function(){ if(typeof fullToggle==='function') fullToggle(); };
 $('btnBlur').onclick=()=>{ SET.showAns=!SET.showAns; revealed.clear(); hidden.clear(); saveSet();
   /* v11.5 §38.3 — de aparte 👁 van de speelbalk is weg; deze knop stuurt nu ook de autoscroll aan */
   if(AS.on){ AS.eye=SET.showAns; $('phone').classList.toggle('eye',AS.eye); }
@@ -2012,7 +2071,15 @@ $('stage').addEventListener('pointermove',e=>{
   if(!drag) return; drag.dx=e.clientX-drag.x0; drag.dy=e.clientY-drag.y0;
   /* v11.15 §51.3.2 — landscape: geen as, geen verplaatsing, geen tint. Wie toch veegt heeft
      wél bewogen, dus het wordt ook geen tik: er gebeurt gewoon niets. */
-  if(drag.noswipe){ if(Math.abs(drag.dx)>6||Math.abs(drag.dy)>6) drag.moved=true; return; }
+  if(drag.noswipe){
+    if(Math.abs(drag.dx)>6||Math.abs(drag.dy)>6) drag.moved=true;
+    /* v11.18 §55.1 — de veeg SCOORT nog altijd niet, maar ze BLADERT wel. De as wordt hier
+       apart bijgehouden in `drag.flip` en NIET in `drag.axis`: `drag.axis==='x'` is precies
+       de tak in pointerup die scoort, en daar mag landscape nooit in terechtkomen.
+       Er wordt niets verplaatst en niets getint — enkel de richting onthouden. */
+    if(!drag.flip && (Math.abs(drag.dx)>=3||Math.abs(drag.dy)>=3))
+      drag.flip=(Math.abs(drag.dx)>=Math.abs(drag.dy)*0.7)?'x':'y';
+    return; }
   if(!drag.axis){ if(Math.abs(drag.dx)<3&&Math.abs(drag.dy)<3) return;
     drag.axis=(Math.abs(drag.dx)>=Math.abs(drag.dy)*0.7)?'x':'y';
     clearTimeout(AS.holdT); }        /* bewegen = geen lange druk meer */
@@ -2036,6 +2103,13 @@ $('stage').addEventListener('pointerup',e=>{
   const held=asRelease();                                  /* §29.8 — lange druk loslaten = verder */
   const resetTint=()=>{ if(d.swrap) d.swrap.querySelectorAll('.swtint').forEach(x=>x.style.opacity=0);
                         if(d.wrap&&d.wrap!==d.swrap) d.wrap.querySelectorAll('.swtint').forEach(x=>x.style.opacity=0); };
+  /* v11.18 §55.1 — LANDSCAPE: een veeg over de kaart BLADERT. Naar links = de volgende kaart,
+     naar rechts = de vorige, als een blad omslaan. Ze scoort nooit; de twee grote knoppen
+     blijven de enige manier om in landscape te scoren (§51.3.2). Dezelfde drempel als de
+     scorende veeg (THRESH), zodat een korte beweging nog altijd een tik blijft. */
+  if(d.noswipe){
+    if(d.flip==='x' && Math.abs(d.dx)>THRESH){ resetTint(); turnGo(d.dx<0?1:-1); return; }
+  }
   if(d.axis==='x'){
     const pass=Math.abs(d.dx)>THRESH, val=d.dx<0?1:0;      /* links = juist, rechts = fout */
     d.scard.style.transition='transform .16s ease'; d.scard.style.transform='translateX(0)';
@@ -2473,10 +2547,11 @@ function asTick(){
   const k=(performance.now()-AS.t0)/(AS.dur*1000);
   st.scrollTop=AS.s0+AS.d*k;                    /* geen clamp: een gemist frame springt bij, de tijd klopt */
   if(st.scrollTop+st.clientHeight>=st.scrollHeight-2){
-    if(shown>=deck.length){                     /* v11.4 §34.3 — einde: opnieuw schudden en van voor af aan */
-      /* vangnet: bij een heel kort lijstje zou het einde elk frame opnieuw geraakt worden */
-      if(performance.now()-AS.roundAt>500){ asRound(); }
-      AS.raf=requestAnimationFrame(asTick);
+    if(shown>=deck.length){
+      /* v11.18 §55.3 — hier stond `asRound()` (v11.4 §34.3: automatisch opnieuw schudden).
+         Nu komt het eindscherm; `finShow()` pauzeert zelf, dus er wordt geen nieuw frame meer
+         gevraagd. `asRound()` blijft bestaan maar wordt niet meer aangeroepen. */
+      finShow();
       return;
     } else appendMore();
   }
@@ -2802,7 +2877,8 @@ function turnStep(dir){
   if(!cur) return turnFocus();
   let nx=(dir<0?cur.previousElementSibling:cur.nextElementSibling);
   if(!nx && dir>0 && shown<deck.length){ appendMore(); nx=cur.nextElementSibling; }
-  if(!nx) return;
+  /* v11.18 §55.3 — voorbij de laatste kaart blijft die niet meer eeuwig staan */
+  if(!nx){ if(dir>0) finShow(); return; }
   cur.classList.remove('focus'); nx.classList.add('focus');
   /* V4 (JHS 2026-08-16): meteen de volgende kaart, met de antwoordkolom weer dicht */
   turnSetHide(nx,true);
@@ -2814,7 +2890,10 @@ function turnAdvance(){
   const cur=turnCard();
   let nx=cur?cur.nextElementSibling:host.firstElementChild;
   if(!nx && shown<deck.length){ appendMore(); asRefreshCards(); nx=cur?cur.nextElementSibling:host.firstElementChild; }
-  if(!nx){ turnRound(); return; }
+  /* v11.18 §55.3 — hier stond `turnRound()` (automatisch opnieuw schudden). JHS wil eerst het
+     eindscherm zien en zelf beslissen; `turnRound()` blijft bestaan maar wordt niet meer
+     aangeroepen, zodat §45.1 terugrolbaar blijft. */
+  if(!nx){ finShow(); return; }
   if(cur) cur.classList.remove('focus');
   nx.classList.add('focus');
   LB.card=null; LB.snap=null;      /* v11.15 §51.4.6 — nieuwe kaart, niets meer terug te draaien */
@@ -2841,6 +2920,86 @@ function turnRound(){
   turnSetHide(turnCard(),turnPct()>0);
   turnRestartClock(); asDrawBar();
 }
+/* ============ v11.18 §55.1 · IN LANDSCAPE BLADERT EEN VEEG ============
+   JHS: «if i swipe on a card, then i can go back or forward to a previous/next card — so no
+   bad/good swipe then — (i sometimes want to see what i did wrong)». Naar LINKS vegen = de
+   VOLGENDE kaart, naar rechts de vorige, als een blad omslaan (antwoord 1 van C5.5).
+   Scoren blijft in landscape uitsluitend bij de twee grote knoppen (§51.3.2 is niet geraakt).
+   `LB.card`/`LB.snap` worden gewist bij élke sprong: anders zou een score op de nieuwe kaart
+   de score van de vorige terugdraaien (§51.4.6).
+   Terugbladeren ONTHULT de kaart — dat is precies waarom JHS het vroeg («see what i did
+   wrong»); vooruitbladeren doet de antwoordkolom weer dicht, net als turnStep/turnAdvance. */
+function turnGo(dir){
+  if(!TURN) return;
+  const host=$('lst'); if(!host) return;
+  const cur=turnCard();
+  if(!cur){ turnFocus(); return; }
+  let nx=(dir<0?cur.previousElementSibling:cur.nextElementSibling);
+  if(!nx && dir>0 && shown<deck.length){ appendMore(); asRefreshCards(); nx=cur.nextElementSibling; }
+  if(!nx){ if(dir>0) finShow(); return; }   /* §55.3 — voorbij de laatste kaart = het einde */
+  cur.classList.remove('focus'); nx.classList.add('focus');
+  LB.card=null; LB.snap=null;
+  if(AS.on){ asRefreshCards(); turnSyncCur(); }
+  turnSetHide(nx, dir>0 ? (AS.on?turnPct()>0:true) : false);
+  if(AS.on) turnRestartClock();
+  turnFit(); asDrawBar();
+}
+
+/* ============ v11.18 §55.3 · HET EINDE VAN DE REEKS ============
+   JHS: «when i am at the end, the last card remains there eternally which is not good. I want
+   no card showed (you can replace with simple text: "Finished! Click here to shuffle and
+   repeat.") and when i click anywhere there, that effectively happens (= the same as the
+   shuffle button). And automatically fully show the full selection menu».
+   Geldt in BEIDE standen: de beurtstand (turnAdvance/turnStep/turnGo) én de autoscroll
+   (asTick). Vóór v11.18 schudden `turnRound()` en `asRound()` daar vanzelf opnieuw; die twee
+   worden niet meer aangeroepen, maar blijven staan zodat §45.1/§34.3 terugrolbaar zijn. */
+var FIN=false;   /* var, niet let: render() staat hoger in het bestand en roept finClear() aan; met let zou dat een TDZ-fout geven bij het allereerste tekenen */
+function finClear(){
+  if(!FIN) return;
+  FIN=false;
+  const p=$('phone'); if(p) p.classList.remove('fin');
+  const el=$('finish'); if(el&&el.parentNode) el.parentNode.removeChild(el);
+}
+function finShow(){
+  if(FIN) return;
+  const st=$('stage'); if(!st) return;
+  FIN=true;
+  /* de klok (beurtstand) én de scroll (autoscroll) stilzetten: er is niets meer te tonen.
+     Zacht, zodat het menublok niet nog eens opspringt bovenop wat we hieronder zelf openen. */
+  if(AS.on&&AS.playing) asPause(true);
+  const cur=turnCard(); if(cur) cur.classList.remove('focus');
+  AS.cur=null;
+  LB.card=null; LB.snap=null;              /* geen kaart meer = niets meer terug te draaien */
+  $('phone').classList.add('fin');
+  const d=document.createElement('div');
+  d.className='finish'; d.id='finish';
+  d.innerHTML='<b>Finished!</b><span>Click here to shuffle and repeat.</span>';
+  d.addEventListener('click',function(e){ e.stopPropagation(); finTap(); });
+  st.appendChild(d);
+  st.scrollTop=0;
+  /* antwoord 4 van C5.5 — portrait: het gewone menublok opengeklapt; landscape: het
+     schermvullende paneel van §55.2, want daar staat het menublok toch op display:none. */
+  if(LAND){ if(typeof fullOpen==='function') fullOpen(); }
+  else { asSetMenu(true); setCompact(false); }
+  asDrawBar(); landPaintBtns();
+}
+/* «a tik erop = exact de schudknop», daarna de stand opnieuw opzetten zoals turnRound()/
+   asRound() dat deden: ronde vooruit, tellers op nul, focus op de eerste kaart. */
+function finTap(){
+  finClear();
+  onCtl('shuf');                           /* zelfde als #btnShuf: nieuwe schudbeurt + render() */
+  AS.round++; AS.roundAt=performance.now();
+  AS.cur=null; AS.idx=0; AS.nok=0; AS.nbad=0;
+  LB.card=null; LB.snap=null;
+  if(AS.on){ asRefreshCards(); AS.n=AS.cards.length; }
+  if(TURN){
+    turnFocus(); if(AS.on) turnSyncCur();
+    turnSetHide(turnCard(),AS.on?turnPct()>0:true);
+    turnRestartClock();
+  } else if(AS.on){ asSetFocus(); asNewSegment(); }
+  asDrawBar();
+}
+
 /* §45.1 — de klok. Draait in dezelfde rAF-lus als de autoscroll (asTick), maar zonder scroll:
    op `turnPct` % van de tijd valt de kolom open, op 100 % van de tijd komt de volgende kaart.
    Op stand 100 % valt de kolom dus samen met het wisselen — dat is «nooit vanzelf onthullen»,
@@ -2903,6 +3062,52 @@ function landPaint(){
   b.classList.toggle('on',TURN);
   b.title=LAND?'beurtstand — vast zolang het toestel dwars staat':'beurtstand / lijst';
 }
+/* ============ v11.18 §55.2 · RIJ 1 IN LANDSCAPE ============
+   `#btnDir` (JHS' «BO?») en `#btnBM` verhuizen FYSIEK naar `.prow`, rechts van de
+   voortgangsbalk en de teller, met `#btnFull` uiterst rechts. Bij het terugdraaien gaan ze
+   even fysiek terug naar `#statrow`, waar ze de laatste twee knoppen waren — appendChild
+   herstelt dus vanzelf de oorspronkelijke volgorde. Verplaatsen in plaats van kopiëren:
+   één knop, één id, alle bestaande handlers en al het inkleuren blijven werken. */
+function landRow1(on){
+  const prow=document.querySelector('.prow'), row=$('statrow');
+  const d=$('btnDir'), b=$('btnBM'), f=$('btnFull');
+  if(!prow||!row||!d||!b) return;
+  if(on){ prow.appendChild(d); prow.appendChild(b); if(f) prow.appendChild(f); }
+  else  { row.appendChild(d); row.appendChild(b); }
+}
+/* Het schermvullende selectiemenu — «until i click that button again». Het paneel houdt geen
+   eigen kopie van de knoppen bij: `#fgrid`, `#srcrow` en `#subrows` VERHUIZEN erheen en
+   daarna weer terug naar `#menublk`. Zo blijft `render()` (die hun innerHTML herschrijft) en
+   blijven alle klikhandlers ongewijzigd, en is er nooit een tweede stel knoppen dat uit de
+   pas kan lopen. In `#menublk` komen ze achter `#fpack` terug te staan — de oude volgorde. */
+var FULL=false;
+function fullMove(to){
+  const host=to?$('fullselin'):$('menublk');
+  const a=$('fgrid'), b=$('srcrow'), c=$('subrows');
+  if(!host||!a||!b||!c) return;
+  host.appendChild(a); host.appendChild(b); host.appendChild(c);
+}
+function fullPaint(){ const b=$('btnFull'); if(b) b.classList.toggle('on',FULL); }
+function fullOpen(){
+  if(FULL) return;
+  const p=$('fullsel'); if(!p) return;
+  FULL=true; fullMove(true);
+  /* de knoppenrijen blijven bovenop liggen (zie CSS); zonder deze marge zou de onderkant van
+     het paneel eronder verdwijnen. De hoogte wordt gemeten, niet geraden. */
+  const pin=document.querySelector('.pin');
+  p.style.paddingBottom=((pin?pin.offsetHeight:0)+10)+'px';
+  $('phone').classList.add('fullon');
+  p.classList.add('on'); fullPaint();
+}
+function fullClose(){
+  if(!FULL) return;
+  FULL=false;
+  const p=$('fullsel'); if(p){ p.classList.remove('on'); p.style.paddingBottom=''; }
+  $('phone').classList.remove('fullon');
+  fullMove(false); fullPaint();
+}
+function fullToggle(){ FULL?fullClose():fullOpen(); }
+
 function applyLand(){
   const on=!!LANDMQ.matches;
   if(on!==LAND){
@@ -2913,6 +3118,11 @@ function applyLand(){
        al half voorbij is. JHS drukt zelf ▶. Zacht, zodat het menu niet opspringt. */
     if(AS.on&&AS.playing) asPause(true);
     landClear();                       /* een ingedrukte knop overleeft het draaien niet */
+    /* v11.18 §55.2 — de twee knoppen van rij 2 verhuizen mee met de stand, en het
+       schermvullende paneel bestaat enkel in landscape: bij het terugdraaien moet het dicht
+       (én moeten #fgrid/#srcrow/#subrows terug in #menublk staan) vóór er iets getekend wordt. */
+    if(!on) fullClose();
+    landRow1(on);
     /* §51.1.1 — landscape = ALTIJD de beurtstand. §51.1.2 — en dat blijft zo na het
        terugdraaien; één kort toastje, zodat je niet zonder het te merken je lijststand kwijt
        bent (renderPin/landPaint zetten #btnTurn dan vanzelf blauw). */
