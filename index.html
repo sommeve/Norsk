@@ -12,9 +12,9 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
-<meta name="application-version" content="v11.15.1">
+<meta name="application-version" content="v11.17">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.15.1 (§52) — service-worker cache: sos-v11-20 -->
+<!-- Side om side · v11.17 (§54) — service-worker cache: sos-v11-22 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -28,7 +28,7 @@
     --unseen:#dfe3e9; --unseen-bd:#b7bec8; --star:#e6c229; --fluo:#f2f74d; --fluobd:#d9dd2e;
     --scrolltrack:#dbe1ee; --scrollthumb:#000; --gridln:#e6ebf3;
     --bmc:#7c8aa3; --bmbg:rgba(125,140,165,.16);
-    --cBlack:#1b2334; --cGrey:#8a97ab; --cBlue:#2f6fd6; --cOrange:#e08b2b; --cGreen:#2e9e5b; --cStar:#e6c229;
+    --cBlack:#1b2334; --cGrey:#8a97ab; --cBlue:#2f6fd6; --cOrange:#e08b2b; --cGreen:#2e9e5b; --cStar:#e6c229; --cRot:#8b4bc9;
     --sSoS:#2f6fd6;--sNils:#1f8a5f;--sSomme:#8e44ad;--sJan:#c2622a;
     --prog:#c9dcfa;                        /* v11.6 §41.1 — effen voortgangsvulling */
   }
@@ -44,7 +44,7 @@
     --unseen:#2a323d; --unseen-bd:#47515f; --star:#f0b429; --fluo:#c9d117; --fluobd:#8f9a10;
     --scrolltrack:#1b222c; --scrollthumb:#e7ecf3; --gridln:#242c37;
     --bmc:#9aa8bd; --bmbg:rgba(160,178,200,.18);
-    --cBlack:#39445a; --cGrey:#6b7789; --cBlue:#3f7fe0; --cOrange:#d68a1f; --cGreen:#2c9257; --cStar:#c9a51f;
+    --cBlack:#39445a; --cGrey:#6b7789; --cBlue:#3f7fe0; --cOrange:#d68a1f; --cGreen:#2c9257; --cStar:#c9a51f; --cRot:#9a5bd8;
     --sSoS:#3f7fe0;--sNils:#2c9257;--sSomme:#a366c8;--sJan:#d1803f;
     --prog:#2b3d5c;                        /* v11.6 §41.1 */
   }
@@ -135,6 +135,16 @@
   .cell.w{font-size:18px;font-weight:400;white-space:nowrap;line-height:1.2;} .cell.w b{font-weight:800;}
   .cell.f{font-size:13.5px;line-height:1.35;white-space:nowrap;}
   .cell.sent{font-size:15px;line-height:1.3;white-space:normal;}
+  /* v11.16 §53.1 — DE GESPREKJESKAART. Elke regel is een gewone rij (`data-row`), dus fluo,
+     blur en score blijven werken zoals bij elke andere kaart. Enkel de opmaak verschilt:
+     een sprekermerkje vooraan, de klankregel eronder en het (tbc)-vlagje erachter. */
+  .cell.conv{font-size:14.5px;line-height:1.32;padding:5px 8px;}
+  .cell.conv .sp{display:inline-block;min-width:15px;margin-right:5px;font-size:10.5px;font-weight:800;
+        color:var(--muted);vertical-align:1px;}
+  .cell.conv .cph{display:block;font-size:11.5px;color:var(--muted);line-height:1.25;margin-top:1px;}
+  .cell.conv .tbc{font-size:10px;font-weight:700;color:var(--wrong);opacity:.85;}
+  .ctitle{text-align:right;font-size:13px;font-weight:700;color:var(--muted);
+        margin-top:1px;padding-right:2px;line-height:1.2;min-height:20px;}
   /* v11.8 §43.3 — de cel verdwijnt met inhoud én achtergrond; het lege gekleurde vlak wordt
      door een ::after teruggezet, zodat je nog steeds ziet dát er een kolom staat. */
   .cell{position:relative;}
@@ -196,6 +206,9 @@
   .fb{color:#fff;font-size:15px;font-weight:800;text-align:center;border-radius:7px;padding:6px 0;border:2px solid transparent;line-height:1.15;}
   .fb.c0{background:var(--cBlack);} .fb.c1{background:var(--cGrey);} .fb.c2{background:var(--cBlue);}
   .fb.c3{background:var(--cOrange);} .fb.c4{background:var(--cGreen);} .fb.c5{background:var(--cStar);color:#4a4109;}
+  /* v11.17 §54 — DE ROTTE APPELS. Paars, want het is geen kolomkeuze maar een dagset,
+     net als de twee oranje ☀-knoppen; de kleur zet hem apart van de zes kolommen. */
+  .fb.rot{background:var(--cRot);}
   .fb.sel{border-color:var(--ink);box-shadow:0 0 0 2px var(--surface) inset,0 2px 6px rgba(20,30,60,.35);}
   .crow{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:6px;}
   .crow.four{grid-template-columns:repeat(4,1fr);}
@@ -563,6 +576,7 @@
   .fstrip .fh{font-size:8px;line-height:1;padding-bottom:1px;}
   .fstrip b{display:block;height:9px;border-radius:3px;background:var(--cGrey);}
   .fstrip b.tr{background:var(--cGreen);}
+  .fstrip b.rot{background:var(--cRot);}   /* v11.17 §54 */
   .fstrip i{display:block;height:9px;border-radius:3px;}
   .fstrip .rlb{font-size:8.5px;}
   .fstrip i.c0{background:var(--cBlack);} .fstrip i.c1{background:var(--cGrey);}
@@ -611,9 +625,34 @@
   /* §51.1 — het speelveld is voortaan altijd een flexrij. In portrait zit er maar één kind in
      (#stage) en gedraagt alles zich exact als vóór v11.15: dezelfde breedte, dezelfde
      scrollbalk, dezelfde padding. In landscape komen de twee knoppen ernaast staan. */
-  .stagewrap{flex:1 1 auto;display:flex;min-height:0;min-width:0;}
+  .stagewrap{flex:1 1 auto;display:flex;min-height:0;min-width:0;position:relative;}
   .stagewrap>.stage{flex:1 1 auto;min-width:0;}
   .bigsw{display:none;}
+
+  /* ============ v11.16 §53.2 · DE TWEE KNOPPEN OOK IN PORTRAIT ============ */
+  /* Gevraagd door JHS na v11.15.1: dezelfde groene en rode knop als in landscape, maar
+     links- en rechtsONDER, vlak boven de menubalk, en HALFDOORZICHTIG — zo blijft een lange
+     kaart eronder leesbaar. Ze zweven boven het speelveld (`position:absolute` in
+     `.stagewrap`, dat daarvoor `position:relative` kreeg) en staan BUITEN `#stage`, net als
+     in landscape, want `render()` vervangt de hele inhoud daarvan.
+     Het gedrag is exact dat van §51.4 + §52.4: indrukken pauzeert de klok en de onthulling,
+     loslaten scoort, de laatste score telt, wegglijden annuleert, en zolang er nog iets te
+     onthullen valt staan ze BLEEK en onthult een druk in plaats van te scoren.
+     De tik op het speelveld van §52.3 blijft er gewoon naast bestaan: een druk op de knop
+     bereikt `#stage` niet, dus er wordt nooit dubbel gescoord. */
+  .phone.turn:not(.land) .bigsw{display:flex;position:absolute;bottom:8px;z-index:6;
+        width:96px;height:60px;align-items:center;justify-content:center;flex-direction:column;gap:1px;
+        border:0;border-radius:16px;color:#fff;font-weight:800;cursor:pointer;touch-action:none;
+        user-select:none;-webkit-user-select:none;opacity:.55;
+        box-shadow:0 4px 12px rgba(20,30,60,.16);transition:transform .06s,filter .06s,opacity .12s;}
+  .phone.turn:not(.land) .bigsw b{font-size:26px;line-height:1;}
+  .phone.turn:not(.land) .bigsw small{font-size:9.5px;letter-spacing:.6px;opacity:.95;}
+  .phone.turn:not(.land) .bigsw.ok{background:var(--ok);left:8px;}
+  .phone.turn:not(.land) .bigsw.bad{background:var(--wrong);right:8px;}
+  .phone.turn:not(.land) .bigsw.down{transform:scale(.96);filter:brightness(.82);opacity:.9;}
+  /* §52.4 — bleek = «hier valt nog iets te onthullen»; in portrait nog een stap lichter,
+     want de gewone stand is hier al doorzichtig. */
+  .phone.turn:not(.land) .bigsw.pale{opacity:.3;box-shadow:none;}
 
   /* §51.2 — wat er verdwijnt in landscape. De bovenbalk, de tekstbalk (die hoort bij de
      autoscroll), de selectierij, de dunne lijn, de lege snelheidsrij en de twee greepjes.
@@ -651,6 +690,16 @@
   .phone.land .stagewrap>.stage{flex:0 0 auto;width:min(430px,100vh);overflow:hidden!important;}
   .phone.land .stage .scrollcard{transform:none!important;}
 
+  /* v11.16 §53.1 — een gesprekjeskaart is HOOG en wordt in landscape onderaan afgeknipt
+     (§51.3.4: geen scrollen, geen schaling — «pech voor hoge kaarten»). De kaart zelf blijft
+     dus ongeschaald; enkel de gesprekjesregels staan er wat dichter op elkaar, zodat er een
+     paar regels méér binnen het speelveld vallen. Dat is opmaak, geen schaling: de bovenkant
+     blijft op exact dezelfde plaats staan, en de belangrijkste regels staan bovenaan. */
+  .phone.land .cell.conv{font-size:13px;line-height:1.2;padding:3px 7px;}
+  .phone.land .cell.conv .cph{font-size:10.5px;line-height:1.15;}
+  .phone.land .cell.conv .bm{font-size:9.5px;line-height:1.15;}
+  .phone.land .ctitle{font-size:12px;min-height:0;}
+
   /* §51.7 — de bladen (⚙ 📖 🔍 ＋ …) zijn op portrait getekend; in landscape schermvullend.
      De overlay staat buiten `.phone`, dus deze regels hangen aan <body>. */
   body.land .sheet{max-width:none;border-radius:0;height:100%;max-height:100%;
@@ -671,7 +720,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.15.1</span>
+    <span class="vers" id="vers">v11.17</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -770,6 +819,8 @@
 <script src="data/themes.js"></script>
 <script src="data/nils.js"></script>
 <script src="data/somme.js"></script>
+<!-- v11.16 §53.1 — de gesprekjes; itemtype `conv`, chip onder Somme -->
+<script src="data/conv.js"></script>
 <script src="data/home.js"></script>
 <script src="data/tid.js"></script>
 
@@ -819,6 +870,14 @@ if(SET.fsel && !Array.isArray(SET.fsel.t)) SET.fsel=null;
 if(SET.fsel && (!SET.fsel.t.length || !SET.fsel.s)) SET.fsel=null;
 if(!Array.isArray(SET.nch)) SET.nch=[];
 if(!Array.isArray(SET.types)||!SET.types.length) SET.types=['woord','zin'];
+/* v11.16 §53.1 — het derde itemtype «conv» (de gesprekjes). SET.types is een BESTAAND veld in
+   de BESTAANDE sleutel sos_set_v6 en staat bij iedereen al op ['woord','zin']; zonder deze
+   ene regel zouden de gesprekjes onzichtbaar blijven. Er wordt niets hernoemd of gewist —
+   enkel een waarde bijgezet. Rolt de build terug, dan negeert v11.15.1 die waarde gewoon
+   (het is een indexOf-filter), dus dit blijft langs beide kanten onschadelijk. Er wordt hier
+   NIET weggeschreven: `saveSet` bestaat op dit punt nog niet (TDZ, dezelfde valkuil als bij
+   `LAND` in §51.1). De regel is idempotent en draait gewoon opnieuw bij de volgende start. */
+if(SET.types.indexOf('conv')<0) SET.types.push('conv');
 if(!Array.isArray(SET.themes)) SET.themes=[];
 if(!Array.isArray(SET.src)) SET.src=[];
 if(!Array.isArray(SET.who)) SET.who=[];                       /* v11 §27.4 — Johanne / Emma & Lene */
@@ -1129,7 +1188,7 @@ let ITEMS=[], SOSALL=[];
 function buildPool(){
   const eps=[].concat(window.EP01||[],window.EP02||[],window.EP03||[]);
   SOSALL=eps;
-  ITEMS=[...WORDS,...SENTENCES,...eps,...(window.NILS||[]),...(window.SOMME||[]),...(window.HOME||[]),...(window.TID||[]),...USER].filter(x=>!x.deleted&&!DUPOF[x.id]);   /* v11.12 §47 — DUPOF houdt de dubbels blijvend buiten de poel */
+  ITEMS=[...WORDS,...SENTENCES,...eps,...(window.NILS||[]),...(window.SOMME||[]),...(window.CONV||[]),...(window.HOME||[]),...(window.TID||[]),...USER].filter(x=>!x.deleted&&!DUPOF[x.id]);   /* v11.12 §47 — DUPOF houdt de dubbels blijvend buiten de poel · v11.16 §53.1 — CONV = de gesprekjes */
 }
 buildPool();
 const EPISODES=[1,2,3,4,5,6,7,8];
@@ -1279,8 +1338,29 @@ function aggDot(id){ const s=getScore(id), bk=bucket(s&&s.ema);
   return bk?'<span class="agg" style="background:'+BUCKCOL[bk]+';border-color:var(--ring)"></span>':'<span class="agg"></span>'; }
 function askCell(side){ return '<span class="note">'+(side==='nb'?'? — vraag partner':'? — vul aan')+'</span>'; }
 /* v8: 4e kolom = bokmål-variant (leeg = geen verschil) */
+/* v11.16 §53.1 — HET GESPREKJE. Eén item, een VARIABEL aantal regels. Elke regel wordt gewoon
+   een rij in dezelfde tweekolomstabel als alle andere kaarten — dat is precies wat we willen:
+   · de fluo-markering hangt aan `data-row`, dus élke regel is apart te highlighten;
+   · de blur (`hidden`/`revealed`) hangt aan het ITEM, dus bij een hide gaat het Noors van
+     álle regels in één keer dicht;
+   · de score hangt aan `id|richting`, dus het hele gesprekje wordt in één keer gescoord.
+   Er is dus géén aparte score-, verberg- of markeermachinerie voor gesprekjes bijgekomen.
+   De klankregel staat ONDER de Noorse zin (niet in de kop, want er zijn er meerdere) en gaat
+   dus mee dicht met de rest van het Noors. */
+function convRow(l,i){
+  const sp=l.sp?'<b class="sp">'+esc(l.sp)+'</b>':'';
+  const tb=l.tbc?' <span class="tbc">(tbc)</span>':'';
+  const ph=l.ph?'<span class="cph">'+l.ph+'</span>':'';
+  const B=l.bm||{};
+  const bmt=B.nb?(B.nb+(B.ph?'<span class="cph">'+B.ph+'</span>':'')):'';
+  return [sp+(l.nl||''), sp+(l.nb||'')+tb+ph, 'sent conv', bmt];
+}
 function rowsOf(it){
   const rows=[], B=it.bm||{};
+  if(it.type==='conv'){
+    (it.lines||[]).forEach(function(l,i){ rows.push(convRow(l,i)); });
+    return rows;
+  }
   if(it.type==='woord'){
     rows.push([hasNL(it)?it.hnl:askCell('nl'), hasNB(it)?it.hnb:askCell('nb'),'w', B.h||'']);
     (it.forms||[]).forEach(function(f,i){ rows.push([f[1],f[0],'f', f[2]||((B.f&&B.f[i])||'')]); });
@@ -1305,11 +1385,19 @@ function cardHTML(it){
      dezelfde plaats als altijd (links bovenaan); bij NL? komt er een «←» vóór het bolletje,
      zodat je ziet dat je naar de andere score kijkt. De twee zijn nooit samen zichtbaar. */
   const rev=isRev();
+  /* v11.16 §53.1 — bij een gesprekje staat er in de kop géén klankregel (die staat per regel
+     ónder de Noorse zin) maar de TITEL van het gesprekje. Die is Nederlands, blijft dus altijd
+     leesbaar, en staat bovenaan — precies wat §51.3.4 vraagt, want een gesprekjeskaart is hoog
+     en wordt in landscape onderaan afgeknipt. Het potlood ✏️ valt weg: de editor van §11 kent
+     enkel «woord» en «zin», en een gesprekje via dat scherm openen zou de regels wissen. */
+  const conv=(it.type==='conv');
   const hdr='<div class="chdr">'
     +'<div class="chalf scoreblk">'+(rev?'<span class="dirmark">←</span>':'')
       +aggDot(it.id)+'<span class="hist">'+dots((getScore(it.id)||{}).hist)+'</span></div>'
-    +'<div class="chalf"><span class="pen" data-edit="'+it.id+'">✏️</span>'
-      +'<div class="pho'+((blur&&!rev)?' blur':'')+'">'+ph+'</div></div>'
+    +(conv
+      ? '<div class="chalf"><div class="ctitle">💬 '+esc(it.title||'Gesprekje')+'</div></div>'
+      : '<div class="chalf"><span class="pen" data-edit="'+it.id+'">✏️</span>'
+        +'<div class="pho'+((blur&&!rev)?' blur':'')+'">'+ph+'</div></div>')
     +'</div>';
   const cells=rowsOf(it).map(function(r,i){
     const hl=rev?' hidecol':'', hb=rev?'':' hidecol';
@@ -1362,6 +1450,64 @@ function trainIds(){
   return SET.train.ids||[];
 }
 function trainOpen(){ return trainIds().filter(id=>!swipedToday(id)); }
+/* ==================== v11.17 §54 · DE ROTTE APPELS ====================
+   De EMA van applyScore() is `ema = 0,5·val + 0,5·ema`: na twee goede swipes staat een woord
+   dat je tien keer fout had al op «gekend» en verdwijnt het uit «zwak». Precies de klacht van
+   JHS. `rot()` is een TWEEDE, LOSSE maat op dezelfde historiek van 8 — de EMA zelf wordt niet
+   aangeraakt, dus de kleuren, de buckets en de filters blijven exact wat ze waren.
+
+     rot = Σ γ^i·(1−vᵢ) / Σ γ^i      met γ = 0,85 en i = 0 voor de LAATSTE swipe
+           + 0,10 per terugval (een 1 die meteen door een 0 gevolgd wordt)
+
+   γ = 0,85 in plaats van 0,5: de laatste swipe weegt het zwaarst, maar de achtste telt nog
+   altijd voor 27 %. De terugvalbonus vangt «soms even juist, daarna weer fout» — een woord dat
+   schommelt hoort hoger dan een woord dat toevallig al drie keer op rij fout ging.
+
+   TWEE DREMPELS (afgeregeld op de echte export van JHS, 2026-08-17):
+   1. minstens 4 swipes — anders staat een pas geveegd nieuw woord meteen bovenaan;
+   2. minstens één keer juist geweest. Zonder deze tweede drempel vulden woorden die JHS
+      gisteravond voor het eerst zag en zeven keer na elkaar fout had (`n_ille`, `n_tjukk`)
+      de hele top 10 met een perfecte rot = 1,000. Dat zijn geen rotte appels maar nieuwe
+      woorden. Ze blijven gewoon in de kolom «zwak» staan, ze eten enkel de tien plaatsen
+      van de paarse knop niet meer op. JHS' eigen voorbeelden (slokket, kor, fordi) komen
+      met deze twee drempels wél in de top 10 terecht. */
+const ROT_GAMMA=0.85, ROT_FALLBACK=0.10, ROT_MINSW=4;
+function rot(id){
+  const s=getScore(id), h=(s&&s.hist)||[];
+  if(h.length<ROT_MINSW) return -1;          /* te weinig swipes — nog geen oordeel */
+  if(h.indexOf(1)<0)     return -1;          /* nooit juist geweest — dat is een nieuw woord */
+  let num=0, den=0;
+  for(let i=0;i<h.length;i++){                /* i telt vanaf de LAATSTE swipe terug */
+    const w=Math.pow(ROT_GAMMA,i), v=h[h.length-1-i];
+    den+=w; num+=w*(1-v);
+  }
+  let back=0;
+  for(let i=0;i<h.length-1;i++) if(h[i]===1&&h[i+1]===0) back++;
+  return num/den + ROT_FALLBACK*back;
+}
+function rotN(){ return SET.rotn||10; }
+/* De ontdubbeling is niet cosmetisch. De samenvoeging van §47/§48 heeft de ITEMS ontdubbeld,
+   maar de OUDE scoresleutels staan er nog (`full|NL` naast `n_full_av|NL`, `kem` naast `n_kem`,
+   `n_i_gaar` naast `n_i_gaar2` … tientallen). Zonder deze stap zou hetzelfde woord twee keer
+   in de lijst van tien staan. Eerste voorkomen wint, dus de hoogste rot van het paar blijft. */
+function rotIds(){
+  if(!SET.rot || SET.rot.d!==todayKey() || SET.rot.n!==rotN()){
+    const cand=ITEMS.map(function(x){ return {x:x,r:rot(x.id)}; }).filter(function(o){ return o.r>=0; });
+    cand.sort(function(a,b){
+      if(b.r!==a.r) return b.r-a.r;
+      return (((getScore(a.x.id)||{}).ts)||0)-(((getScore(b.x.id)||{}).ts)||0);   /* gelijkspel: oudste eerst */
+    });
+    const seen=new Set(), ids=[];
+    for(let i=0;i<cand.length&&ids.length<rotN();i++){
+      const k=(textNB(cand[i].x)+'|'+textNL(cand[i].x)).toLowerCase().trim();
+      if(seen.has(k)) continue;
+      seen.add(k); ids.push(cand[i].x.id);
+    }
+    SET.rot={d:todayKey(),n:rotN(),ids:ids}; saveSet();
+  }
+  return SET.rot.ids||[];
+}
+function rotOpen(){ return rotIds().filter(id=>!swipedToday(id)); }
 /* De nieuwe woorden van vandaag. Zodra de categorie «Home» bestaat (v11.4) komen ze daar als
    eerste uit; zolang die er niet is, vallen we terug op «next», dan Somme, dan de rest. */
 /* v11.4 §36.3 — binnen «Home» telt de prioriteit mee: groep 1 (de eerste week) komt eerst,
@@ -1402,7 +1548,10 @@ function newOpen(){
   }
   return ids.slice(0,left);
 }
-function pickIds(){ return SET.pick==='train'?trainOpen():(SET.pick==='new'?newOpen():[]); }
+/* v11.17 §54 — derde tak: de rotte appels. `asBlocked()` hoeft niet mee te veranderen —
+   die laat alles behalve ☀15 (`pick==='new'`) door, dus de autoscroll mag hierop lopen,
+   net zoals op ☀50. Het is herhaling van materiaal dat je al gezien hebt. */
+function pickIds(){ return SET.pick==='train'?trainOpen():(SET.pick==='new'?newOpen():(SET.pick==='rot'?rotOpen():[])); }
 function setPick(v){ SET.pick=(SET.pick===v)?null:v; if(SET.pick) SET.fsel=null; saveSet();
   /* v11.7 §42.9 — een nieuwe selectie is een nieuwe beurt: de tellers in de balk beginnen opnieuw. */
   if(typeof asResetCount==='function') asResetCount();
@@ -1527,16 +1676,21 @@ function renderSwipes(){
 /* ---- filterbalk (2 rijen × 6 knoppen, single select) ---- */
 function renderFgrid(){
   const base=baseList();
-  const rows=[['woord','wrd'],['zin','zin']];   /* v11.3 §31.6 */
+  const rows=[['woord','wrd'],['zin','zin'],['conv','gsp']];   /* v11.3 §31.6 · v11.16 §53.1 — derde rij: de gesprekjes */
   /* kolomvolgorde: in db · nieuw · [rijlabel] · actief · zwak · gekend · starred */
   let h=FCOLS.slice(0,2).map(c=>'<span class="fh">'+c.lb+'</span>').join('')+'<span class="fh"></span>'
        +FCOLS.slice(2).map(c=>'<span class="fh">'+c.lb+'</span>').join('');
   /* v11.3.1 §34.7 — dagrij: ☀ boven TO DO (grijs), ☀ train boven gekend (groen) */
   const nOpen=newLeft(), tOpen=trainOpen().length;   /* v11.5 §38.2 — teller = wat er nog rest */
+  /* v11.17 §54 — de rotte appels staan op de VIJFDE plaats van de ☀-rij, dus in de kolom
+     «zwak», recht boven de twee oranje knoppen van die kolom. */
+  const rOpen=rotOpen().length;
   h+='<span></span>'
     +'<button class="fb c1 day'+(SET.pick==='new'?' sel':'')+'" data-pick="new" title="nieuwe woorden van vandaag"'
       +((nOpen===0&&SET.pick!=='new')?' disabled':'')+'>☀ '+nOpen+'</button>'
-    +'<span></span><span></span><span></span>'
+    +'<span></span><span></span>'
+    +'<button class="fb rot day'+(SET.pick==='rot'?' sel':'')+'" data-pick="rot" title="de rotte appels — je slechtst gescoorde woorden en zinnen"'
+      +((rOpen===0&&SET.pick!=='rot')?' disabled':'')+'>✱ '+rOpen+'</button>'
     +'<button class="fb c4 day'+(SET.pick==='train'?' sel':'')+'" data-pick="train" title="train — gekende woorden opfrissen"'
       +((tOpen===0&&SET.pick!=='train')?' disabled':'')+'>☀ '+tOpen+'</button>'
     +'<span></span>';
@@ -1566,8 +1720,10 @@ function renderStrip(){
   let h=FCOLS.slice(0,2).map(c=>'<span class="fh">'+c.lb+'</span>').join('')+'<span class="fh"></span>'
        +FCOLS.slice(2).map(c=>'<span class="fh">'+c.lb+'</span>').join('');
   h+='<span></span><b'+(SET.pick==='new'?' class="sel"':'')+'></b><span class="rlb">☀</span>'
-    +'<span></span><span></span><b class="tr'+(SET.pick==='train'?' sel':'')+'"></b><span></span>';
-  [['wrd','woord'],['zin','zin']].forEach(function(r){
+    +'<span></span>'
+    +'<b class="rot'+(SET.pick==='rot'?' sel':'')+'"></b>'   /* v11.17 §54 — het paarse streepje, kolom zwak */
+    +'<b class="tr'+(SET.pick==='train'?' sel':'')+'"></b><span></span>';
+  [['wrd','woord'],['zin','zin'],['gsp','conv']].forEach(function(r){   /* v11.16 §53.1 */
     h+='<i class="c0'+(on('db',r[1])?' sel':'')+'"></i><i class="c1'+(on('new',r[1])?' sel':'')+'"></i>'
       +'<span class="rlb">'+r[0]+'</span>';
     ['act','weak','known','star'].forEach(function(k,i){
@@ -1606,6 +1762,10 @@ function whoChips(){
   h+='<button class="chipx'+(sel.has('lene')?' on':'')+'" data-w="lene">Emma &amp; Lene <small>'+n('lene')+'</small></button>';
   /* v11.4 §31.11 — derde persoon-chip: de woordenschat van thuis */
   h+='<button class="chipx'+(sel.has('home')?' on':'')+'" data-w="home">🏠 Home <small>'+n('home')+'</small></button>';
+  /* v11.16 §53.1 — vierde chip: de gesprekjes. Ze hangen onder Somme als `who:'conv'`, dus
+     de bestaande verfijning van §27.4 (`whoMatch`) doet het werk; er is geen vijfde bron
+     bijgekomen en de teller van Somme telt ze vanzelf mee. */
+  h+='<button class="chipx'+(sel.has('conv')?' on':'')+'" data-w="conv">💬 Gesprekjes <small>'+n('conv')+'</small></button>';
   return h;
 }
 function epsChips(){
@@ -1680,7 +1840,7 @@ $('btnAdd').onclick=()=>openEditor(null);
 /* v11.3 §32.5 — instellingen; voorlopig één rij, bedoeld om verder aan te groeien */
 $('btnCfg').onclick=openCfg;
 function openCfg(){
-  const n=SET.nperday||15, t=trainN();
+  const n=SET.nperday||15, t=trainN(), r=rotN();
   openSheet('<div class="sgrip"></div><h3>⚙ Instellingen</h3>'
    +'<div class="field"><label>Nieuwe woorden per dag (☀ boven TO DO)</label>'
    +'<div class="speeds" id="npd" style="grid-template-columns:repeat(3,1fr)">'
@@ -1690,24 +1850,29 @@ function openCfg(){
    +'<div class="speeds" id="tpd" style="grid-template-columns:repeat(4,1fr)">'
    +[25,50,75,100].map(v=>'<button class="spb'+(v===t?' on':'')+'" data-n="'+v+'">'+v+'</button>').join('')
    +'</div></div>'
-   +'<div class="hintbox">☀ <div>Nieuwe woorden komen uit wat je nog nooit gezien hebt; train haalt gekende woorden terug die je het langst niet meer gezien hebt.</div></div>'
+   /* v11.17 §54 — het aantal rotte appels, NIEUW VELD SET.rotn in de BESTAANDE sleutel sos_set_v6 */
+   +'<div class="field"><label>Rotte appels per dag (✱ boven zwak)</label>'
+   +'<div class="speeds" id="rpd" style="grid-template-columns:repeat(4,1fr)">'
+   +[10,15,20,30].map(v=>'<button class="spb'+(v===r?' on':'')+'" data-n="'+v+'">'+v+'</button>').join('')
+   +'</div></div>'
+   +'<div class="hintbox">☀ <div>Nieuwe woorden komen uit wat je nog nooit gezien hebt; train haalt gekende woorden terug die je het langst niet meer gezien hebt; de rotte appels zijn wat je telkens opnieuw fout hebt.</div></div>'
    /* v11.14 §50 — synchronisatie + back-up stonden in openFilter(), drie schermen diep. */
    +'<div class="manage"><div class="lbl">Synchronisatie (tussen je toestellen)</div>'
    +'<button class="mbtn" id="mSync">☁️ Nu synchroniseren — <span id="syncStat" style="font-weight:800;color:var(--accent)">'+syncState+'</span></button>'
    +'<div class="lbl" style="margin-top:12px">Back-up &amp; beheer</div>'
    +'<button class="mbtn" id="mExport">📤 Exporteer toevoegingen + scores</button>'
-   +'<button class="mbtn" id="mImport">📥 Importeer</button>'
-   +'<button class="mbtn" id="mReset">🗑️ Alle scores wissen…</button></div>'
+   +'<button class="mbtn" id="mImport">📥 Importeer</button></div>'
    +'<div class="actions"><button class="btn cancel" id="c">Sluit</button></div>');
   $('c').onclick=closeSheet;
   $('mSync').onclick=()=>syncNow();
-  $('mExport').onclick=openExport; $('mImport').onclick=openImport; $('mReset').onclick=openReset;
+  $('mExport').onclick=openExport; $('mImport').onclick=openImport;
   function pick(box,fn){ $(box).querySelectorAll('.spb').forEach(function(b){ b.onclick=function(){
     fn(+b.dataset.n); saveSet();
     $(box).querySelectorAll('.spb').forEach(x=>x.classList.remove('on')); b.classList.add('on');
     renderPin(); }; }); }
   pick('npd',function(v){ SET.nperday=v; SET.newday=null; });
   pick('tpd',function(v){ SET.trainn=v; SET.train=null; });
+  pick('rpd',function(v){ SET.rotn=v; SET.rot=null; });      /* v11.17 §54 */
 }
 $('btnBM').onclick=()=>{ SET.showBM=!SET.showBM; saveSet(); syncPushSoon(); render(); };
 $('swipes').onclick=()=>setMode(mode==='stats'?'voc':'stats');
@@ -2772,7 +2937,10 @@ function landBtn(k){ return $(k==='g'?'bigOk':'bigBad'); }
 /* v11.15.1 §52.4 — de twee knoppen staan BLEEK zolang er nog iets te onthullen valt en er geen
    play loopt. Een druk onthult dan (in plaats van te scoren); daarna staan ze vol groen en rood.
    Tijdens de play blijven ze altijd vol: daar onthult de klok (uitdrukkelijke keuze van JHS). */
-function landPale(){ return LAND && !AS.on && turnIsHidden(turnCard()); }
+/* v11.16 §53.2 — de twee knoppen bestaan nu ook in portrait (halfdoorzichtig, linksonder en
+   rechtsonder). De bleek-regel hangt daarom niet meer aan LAND maar aan TURN: buiten de
+   beurtstand staan ze toch niet op het scherm. */
+function landPale(){ return TURN && !AS.on && turnIsHidden(turnCard()); }
 function landPaintBtns(){
   const p=landPale();
   ['g','r'].forEach(function(k){ const el=landBtn(k); if(el) el.classList.toggle('pale',p); });
@@ -2922,13 +3090,18 @@ function asFieldTap(){
 /* ===================== ZOEKEN ===================== */
 let INDEX=[];
 function buildIndex(){ const ix=[];
-  ITEMS.forEach(function(it){ const lab=it.type==='woord'?(strip(it.hnl)+' — '+strip(it.hnb)):(it.nl+' — '+it.nb);
+  ITEMS.forEach(function(it){ const lab=it.type==='woord'?(strip(it.hnl)+' — '+strip(it.hnb))
+      :(it.type==='conv'?('💬 '+(it.title||'Gesprekje')):(it.nl+' — '+it.nb));   /* v11.16 §53.1 — een gesprekje toont zijn titel, niet zes zinnen na elkaar */
     const B=it.bm||{};   /* v8: bokmål blijft doorzoekbaar */
-    const bmtxt=[B.h,B.s,B.nb,B.ph].concat(B.f?Object.keys(B.f).map(k=>B.f[k]):[])
+    let bmtxt=[B.h,B.s,B.nb,B.ph].concat(B.f?Object.keys(B.f).map(k=>B.f[k]):[])
       .concat((it.forms||[]).map(f=>f[2]||'')).filter(Boolean).join(' ');
-    ix.push({m:it.type==='woord'?'woord':'zin',label:lab,
+    /* v11.16 §53.1 — bij een gesprekje zit de klank en het bokmål PER REGEL; alles mee in de
+       zoeksleutel, zodat «kjøleskapet» of «kaffe» het gesprekje ook echt vindt. */
+    if(it.type==='conv') bmtxt+=' '+(it.lines||[]).map(function(l){
+      const b=l.bm||{}; return [l.ph,b.nb,b.ph].filter(Boolean).join(' '); }).join(' ');
+    ix.push({m:it.type==='woord'?'woord':(it.type==='conv'?'gesprekje':'zin'),label:lab,
       key:(strip(textNB(it))+' '+strip(textNL(it))+' '+it.id+' '+strip(bmtxt)).toLowerCase(),
-      go:function(){ mode='voc'; SET.types=['woord','zin']; SET.eps=[]; SET.themes=[]; SET.basis=false; SET.fsel=null; SET.nch=[]; SET.src=[]; SET.who=[]; subOpen.clear();
+      go:function(){ mode='voc'; SET.types=['woord','zin','conv']; SET.eps=[];   /* v11.16 §53.1 */ SET.themes=[]; SET.basis=false; SET.fsel=null; SET.nch=[]; SET.src=[]; SET.who=[]; subOpen.clear();
         filters={own:false,missing:false}; saveSet(); render();
         revealCard(it.id); }}); });        /* §28.5 — bijladen tot de kaart bestaat, dan scrollen */
   GRAMMAR.forEach(g=>ix.push({m:'grammatica',label:g.title,
@@ -3081,8 +3254,8 @@ function openExport(){ const data=JSON.stringify({v:11,items:USER,scores:scores,
   $('c').onclick=closeSheet;
   $('cp').onclick=function(){ const ta=$('exp'); ta.select();
     try{navigator.clipboard.writeText(ta.value);}catch(e){document.execCommand('copy');} $('cp').textContent='Gekopieerd ✓'; }; }
-function openImport(){ openSheet('<div class="sgrip"></div><h3>Importeer</h3><div class="hintbox">📥 <div>Plak een eerdere export. Alles wordt samengevoegd.</div></div>'
-    +'<div class="field"><textarea id="imp" rows="7" placeholder=\'{"v":7,...}\'></textarea></div>'
+function openImport(){ openSheet('<div class="sgrip"></div><h3>Importeer</h3><div class="hintbox">📥 <div>Plak hier een export (⚙ → 📤 Exporteer) of een woordenblok dat je van Claude kreeg. Alles wordt samengevoegd; items die je al hebt worden overgeslagen.</div></div>'
+    +'<div class="field"><textarea id="imp" rows="7" placeholder="Plak hier…"></textarea></div>'
     +'<div class="actions"><button class="btn cancel" id="c">Annuleer</button><button class="btn save" id="do">Importeer</button></div>');
   $('c').onclick=closeSheet;
   $('do').onclick=function(){ try{ const d=JSON.parse($('imp').value);
@@ -3097,10 +3270,9 @@ function openImport(){ openSheet('<div class="sgrip"></div><h3>Importeer</h3><di
     save('sos_user_v6',USER); save('sos_scores_v6',scores); saveFav(); saveNotes(); saveCorr(); saveFluo(); saveDaily();
     buildPool(); closeSheet(); render();
   }catch(e){ $('do').textContent='Ongeldig ✕'; } }; }
-function openReset(){ openSheet('<div class="sgrip"></div><h3>Alle scores wissen?</h3><div class="hintbox">⚠️ <div>Dit wist je kennis-scores en geschiedenis. Je woorden, favorieten, markeringen en statistiek blijven.</div></div>'
-    +'<div class="actions"><button class="btn cancel" id="c">Annuleer</button><button class="btn danger" id="do">Ja, wis scores</button></div>');
-  $('c').onclick=closeSheet;
-  $('do').onclick=function(){ scores={}; save('sos_scores_v6',scores); syncPushSoon(); closeSheet(); render(); }; }
+/* v11.17 §54 — «🗑️ Alle scores wissen» is VERWIJDERD op vraag van JHS (2026-08-17): één
+   misgreep wist maanden historiek, en er is geen weg terug. De knop én openReset() zijn weg;
+   wie toch wil herbeginnen doet dat via ⚙ → Exporteer (back-up) en daarna een nieuwe import. */
 
 /* ===================== TOEVOEGEN / BEWERKEN / CORRIGEREN ===================== */
 function openGNote(gid){
