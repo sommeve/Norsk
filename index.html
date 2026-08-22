@@ -823,7 +823,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.23</span>
+    <span class="vers" id="vers">v11.24.1</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -1009,6 +1009,7 @@ const RAWSET=load('sos_set_v6',null);
 let SET=Object.assign({types:['woord','zin'],eps:[],themes:[],basis:false,dark:false,showAns:false,panel:false,showBM:true,showPH:true,   /* v11.20 §57.5 — FON-knop */ fsel:null,nch:[],src:[],who:[],asSpeed:5,asSpeedV:1111,turnPct:50,   /* v11.11 §45.2/§45.3 — standaard 1,5s (index 5 in SPEEDS) en 50 % */
   /* v11.3 — nperday §32.5 · pick/train/newday §31.6+§31.9. Alles binnen de BESTAANDE sleutel sos_set_v6. */
   nperday:15,pick:null,train:null,newday:null,
+  needs:true,   /* v11.24 §63 — woord vóór zin in de dagset */
   /* v11.22 §59 — «in db» en «Later» staan STANDAARD DICHT; het balkje links zet ze open. */
   fhide:true}, load('sos_set_v6',{}));
 if(typeof SET.fhide!=='boolean') SET.fhide=true;
@@ -1349,7 +1350,11 @@ function buildPool(){
   const eps=[].concat(window.EP01||[],window.EP02||[],window.EP03||[]);
   SOSALL=eps;
   ITEMS=[...WORDS,...SENTENCES,...eps,...(window.NILS||[]),...(window.SOMME||[]),...(window.CONV||[]),...(window.HOME||[]),...(window.TID||[]),...USER].filter(x=>!x.deleted&&!DUPOF[x.id]);   /* v11.12 §47 — DUPOF houdt de dubbels blijvend buiten de poel · v11.16 §53.1 — CONV = de gesprekjes */
+  /* v11.24 §63 — een id→item kaart. `needsMet()` zoekt per zin meerdere woorden op; met
+     `ITEMS.find()` was dat 1.991 × per woord × per zin bij élke opbouw van de dagset. */
+  BYID={}; for(let i=0;i<ITEMS.length;i++) BYID[ITEMS[i].id]=ITEMS[i];
 }
+let BYID={};
 buildPool();
 const EPISODES=[1,2,3,4,5,6,7,8];
 /* fix v7: afleveringen uit ALLE items (woorden + dialoog), niet enkel EP01-03 */
@@ -1729,11 +1734,40 @@ function rotOpen(){ return rotIds().filter(id=>!swipedToday(id)); }
    (Home op prioriteit, dan Somme, dan de rest). Zo staat de knop in de kolom «next» én blijft
    een dagset van 15 ook een dagset van 15 wanneer er maar drie next-items zijn. */
 function newRank(x){ if(isNextNow(x)) return 0; if(x.who==='home') return 1+((x.prio||3)-1); if(x.src==='somme') return 5; return 6; }
+/* ============ v11.24 §63 · WOORD VÓÓR ZIN (C1 · §41.24) ============
+   Elke ZIN in `data/home.js` draagt sinds v11.24 een veld `needs:[ids]`: de woordkaarten die je
+   moet kennen vóór die zin nuttig is. Zonder dat veld kreeg JHS zinnen voorgeschoteld waarin
+   drie onbekende woorden tegelijk stonden.
+   ⚠ DRAAGWIJDTE — met opzet klein gehouden: **alleen de dagset kijkt hiernaar.** De kolommen,
+   de filters, `trainIds()`, `rotIds()`, de scores en de export blijven er volledig buiten. Zo
+   verschuift er geen enkel kolomcijfer en blijft §59 meetbaar los van §63.
+   · Een item ZONDER `needs` wordt nooit tegengehouden (alle losse woorden, en één zin waarvan
+     geen enkel woord een eigen kaart heeft).
+   · «kennen» = `stateOf(woord)==='known'`, dus de gewone groene toestand in de richting waarin
+     je nu staat.
+   · Een `needs`-id dat niet (meer) bestaat, telt niet mee — anders zou één verdwenen kaart een
+     zin voor altijd blokkeren.
+   · `SET.needs` (standaard aan) zet de poort uit; en raakt de poel toch leeg, dan valt de poort
+     vanzelf weg. Een lege ☀-knop mag nooit het gevolg zijn van deze regel. */
+function needsOf(it){ return (it&&it.needs)||[]; }
+function needsMet(it){
+  const ns=needsOf(it); if(!ns.length) return true;
+  for(let i=0;i<ns.length;i++){ const w=BYID[ns[i]]; if(!w) continue;
+    if(stateOf(w)!=='known') return false; }
+  return true;
+}
+function needsLeft(it){ return needsOf(it).filter(function(id){ const w=BYID[id]; return w&&stateOf(w)!=='known'; }); }
+
 /* v11.22.1 §59.5bis — JHS, 2026-08-22: «nee, ik wil zelf manueel altijd next aanvullen».
    De dagset komt dus UITSLUITEND uit next. Alleen wanneer er GEEN enkel vers next-item meer is,
    valt ze terug op de rest van «Later». Ze wordt dus NIET aangevuld tot N wanneer next kleiner
    is dan N — dat is de bedoeling: de ☀-knop is dan gewoon korter, en JHS vult next zelf aan. */
-function newPool(){ return ITEMS.filter(x=>isFresh(x)&&(x.type==='woord'||x.who==='home')); }
+function newPool(){
+  const p=ITEMS.filter(x=>isFresh(x)&&(x.type==='woord'||x.who==='home'));
+  if(SET.needs===false) return p;                 /* v11.24 §63 — poort uit */
+  const g=p.filter(needsMet);
+  return g.length?g:p;                            /* nooit een lege dagset door deze regel */
+}
 function newSrc(pool){ const nx=pool.filter(isNextNow); return nx.length?nx:pool; }
 function newIds(){
   const n=SET.nperday||15;
@@ -2045,15 +2079,17 @@ function renderFgrid(){
   let h=fRow(cols.map(function(c){ return '<span class="fh">'+c.lb+'</span>'; }),'<span class="fh"></span>');
   /* v11.22 §59 — de ☀-dagknop staat nu in de kolom NEXT (was TO DO). De rotte appels blijven
      in «zwak», train blijft in «ken». */
-  /* v11.22.1 — nu de dagset uitsluitend uit next komt, kan ze KORTER zijn dan de dagteller.
-     De knop toont dan «☀ 3/15»: 3 klaar, 15 nog te gaan vandaag. Zijn ze gelijk, dan blijft het
-     gewoon «☀ 15», precies zoals in §38.2. */
-  const nLeft=newLeft(), nHave=newOpen().length;
-  const nOpen=nLeft, nTxt=(nHave<nLeft?(nHave+'/'+nLeft):String(nLeft));
+  /* v11.24.1 §64 — DE ☀-KNOP TOONT ALLEEN DE DAGTELLER, zoals in §38.2: «nog N van de N
+     nieuwe woorden vandaag». v11.22.1 toonde er kortstondig «☀ 10/12» bij (10 klaar, 12 te
+     gaan) omdat de dagset sinds §61.1 uitsluitend uit next komt en dus korter kan zijn dan de
+     teller. JHS vond die schuine streep verwarrend en koos op 2026-08-22 uitdrukkelijk voor
+     alleen de teller. Gevolg, bewust aanvaard: staan er minder verse next-items klaar dan de
+     teller aangeeft, dan geeft de knop er minder dan er op staat. */
+  const nOpen=newLeft();
   const tOpen=trainOpen().length, rOpen=rotOpen().length;
   h+=fRow(cols.map(function(c){
     if(c.k==='next') return '<button class="fb c6 day'+(SET.pick==='new'?' sel':'')+'" data-pick="new" title="de nieuwe woorden van vandaag — eerst uit next, daarna uit Later"'
-      +((nOpen===0&&SET.pick!=='new')?' disabled':'')+'>☀ '+nTxt+'</button>';
+      +((nOpen===0&&SET.pick!=='new')?' disabled':'')+'>☀ '+nOpen+'</button>';
     if(c.k==='weak') return '<button class="fb rot day'+(SET.pick==='rot'?' sel':'')+'" data-pick="rot" title="de rotte appels — je slechtst gescoorde woorden en zinnen"'
       +((rOpen===0&&SET.pick!=='rot')?' disabled':'')+'>✱ '+rOpen+'</button>';
     if(c.k==='known') return '<button class="fb c4 day'+(SET.pick==='train'?' sel':'')+'" data-pick="train" title="train — gekende woorden opfrissen"'
@@ -2238,7 +2274,7 @@ $('btnAdd').onclick=()=>openEditor(null);
    `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
    Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
    dat zo. */
-const APPVER='v11.23';
+const APPVER='v11.24.1';
 let FRESHBUSY=false;
 async function hardRefresh(){
   if(FRESHBUSY) return; FRESHBUSY=true;
@@ -2283,6 +2319,13 @@ function openCfg(){
    +[10,15,20,30].map(v=>'<button class="spb'+(v===r?' on':'')+'" data-n="'+v+'">'+v+'</button>').join('')
    +'</div></div>'
    +'<div class="hintbox">☀ <div>Nieuwe woorden komen uit wat je nog nooit gezien hebt; train haalt gekende woorden terug die je het langst niet meer gezien hebt; de rotte appels zijn wat je telkens opnieuw fout hebt.</div></div>'
+   /* v11.24 §63 — woord vóór zin */
+   +'<div class="field"><label>Woord vóór zin (in de dagset)</label>'
+   +'<div class="speeds" id="nds" style="grid-template-columns:repeat(2,1fr)">'
+   +'<button class="spb'+(SET.needs!==false?' on':'')+'" data-n="1">aan</button>'
+   +'<button class="spb'+(SET.needs===false?' on':'')+'" data-n="0">uit</button>'
+   +'</div></div>'
+   +'<div class="hintbox">🔤 <div>Staat dit aan, dan stelt de ☀-knop een zin uit tot je de losse woorden erin kent. Zo leer je nooit drie onbekende woorden tegelijk in één zin. Zinnen waarvan geen enkel woord een eigen kaart heeft, komen gewoon door.</div></div>'
    /* v11.14 §50 — synchronisatie + back-up stonden in openFilter(), drie schermen diep. */
    +'<div class="manage"><div class="lbl">Synchronisatie (tussen je toestellen)</div>'
    +'<button class="mbtn" id="mSync">☁️ Nu synchroniseren — <span id="syncStat" style="font-weight:800;color:var(--accent)">'+syncState+'</span></button>'
@@ -2298,6 +2341,7 @@ function openCfg(){
     $(box).querySelectorAll('.spb').forEach(x=>x.classList.remove('on')); b.classList.add('on');
     renderPin(); }; }); }
   pick('npd',function(v){ SET.nperday=v; SET.newday=null; });
+  pick('nds',function(v){ SET.needs=!!v; SET.newday=null; });   /* v11.24 §63 */
   pick('tpd',function(v){ SET.trainn=v; SET.train=null; });
   pick('rpd',function(v){ SET.rotn=v; SET.rot=null; });      /* v11.17 §54 */
 }
