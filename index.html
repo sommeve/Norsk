@@ -30,7 +30,7 @@
     --bmc:#7c8aa3; --bmbg:rgba(125,140,165,.16);
     --cBlack:#1b2334; --cGrey:#8a97ab; --cBlue:#2f6fd6; --cOrange:#e08b2b; --cGreen:#2e9e5b; --cStar:#e6c229; --cRot:#8b4bc9;
     --sSoS:#2f6fd6;--sNils:#1f8a5f;--sSomme:#8e44ad;--sJan:#c2622a;
-    --prog:#c9dcfa;                        /* v11.6 §41.1 — effen voortgangsvulling */
+    --prog:#8bb2ee;                        /* v11.6 §41.1 · v11.20 §57.3 (D1.6b) — was #c9dcfa, «te zacht» */
   }
   .dark{
     --pg:#10141b; --surface:#171c25;
@@ -46,7 +46,7 @@
     --bmc:#9aa8bd; --bmbg:rgba(160,178,200,.18);
     --cBlack:#39445a; --cGrey:#6b7789; --cBlue:#3f7fe0; --cOrange:#d68a1f; --cGreen:#2c9257; --cStar:#c9a51f; --cRot:#9a5bd8;
     --sSoS:#3f7fe0;--sNils:#2c9257;--sSomme:#a366c8;--sJan:#d1803f;
-    --prog:#2b3d5c;                        /* v11.6 §41.1 */
+    --prog:#4a6ea8;                        /* v11.6 §41.1 · v11.20 §57.3 (D1.6b) — was #2b3d5c */
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   /* v11 §27.8 — Samsung A53: de adresbalk van Chrome-mobiel wijzigde de viewporthoogte,
@@ -132,8 +132,11 @@
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:3px;}
   .cell{padding:6px 9px;min-width:0;text-align:left;border-radius:4px;}
   .col-nl{background:var(--nl-bg);} .col-nb{background:var(--nb-bg);}
-  .cell.w{font-size:18px;font-weight:400;white-space:nowrap;line-height:1.2;} .cell.w b{font-weight:800;}
-  .cell.f{font-size:13.5px;line-height:1.35;white-space:nowrap;}
+  /* v11.20 §57.6 (D1.11) — JHS: «sommige tekst is te lang voor de kolom, en zie je niet
+     volledig: zorg dat je gewoon doorloopt naar nieuwe lijn dan» + «geen verkleining meer doen».
+     `white-space:nowrap` is dus weg en fit() is uitgeschakeld (zie daar). */
+  .cell.w{font-size:18px;font-weight:400;white-space:normal;overflow-wrap:anywhere;line-height:1.2;} .cell.w b{font-weight:800;}
+  .cell.f{font-size:13.5px;line-height:1.35;white-space:normal;overflow-wrap:anywhere;}
   .cell.sent{font-size:15px;line-height:1.3;white-space:normal;}
   /* v11.16 §53.1 — DE GESPREKJESKAART. Elke regel is een gewone rij (`data-row`), dus fluo,
      blur en score blijven werken zoals bij elke andere kaart. Enkel de opmaak verschilt:
@@ -153,7 +156,9 @@
                     background:inherit;border-radius:4px;}
   .cell.fluo{background:var(--fluo);color:#111;box-shadow:0 0 0 1px var(--fluobd) inset;}
   .en{color:var(--en);font-weight:700;} .ex{color:var(--ex);font-weight:700;} .g{color:var(--g);font-weight:700;}
-  .note{color:var(--muted);font-style:italic;font-size:11.5px;} .inv{color:var(--muted);}
+  /* v11.20 §57.6 (D1.11) — JHS: «de voorbeeldzinnen: zet die in zelfde fontsize als de andere
+     niet-hoofdlijnen». Dat is de maat van `.cell.f`, dus 13,5 px in plaats van 11,5 px. */
+  .note{color:var(--muted);font-style:italic;font-size:13.5px;} .inv{color:var(--muted);}
   .meta{display:flex;gap:8px;font-size:10.5px;font-weight:800;color:var(--muted);margin-top:5px;padding:0 3px;letter-spacing:.03em;}
   .meta .eps{margin-left:auto;opacity:.85;}
   /* v11.2 §29.6 — discreet merkje «next» op woorden die nog geen score hebben */
@@ -452,8 +457,10 @@
   .pcnt{flex:0 0 auto;min-width:54px;text-align:right;font-size:12px;font-weight:800;
         color:var(--muted);letter-spacing:.02em;font-variant-numeric:tabular-nums;}
   /* v11.7 §42.6 — het versienummer stond enkel in een <meta>; nu zichtbaar in de bovenbalk. */
-  .vers{font-size:10px;font-weight:800;color:var(--muted);opacity:.75;margin-right:7px;
-        letter-spacing:.03em;white-space:nowrap;}
+  /* v11.20 §57.2 (D1.5) — JHS: «maak versie nummer font size groter». Van 10 naar 14 px.
+     Het is sinds §56.4 ook de verversknop, dus groter = een betere trefzone. */
+  .vers{font-size:14px;font-weight:800;color:var(--muted);opacity:.85;margin-right:7px;
+        letter-spacing:.02em;white-space:nowrap;cursor:pointer;padding:2px 1px;}
   /* v11.6 §41.3 — buiten de autoscroll blijft de plaats van ▶ gereserveerd: de balk mag niet
      verspringen als je van de lijst naar de autoscroll gaat. Dus visibility, geen display. */
   .pp{display:flex;visibility:hidden;width:44px;height:36px;font-size:15px;}
@@ -672,7 +679,11 @@
      legende «◀ links vegen = juist · ▶ rechts = fout» van §41.16. Ze vullen de hoogte van
      het speelveld. `touch-action:none` is nodig omdat de pauze aan pointerdown hangt. */
   .phone.land .stagewrap{gap:8px;padding:6px 8px 2px;align-items:stretch;}
-  .phone.land .bigsw{display:flex;flex:1 1 0;min-width:52px;align-items:center;justify-content:center;
+  /* v11.20 §57.1 (D1.1) — JHS: «maak groen/rood button 40% smaller zodat meer plaats voor
+     kaartje; maak het kaartje breder». De knoppen stonden op `flex:1 1 0` en deelden alles wat
+     de kaart overliet (op 740 px kwam dat neer op ±174 px elk). Nu een VASTE breedte van 104 px
+     (= 174 − 40 %) en de KAART krijgt de rest via `flex:1`. Eén getal om aan te draaien. */
+  .phone.land .bigsw{display:flex;flex:0 0 104px;width:104px;min-width:0;align-items:center;justify-content:center;
         flex-direction:column;gap:3px;border:0;border-radius:16px;color:#fff;font-weight:800;
         box-shadow:0 6px 14px rgba(20,30,60,.18);cursor:pointer;touch-action:none;
         user-select:none;-webkit-user-select:none;transition:transform .06s,filter .06s;}
@@ -691,7 +702,11 @@
      precies de korte zijde van het scherm, en dat is daar 100vh; de kaart krijgt dus exact
      dezelfde breedte als rechtop, met de plafondwaarde van `.phone` (430 px) erbij.
      Bovenaan uitgelijnd, onderaan AFGEKNIPT — geen scrollen, geen verkleinen (keuze van JHS). */
-  .phone.land .stagewrap>.stage{flex:0 0 auto;width:min(430px,100vh);overflow:hidden!important;}
+  /* v11.20 §57.1 (D1.1) — §51.3 gaf de kaart in landscape met opzet haar PORTRETbreedte
+     (`min(430px,100vh)`). Die afspraak vervalt op vraag van JHS: de kaart neemt voortaan alles
+     wat de twee knoppen overlaten (op 740 px ±500 px in plaats van 360 px). Bovenaan uitgelijnd
+     en onderaan afgeknipt blijft ongewijzigd (turnFit() raakt LAND niet aan). */
+  .phone.land .stagewrap>.stage{flex:1 1 auto;width:auto;min-width:0;overflow:hidden!important;}
   .phone.land .stage .scrollcard{transform:none!important;}
 
   /* v11.16 §53.1 — een gesprekjeskaart is HOOG en wordt in landscape onderaan afgeknipt
@@ -732,6 +747,10 @@
      («until i click that button again»). Rij 1 en rij 2 komen daarom boven het paneel te
      liggen zolang het open staat; `fullOpen()` zet de onderrand van het paneel er net boven. */
   .phone.fullon .pin{position:relative;z-index:41;}
+
+  /* v11.20 §57.5 (D1.10) — FON uit = alle klankspelling weg, in de kop (`.pho`), per
+     gesprekjesregel (`.cph`) en de bokmål-klank (`.bmp`, uitdrukkelijk bevestigd door JHS). */
+  .phone.nofon .pho,.phone.nofon .cph,.phone.nofon .bmp{display:none!important;}
   .fullsel .fgrid,.fullsel .srcrow{margin-bottom:6px;}
 
   /* ============ v11.18 §55.3 · HET EINDE VAN DE REEKS ============ */
@@ -766,7 +785,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.18</span>
+    <span class="vers" id="vers">v11.20</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -830,6 +849,9 @@
         <button class="abtn add" id="btnAdd" title="nieuw item">＋</button>
         <button class="abtn dir" id="btnDir" title="wat moet je raden?">NO?</button>
         <button class="abtn bmt" id="btnBM" title="bokmål-regels tonen">BM</button>
+        <!-- v11.20 §57.5 (D1.10) — «zet een extra FON knop rechts van BM; daarmee klapt alle
+             fonetisch weg (op zelfde manier als BM tekst wegklapt)». -->
+        <button class="abtn bmt" id="btnFON" title="klankspelling tonen / verbergen">FON</button>
       </div>
       <div class="searchbar" id="searchbar"><input id="searchinput" placeholder="zoek woord of zin…"><button class="clr" id="searchclr">✕</button></div>
       <!-- v11.6 §41.11 — rij 2 · A: de snelheden, enkel tijdens de LOPENDE autoscroll -->
@@ -910,7 +932,7 @@ let GNOTE=load('sos_gnote_v6',{});   /* v10: eigen opmerkingen per grammaticahoo
    (niets om te schuiven), een object zonder `asSpeedV` = van vóór v11.6. Zonder deze foto zou
    de standaardwaarde de herkomst uitwissen en zou de omrekening nooit lopen. */
 const RAWSET=load('sos_set_v6',null);
-let SET=Object.assign({types:['woord','zin'],eps:[],themes:[],basis:false,dark:false,showAns:false,panel:false,showBM:true,fsel:null,nch:[],src:[],who:[],asSpeed:5,asSpeedV:1111,turnPct:50,   /* v11.11 §45.2/§45.3 — standaard 1,5s (index 5 in SPEEDS) en 50 % */
+let SET=Object.assign({types:['woord','zin'],eps:[],themes:[],basis:false,dark:false,showAns:false,panel:false,showBM:true,showPH:true,   /* v11.20 §57.5 — FON-knop */ fsel:null,nch:[],src:[],who:[],asSpeed:5,asSpeedV:1111,turnPct:50,   /* v11.11 §45.2/§45.3 — standaard 1,5s (index 5 in SPEEDS) en 50 % */
   /* v11.3 — nperday §32.5 · pick/train/newday §31.6+§31.9. Alles binnen de BESTAANDE sleutel sos_set_v6. */
   nperday:15,pick:null,train:null,newday:null}, load('sos_set_v6',{}));
 if(typeof SET.basis!=='boolean') SET.basis=false;
@@ -1847,6 +1869,11 @@ function nilsChips(){
 function renderTop(){}
 function renderPin(){
   $('btnBM').className='abtn bmt '+(SET.showBM?'on':'off');
+  /* v11.20 §57.5 (D1.10) — de FON-knop werkt exact als BM, maar het wegklappen gebeurt met
+     CSS via één klasse op #phone: de klankspelling zit op drie plaatsen (`.pho` in de kop,
+     `.cph` per gesprekjesregel, `.bmp` de bokmål-klank) en JHS wil ze alle drie weg. */
+  $('btnFON').className='abtn bmt '+(SET.showPH?'on':'off');
+  $('phone').classList.toggle('nofon',!SET.showPH);
   $('btnGram').classList.toggle('on',mode==='gram');
   $('btnBlur').classList.toggle('on',!!SET.showAns);
   renderFgrid(); renderSrc(); renderSwipes(); renderTop();
@@ -1897,6 +1924,53 @@ $('subrows').addEventListener('click',e=>{
     SET.who=[...st]; saveSet(); mode='voc'; render(); } });
 $('btnAdd').onclick=()=>openEditor(null);
 /* v11.3 §32.5 — instellingen; voorlopig één rij, bedoeld om verder aan te groeien */
+/* ============ v11.19 §56.4 · «NIEUWE VERSIE OPHALEN» ============
+   JHS: *«ik moet als er nieuwe versie is published de app 2x sluiten voor ik de nieuwe versie
+   heb»*. Dat klopt en het is de normale gang van zaken bij een service worker die
+   cache-first werkt (`sw.js`): de pagina die je nú ziet, komt uit de oude cache. De nieuwe
+   service worker installeert zich pas ondertussen, en pas bij de VOLGENDE start zie je het
+   resultaat. Vandaar twee keer sluiten.
+
+   Deze knop doet dat in één keer, in drie stappen:
+   1. **alle service workers afmelden** — anders blijft de oude cache-first-laag ertussen zitten;
+   2. **alle caches wissen** (`caches.keys()` → `delete`) — dat is de offline-kopie van de app;
+   3. **opnieuw laden met een cache-brekende parameter**, want ook de gewone browsercache van
+      GitHub Pages kan `index.html` nog vasthouden. `location.reload()` alleen volstaat niet.
+   Bij het herladen registreert de app de service worker gewoon opnieuw (onderaan dit bestand)
+   en bouwt ze een verse offline-kopie op.
+
+   ⚠ WAT ER NIET GEBEURT: `localStorage` wordt NIET aangeraakt. Scores (`sos_scores_v6`),
+   instellingen, favorieten, fluo en eigen woorden blijven onaangeroerd staan — `caches` en
+   `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
+   Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
+   dat zo. */
+const APPVER='v11.20';
+let FRESHBUSY=false;
+async function hardRefresh(){
+  if(FRESHBUSY) return; FRESHBUSY=true;
+  const v=$('vers'); if(v) v.textContent='🔄 …';
+  toastn('Nieuwe versie ophalen… je scores blijven staan.');
+  try{
+    if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){
+      const rs=await navigator.serviceWorker.getRegistrations();
+      for(const r of rs){ try{ await r.unregister(); }catch(_){} }
+    }
+  }catch(_){}
+  try{
+    if(window.caches&&caches.keys){
+      const ks=await caches.keys();
+      await Promise.all(ks.map(function(k){ return caches.delete(k); }));
+    }
+  }catch(_){}
+  /* het pad houden (GitHub Pages draait op /Norsk/), enkel de parameter vernieuwen */
+  const base=location.href.split('#')[0].split('?')[0];
+  location.replace(base+'?fresh='+Date.now());
+}
+/* de bediening: een tik op het versienummer bovenaan. Geen bevestiging — JHS wil dat het
+   «automatisch gebeurt», en er kan niets verloren gaan. `FRESHBUSY` vangt een dubbele tik op. */
+$('vers').style.cursor='pointer';
+$('vers').title='tik = nieuwe versie ophalen (je scores blijven staan)';
+$('vers').onclick=hardRefresh;
 $('btnCfg').onclick=openCfg;
 function openCfg(){
   const n=SET.nperday||15, t=trainN(), r=rotN();
@@ -1934,6 +2008,7 @@ function openCfg(){
   pick('rpd',function(v){ SET.rotn=v; SET.rot=null; });      /* v11.17 §54 */
 }
 $('btnBM').onclick=()=>{ SET.showBM=!SET.showBM; saveSet(); syncPushSoon(); render(); };
+$('btnFON').onclick=()=>{ SET.showPH=!SET.showPH; saveSet(); syncPushSoon(); render(); };   /* v11.20 §57.5 */
 $('swipes').onclick=()=>setMode(mode==='stats'?'voc':'stats');
 $('newlearn').onclick=()=>setMode(mode==='stats'?'voc':'stats');
 $('fgrid').addEventListener('click',e=>{ const pk=e.target.closest('[data-pick]');
@@ -2524,7 +2599,21 @@ function asDrawBar(){
   }
   $('bprog').style.width=(pr*100).toFixed(1)+'%';
   $('blbl').textContent='';                       /* §42.7 — het cijferpaar staat nu náást de balk */
-  const c=$('pcnt'); if(c) c.textContent=tot?(pos+' / '+tot):'';
+  /* v11.19 §56.3 — in de TO DO-kolom (de ☀-knop boven TO DO, `SET.pick==='new'`) zei
+     `pos / deck.length` niets: daar stond `50 / 1991`, hetzelfde getal als bij wrd en zin,
+     terwijl de dagset zelf maar 10, 15 of 20 woorden groot is. Daar komt nu de AFTELLENDE
+     dagteller — `newLeft()` bestond al (`nperday − freshToday()`) en telt live af zodra je
+     een nieuw woord veegt. In alle andere kolommen verandert er niets. */
+  const c=$('pcnt');
+  if(c){
+    if(SET.pick==='new'){
+      c.textContent='nog '+newLeft();
+      c.title='nog te doen vandaag van de '+(SET.nperday||15)+' nieuwe woorden';
+    } else {
+      c.textContent=tot?(pos+' / '+tot):'';
+      c.title='';
+    }
+  }
   const g=$('bcok'), r=$('bcbad');
   if(g) g.textContent=AS.nok;
   if(r) r.textContent=AS.nbad;
@@ -2707,6 +2796,20 @@ function asSetMenu(on){
 let toastT=0;
 function toastn(msg){
   const t=$('toastn'); if(!t) return;
+  /* v11.19 §56.2 — de zwarte balk stond op een vaste `bottom:96px` en dekte daarmee het
+     menublok af. JHS wil hem ZWEVEND NET BOVEN RIJ 1 — dat is de rij met de ▶-knop, en die is
+     de bovenkant van `.pin`. De hoogte van `.pin` verandert mee met de stand (menu open of
+     dicht, selectierij, verfijningsrijen), dus ze wordt hier GEMETEN en niet geraden.
+     In landscape blijft §51 gelden: daar staat de melding bovenaan, want onderaan zit de
+     knoppenrij. De inline stijl moet dan uitdrukkelijk leeg — inline wint van de CSS-regel. */
+  /* ⚠ NIET `pin.offsetHeight` gebruiken: ONDER `.pin` staat nóg een element — het greepje
+     `.mgrip` — dus dat kwam 21 px te laag uit en de balk lag alsnog over de ▶-rij. Meten doen
+     we rechtstreeks: de ONDERKANT van de balk komt 6 px boven de BOVENKANT van `.prow`. */
+  const prow=document.querySelector('.prow'), ph=$('phone');
+  if(!LAND && prow && ph){
+    const r=prow.getBoundingClientRect(), p=ph.getBoundingClientRect();
+    t.style.bottom=Math.max(8,Math.round(p.bottom-r.top)+6)+'px';
+  } else t.style.bottom='';
   t.textContent=msg; t.classList.add('on');
   clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove('on'); },2400);
 }
@@ -2852,11 +2955,18 @@ function turnFit(){
   const avail=st.clientHeight-6, h=sc.offsetHeight;
   if(h>avail && avail>24 && h>0) sc.style.transform='scale('+Math.max(.35,avail/h).toFixed(4)+')';
 }
+/* v11.20 §57.4 (D1.7) — JHS: «de eerste kaart (bij landscape?) toont zich regelmatig
+   volledig, dus die is zinloos om te raden dan». GEVONDEN: turnFocus() duidde wel een
+   focuskaart aan maar zette ze nooit dicht. Had je vóór het draaien in de lijst een kaart
+   opengetikt, dan stond haar id nog in `revealed` en kwam ze in de beurtstand meteen volledig
+   open. Nu wordt een NIEUW aangeduide focuskaart altijd dichtgezet; een kaart die de focus al
+   had, wordt niet aangeraakt (anders zou §55.1 «terugbladeren onthult» weer dichtklappen). */
 function turnFocus(){
   if(!TURN) return;
   const host=$('lst'); if(!host) return;
   let cur=host.querySelector('.scrollcard.focus');
-  if(!cur){ cur=host.querySelector('.scrollcard'); if(cur) cur.classList.add('focus'); }
+  if(!cur){ cur=host.querySelector('.scrollcard');
+    if(cur){ cur.classList.add('focus'); turnSetHide(cur,true); } }
   turnFit();
 }
 /* AS.cur is wat asScore(), de veeg en de balk gebruiken. In de beurtstand wijst hij naar de
@@ -3070,10 +3180,11 @@ function landPaint(){
    één knop, één id, alle bestaande handlers en al het inkleuren blijven werken. */
 function landRow1(on){
   const prow=document.querySelector('.prow'), row=$('statrow');
-  const d=$('btnDir'), b=$('btnBM'), f=$('btnFull');
+  /* v11.20 §57.5 (D1.10) — #btnFON verhuist mee met #btnBM (bevestigd door JHS). */
+  const d=$('btnDir'), b=$('btnBM'), n=$('btnFON'), f=$('btnFull');
   if(!prow||!row||!d||!b) return;
-  if(on){ prow.appendChild(d); prow.appendChild(b); if(f) prow.appendChild(f); }
-  else  { row.appendChild(d); row.appendChild(b); }
+  if(on){ prow.appendChild(d); prow.appendChild(b); if(n) prow.appendChild(n); if(f) prow.appendChild(f); }
+  else  { row.appendChild(d); row.appendChild(b); if(n) row.appendChild(n); }
 }
 /* Het schermvullende selectiemenu — «until i click that button again». Het paneel houdt geen
    eigen kopie van de knoppen bij: `#fgrid`, `#srcrow` en `#subrows` VERHUIZEN erheen en
@@ -3126,7 +3237,13 @@ function applyLand(){
     /* §51.1.1 — landscape = ALTIJD de beurtstand. §51.1.2 — en dat blijft zo na het
        terugdraaien; één kort toastje, zodat je niet zonder het te merken je lijststand kwijt
        bent (renderPin/landPaint zetten #btnTurn dan vanzelf blauw). */
-    if(on){ if(!TURN) turnToggle(); }
+    if(on){ if(!TURN) turnToggle();
+      /* v11.20 §57.4 (D1.7) — JHS: «zeker dat het in landscape altijd dicht staat». Draaien
+         naar landscape zet de kaart in focus uitdrukkelijk dicht, ook als ze al focus had:
+         anders draai je met een al onthulde kaart de beurtstand binnen. */
+      const sc0=(typeof turnCard==='function')?turnCard():null;
+      if(sc0) turnSetHide(sc0,true);
+    }
     else if(TURN){ toastn('Beurtstand aan — ze blijft aan na het terugdraaien.'); }
   }
   landPaint(); landPaintBtns();
@@ -3611,8 +3728,12 @@ function openEditor(existing){
 
 /* ===================== FIT (tekst passend maken) ===================== */
 function fitAll(){ requestAnimationFrame(function(){ document.querySelectorAll('.cell.w,.cell.f').forEach(fit); }); }
-function fit(el){ el.style.fontSize=''; let s=parseFloat(getComputedStyle(el).fontSize),g=40;
-  while(el.scrollWidth>el.clientWidth&&s>8&&g-->0){ s-=0.5; el.style.fontSize=s+'px'; } }
+/* v11.20 §57.6 (D1.11) — fit() verkleinde de letter tot 8 px om een lange regel op één lijn
+   te houden. JHS: «geen verkleining meer doen» — de tekst breekt nu gewoon af (zie `.cell.w` en
+   `.cell.f`). De functie BLIJFT bestaan en wist enkel nog een oude inline-maat, zodat alle
+   aanroepen (appendMore, de veeg, fitAll) ongewijzigd kunnen blijven staan en §57.6 in één
+   handeling terug te draaien is. */
+function fit(el){ if(el&&el.style) el.style.fontSize=''; }
 
 /* ===================== START ===================== */
 /* v11.6 §41.25 — de tekstbalk en zijn greepje staan geparkeerd achter TXTBAR; zet die const
