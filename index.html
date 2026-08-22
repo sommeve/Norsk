@@ -490,6 +490,15 @@
   .pbarn b.cok{left:5px;color:var(--ok);}
   .pbarn b.cbad{right:5px;color:var(--wrong);}
   /* v11.7 §42.7 — rechts náást de balk: waar je zit / hoeveel kaarten de selectie telt. */
+  /* v11.26 §69.3 — JHS: «misschien kan je de 1/1991 in de progress bar zetten, gecentered,
+     boven elkaar, dus «1 /» boven «1991»; dan wordt de bar groter en is ook duidelijk dat de
+     getallen bij de progress bar horen». Vandaar: absoluut gecentreerd IN `.pbarn`, twee
+     regels, en niets meer dat plaats inneemt in de flexrij. `pointer-events:none` zodat een
+     tik op de teller nog altijd de balk zelf bedient. */
+  .pbarn .pcnt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;
+        pointer-events:none;min-width:0;text-align:center;font-size:10.5px;font-weight:800;
+        line-height:1.05;color:var(--muted);white-space:nowrap;}
+  .pbarn .pcnt i{display:block;font-style:normal;}
   .pcnt{flex:0 0 auto;min-width:54px;text-align:right;font-size:12px;font-weight:800;
         color:var(--muted);letter-spacing:.02em;font-variant-numeric:tabular-nums;}
   /* v11.7 §42.6 — het versienummer stond enkel in een <meta>; nu zichtbaar in de bovenbalk. */
@@ -548,10 +557,13 @@
   .statrow{justify-content:space-between;gap:5px;}
   .prow{gap:5px;}
   .pbarn{height:38px!important;}
-  .pcnt{min-width:40px!important;font-size:11px!important;}
+  .pbarn .pcnt{font-size:10.5px!important;min-width:0!important;}
   /* §44.6 — ▶ met drie standen: wit = lijst · blauw = loopt · lichtblauw = pauze.
      De knop wordt NOOIT ❚❚; een tik op blauw brengt je terug naar de lijst. */
-  .pp{display:flex!important;visibility:visible!important;width:81px;height:38px;font-size:15px;
+  /* v11.26 §69.2 — JHS: «in portrait mag de play knop wat smaller, zo groot als de andere
+     knoppen, zodat de progress bar wat langer wordt». Was 81 px (§44.5 gaf ▶ met opzet dubbele
+     breedte); nu 38 px, gelijk aan de rest. Winst voor de balk: 43 px in portrait. */
+  .pp{display:flex!important;visibility:visible!important;width:38px;height:38px;font-size:15px;
       background:var(--surface)!important;border:1px solid var(--hair)!important;color:var(--ink)!important;}
   .pp.on{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important;}
   .pp.paused{background:rgba(47,111,214,.16)!important;border-color:var(--accent)!important;color:var(--accent)!important;}
@@ -689,19 +701,23 @@
      HOOGTE en enkel in PORTRAIT: 96 × 120 in plaats van 96 × 60. In landscape blijven ze
      ongewijzigd («in landscape zijn ze goed»); die regels staan in het §51.3-blok hieronder.
      Omdat §53.2 portrait en landscape al gesplitst had, is dit precies één waarde. */
-  .phone.turn:not(.land) .bigsw{display:flex;position:absolute;bottom:8px;z-index:6;
+  /* v11.25 §65 (D1.3) — de poort was `.phone.turn:not(.land)`: de knoppen bestonden alleen in
+     de beurtstand. JHS wil ze ook terwijl hij gewoon door de lijst scrolt. De poort is nu
+     `.phone:not(.land):not(.novoc)` — overal in portrait, behalve op de grammatica- en
+     statistiekschermen. Wélke kaart ze scoren, staat in §65.2. */
+  .phone:not(.land):not(.novoc) .bigsw{display:flex;position:absolute;bottom:8px;z-index:6;
         width:96px;height:120px;align-items:center;justify-content:center;flex-direction:column;gap:1px;
         border:0;border-radius:16px;color:#fff;font-weight:800;cursor:pointer;touch-action:none;
         user-select:none;-webkit-user-select:none;opacity:.55;
         box-shadow:0 4px 12px rgba(20,30,60,.16);transition:transform .06s,filter .06s,opacity .12s;}
-  .phone.turn:not(.land) .bigsw b{font-size:26px;line-height:1;}
-  .phone.turn:not(.land) .bigsw small{font-size:9.5px;letter-spacing:.6px;opacity:.95;}
-  .phone.turn:not(.land) .bigsw.ok{background:var(--ok);left:8px;}
-  .phone.turn:not(.land) .bigsw.bad{background:var(--wrong);right:8px;}
-  .phone.turn:not(.land) .bigsw.down{transform:scale(.96);filter:brightness(.82);opacity:.9;}
+  .phone:not(.land):not(.novoc) .bigsw b{font-size:26px;line-height:1;}
+  .phone:not(.land):not(.novoc) .bigsw small{font-size:9.5px;letter-spacing:.6px;opacity:.95;}
+  .phone:not(.land):not(.novoc) .bigsw.ok{background:var(--ok);left:8px;}
+  .phone:not(.land):not(.novoc) .bigsw.bad{background:var(--wrong);right:8px;}
+  .phone:not(.land):not(.novoc) .bigsw.down{transform:scale(.96);filter:brightness(.82);opacity:.9;}
   /* §52.4 — bleek = «hier valt nog iets te onthullen»; in portrait nog een stap lichter,
      want de gewone stand is hier al doorzichtig. */
-  .phone.turn:not(.land) .bigsw.pale{opacity:.3;box-shadow:none;}
+  .phone:not(.land):not(.novoc) .bigsw.pale{opacity:.3;box-shadow:none;}
 
   /* §51.2 — wat er verdwijnt in landscape. De bovenbalk, de tekstbalk (die hoort bij de
      autoscroll), de selectierij, de dunne lijn, de lege snelheidsrij en de twee greepjes.
@@ -712,6 +728,28 @@
   .phone.land #speedrow, .phone.land .mgrip, .phone.land .asgrip{display:none!important;}
   /* het menublok mag in landscape nooit dichtgeklapt staan: `.statrow` zit in dezelfde wikkel */
   .phone.land .normalbar{max-height:none!important;opacity:1!important;}
+  /* v11.25 §66 (D1.12) — JHS: «de 2de rij met knoppen staat er nog altijd bij landscape».
+     Klopt: §57.5 verhuisde enkel NO?/BM/FON. Nu gaan ook ⚙ · 📖 · 👁 · 🔍 · ＋ mee naar rij 1
+     (`landRow1()`), waardoor `.statrow` in landscape LEEG achterblijft en dus verdwijnt.
+     De voortgangsbalk krijgt de rest van de ruimte en wordt navenant korter — precies wat JHS
+     in D1.12 voorstelde. Gemeten ondergrens: zie §66.2. */
+  .phone.land #statrow{display:none!important;}
+  /* §66.2 — NAGEMETEN, niet geschat. Met negen knoppen van 38 px en een tussenruimte van 5 px
+     bleef er nog 75 px balk over; dat is te weinig om iets aan af te lezen. Met 32 px en een
+     tussenruimte van 4 px komt daar 68 px bij. De knoppen blijven 34 px hoog, dus de trefzone
+     is 32 × 34 — krap maar bruikbaar, en het alternatief (één knop in een lege tweede rij
+     laten staan) is precies wat JHS weg wilde. */
+  .phone.land .prow{gap:4px;}
+  .phone.land .prow .abtn{height:34px!important;width:32px!important;min-width:32px!important;
+        font-size:16px!important;padding:0!important;flex:0 0 32px!important;}
+  /* ⚠ De regel hierboven draagt `!important` (nodig tegen §44.5), en dus verliest een
+     specifiekere regel ZONDER `!important`. NO?/BM/FON liepen daardoor buiten hun 32 px —
+     gezien op de schermafdruk, niet in een telling. */
+  .phone.land .prow .abtn.bmt,
+  .phone.land .prow .abtn.dir{font-size:9.5px!important;letter-spacing:0!important;font-weight:900;}
+  .phone.land .prow .abtn{overflow:hidden;}
+  .phone.land .prow .abtn .ico{width:18px;height:18px;}
+  .phone.land .prow .pbar{flex:1 1 auto;min-width:0;}
 
   /* §51.3 — de twee grote knoppen. Links GROEN = juist, rechts ROOD = fout, volgens de
      legende «◀ links vegen = juist · ▶ rechts = fout» van §41.16. Ze vullen de hoogte van
@@ -721,7 +759,7 @@
      kaartje; maak het kaartje breder». De knoppen stonden op `flex:1 1 0` en deelden alles wat
      de kaart overliet (op 740 px kwam dat neer op ±174 px elk). Nu een VASTE breedte van 104 px
      (= 174 − 40 %) en de KAART krijgt de rest via `flex:1`. Eén getal om aan te draaien. */
-  .phone.land .bigsw{display:flex;flex:0 0 104px;width:104px;min-width:0;align-items:center;justify-content:center;
+  .phone.land:not(.novoc) .bigsw{display:flex;flex:0 0 104px;width:104px;min-width:0;align-items:center;justify-content:center;
         flex-direction:column;gap:3px;border:0;border-radius:16px;color:#fff;font-weight:800;
         box-shadow:0 6px 14px rgba(20,30,60,.18);cursor:pointer;touch-action:none;
         user-select:none;-webkit-user-select:none;transition:transform .06s,filter .06s;}
@@ -800,6 +838,10 @@
      mee weg. Ze doen op het eindscherm toch niets (`turnCard()` is dan leeg) en zouden enkel
      de indruk wekken dat er nog iets te beoordelen valt. */
   .phone.fin .bigsw{display:none!important;}
+  /* v11.25 §65.2 (D1.3) — buiten de beurtstand duidt de app zélf een kaart aan: de bovenste
+     die volledig zichtbaar is. Een streepje links maakt duidelijk wát de knoppen zullen
+     scoren; in de beurtstand en tijdens de autoscroll blijft de bestaande opmaak gelden. */
+  .phone:not(.turn):not(.play) .scrollcard.focus .card{box-shadow:-3px 0 0 0 var(--accent);}
   /* #stage wordt een kolom-flex zolang het eindscherm er staat: `min-height:100%` op het kind
      zou een definitieve hoogte van de ouder vragen die er in een flexkolom niet is. */
   .phone.fin .stage{display:flex;flex-direction:column;overflow:hidden!important;}
@@ -823,7 +865,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.24.1</span>
+    <span class="vers" id="vers">v11.26</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -865,10 +907,10 @@
              weg, links staat de groene teller en rechts de rode van deze beurt. -->
         <div class="pbarn" id="pbar" title="tik = start / pauze · pauze toont het menu">
           <em id="bprog"></em><span class="lbl" id="blbl"></span>
+          <!-- v11.26 §69.3 — de teller staat IN de balk, gecentreerd en op twee regels -->
+          <span class="pcnt" id="pcnt"></span>
           <b class="cok" id="bcok">0</b><b class="cbad" id="bcbad">0</b>
         </div>
-        <!-- v11.7 §42.7 — scrollpositie / totaal in de selectie, náást de balk -->
-        <span class="pcnt" id="pcnt"></span>
         <!-- v11.18 §55.2 — enkel in landscape zichtbaar: het schermvullende selectiemenu.
              #btnDir en #btnBM schuiven er door landRow1() vóór, na de teller. -->
         <button class="abtn" id="btnFull" title="volledig selectiemenu">☰</button>
@@ -1657,10 +1699,26 @@ function swipedToday(id){ const s=getScore(id); return !!(s&&s.ts&&s.ts>=dayStar
 (function dropDaySkip(){ if(SET.daySkip){ delete SET.daySkip; saveSet(); } })();
 function daySkipped(){ return false; }
 function trainN(){ return SET.trainn||50; }
+/* ============ v11.25 §67 · EEN BETERE VOLGORDE (D1.8, het bouwdeel) ============
+   D1.8 vroeg twee dingen: een echte planner ONDERZOEKEN (nota, niet bouwen — blijft open) en
+   «nu al een betere volgorde bouwen». Tot v11.24 sorteerde ☀50 zuiver op «langst niet gezien»,
+   waardoor een woord dat je vlot kent even vaak terugkwam als een woord dat je maar net kent.
+   Nu telt de zwakte mee: `dringend(id) = dagen sinds de laatste veeg × (1,25 − ema)`. Een pas
+   gekend woord (ema ±0,7) weegt zo ruwweg twee keer zwaarder dan een rotsvast woord (ema 1,0),
+   maar tijd blijft de hoofdmoot — het is nadrukkelijk GEEN planner, alleen een betere
+   rangschikking van dezelfde verzameling. Wie geen score heeft, komt vooraan.
+   ⚠ De SAMENSTELLING van ☀50 verandert hier niet van aard: het blijft «de N gekende woorden
+   die het meest aan een opfrissing toe zijn», enkel de maatstaf is beter. */
+function dringend(id){
+  const s=getScore(id)||{};
+  const dagen=Math.max(0,(Date.now()-(s.ts||0))/86400000);
+  const e=(s.ema==null?0.5:s.ema);
+  return dagen*(1.25-e);
+}
 function trainIds(){
   if(!SET.train || SET.train.d!==todayKey() || SET.train.n!==trainN()){
     const cand=ITEMS.filter(x=>x.type==='woord'&&stateOf(x)==='known');
-    cand.sort(function(a,b){ return (((getScore(a.id)||{}).ts)||0)-(((getScore(b.id)||{}).ts)||0); });
+    cand.sort(function(a,b){ return dringend(b.id)-dringend(a.id); });
     SET.train={d:todayKey(),n:trainN(),ids:cand.slice(0,trainN()).map(x=>x.id)}; saveSet();
   }
   return SET.train.ids||[];
@@ -1859,6 +1917,9 @@ function render(){
   else if(mode==='gram') renderGram();
   else if(mode==='songs') renderSongs();   /* v11.22 §60 */
   else if(mode==='stats') renderStats();
+  /* v11.25 §65.2 — buiten de woordenlijst horen de twee grote knoppen er niet te staan. */
+  $('phone').classList.toggle('novoc',mode!=='voc');
+  if(typeof listFocus==='function') setTimeout(listFocus,0);
   renderPin();
   /* v11.10 §44.13 — in de beurtstand moet er altijd precies één kaart in focus staan */
   if(typeof turnFocus==='function') turnFocus();
@@ -2274,7 +2335,7 @@ $('btnAdd').onclick=()=>openEditor(null);
    `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
    Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
    dat zo. */
-const APPVER='v11.24.1';
+const APPVER='v11.26';
 let FRESHBUSY=false;
 async function hardRefresh(){
   if(FRESHBUSY) return; FRESHBUSY=true;
@@ -2446,6 +2507,7 @@ $('stage').addEventListener('scroll',function(){
   if(mode!=='voc') return;
   const st=$('stage'); if(st.scrollTop+st.clientHeight > st.scrollHeight-700) appendMore();
   if(!topTick){ topTick=true; requestAnimationFrame(function(){ topTick=false; renderTop();
+    if(typeof listFocus==='function') listFocus();   /* v11.25 §65.2 */
     /* v11.6 §41.9 — met de vinger omhoog scrollen om iets te herlezen mag: de focus (en dus de
        wazigheid) volgt gewoon je scrollpositie, ook wanneer de autoscroll stilstaat. */
     if(AS.on) asSetFocus();
@@ -2925,6 +2987,35 @@ function asBarFrac(){
   const s=$('stage').scrollTop, a=asStartTop(i), len=asSegLen(i);
   return Math.min(1,Math.max(0,(s-a)/len));
 }
+/* ============ v11.25 §65.1 · DE VOORTGANGSBALK — ÉÉN BRON (D1.6a + D1.6c) ============
+   JHS' antwoord op D1.6 was ondubbelzinnig: het linkergetal betekent **waar ik sta in de
+   selectie**, en de vulling moet **dezelfde bron** hebben.
+   ⚠ Wat er misging, gemeten:
+   · **D1.6a** — buiten de autoscroll berekende `asDrawBar()` de vulling uit `stage.scrollTop`.
+     In landscape staat `#stage` op `overflow:hidden` (gemeten `scrollHeight = clientHeight`),
+     en in de beurtstand zonder play wordt er evenmin gescrold. Deling door nul → de balk bleef
+     eeuwig op 0 %. Precies wat JHS zag: «werkt helemaal niet».
+   · **D1.6c** — het getal kwam uit `asListPos()` (scrollpositie) en het totaal uit
+     `deck.length`, twee tellers die in de beurtstand niets met elkaar te maken hadden.
+   Nu geeft `progNow()` beide uit ÉÉN plaatsbepaling, met drie takken die elk hun eigen
+   natuurlijke bron hebben: de autoscroll haar kaartteller, de beurtstand de plaats van de
+   FOCUSKAART, en de gewone lijst de bovenste zichtbare kaart. `stage.scrollTop` komt er niet
+   meer aan te pas, dus `overflow:hidden` kan niets meer breken. */
+function turnIndex(){
+  const host=$('lst'); if(!host) return 0;
+  const sc=turnCard(); if(!sc) return 0;
+  const i=Array.prototype.indexOf.call(host.children,sc);
+  return i<0?0:i;
+}
+function progNow(){
+  const tot=deck.length||AS.cards.length||0;
+  if(!tot) return {pos:0,tot:0,frac:0};
+  if(AS.on){ const i=Math.min(Math.max(0,AS.idx),tot-1);
+    return {pos:i+1,tot:tot,frac:Math.min(1,Math.max(0,(i+asBarFrac())/tot))}; }
+  const i=TURN ? Math.min(Math.max(0,turnIndex()),tot-1)
+               : Math.min(Math.max(0,asListPos()-1),tot-1);
+  return {pos:i+1,tot:tot,frac:Math.min(1,Math.max(0,(i+1)/tot))};
+}
 function asBarProgress(){
   const tot=deck.length||AS.cards.length||0; if(!tot||!AS.on) return;
   const pr=Math.min(1,(Math.min(AS.idx,tot-1)+asBarFrac())/tot);
@@ -2932,16 +3023,8 @@ function asBarProgress(){
 }
 function asDrawBar(){
   const bar=$('pbar'); if(!bar) return;
-  const tot=deck.length||AS.cards.length||0;
-  let pr=0, pos=0;
-  if(AS.on){
-    pos=tot?Math.min(AS.idx+1,tot):0;
-    if(tot) pr=(Math.min(AS.idx,tot-1)+asBarFrac())/tot;
-  } else {
-    const s=$('stage'), max=s.scrollHeight-s.clientHeight;
-    if(max>4) pr=Math.min(1,Math.max(0,s.scrollTop/max));
-    pos=Math.min(asListPos(),tot);
-  }
+  /* v11.25 §65.1 — plaats én vulling komen uit dezelfde `progNow()`. */
+  const P=progNow(), tot=P.tot, pos=P.pos, pr=P.frac;
   $('bprog').style.width=(pr*100).toFixed(1)+'%';
   $('blbl').textContent='';                       /* §42.7 — het cijferpaar staat nu náást de balk */
   /* v11.19 §56.3 — in de TO DO-kolom (de ☀-knop boven TO DO, `SET.pick==='new'`) zei
@@ -2952,10 +3035,11 @@ function asDrawBar(){
   const c=$('pcnt');
   if(c){
     if(SET.pick==='new'){
-      c.textContent='nog '+newLeft();
+      c.innerHTML='<i>nog</i>'+newLeft();
       c.title='nog te doen vandaag van de '+(SET.nperday||15)+' nieuwe woorden';
     } else {
-      c.textContent=tot?(pos+' / '+tot):'';
+      /* v11.26 §69.3 — «1 /» boven «1991», gecentreerd in de balk zelf. */
+      c.innerHTML=tot?('<i>'+pos+' /</i>'+tot):'';
       c.title='';
     }
   }
@@ -3275,6 +3359,35 @@ $('btnTurn').onclick=function(){ turnToggle(); };
 function turnPer(){ return (SPEEDS[SET.asSpeed]||2)*1000; }
 function turnPct(){ const p=+SET.turnPct; return TPCTS.indexOf(p)>=0?p:50; }
 function turnCard(){ const h=$('lst'); return h?h.querySelector('.scrollcard.focus'):null; }
+/* ============ v11.25 §65.2 · DE FOCUSKAART IN DE GEWONE LIJST (D1.3) ============
+   JHS' antwoord op D1.3: «de app duidt zelf een focuskaart aan; na scoren doorschuiven».
+   Buiten de beurtstand en buiten de autoscroll krijgt de bovenste zichtbare kaart daarom de
+   klasse `.focus` — dezelfde klasse die de beurtstand al gebruikt, zodat `turnCard()`,
+   `turnScore()` en de twee grote knoppen ongewijzigd blijven werken. Eén waarheid, geen
+   tweede mechaniek. Een streepje links op de kaart maakt zichtbaar wát je scoort. */
+function listFocus(){
+  if(TURN||AS.on||mode!=='voc') return;
+  const host=$('lst'); if(!host||!host.children.length) return;
+  const i=Math.min(Math.max(0,asListPos()-1),host.children.length-1);
+  const want=host.children[i];
+  const cur=host.querySelector('.scrollcard.focus');
+  if(cur===want) return;
+  if(cur) cur.classList.remove('focus');
+  if(want&&want.classList.contains('scrollcard')) want.classList.add('focus');
+  if(typeof landPaintBtns==='function') landPaintBtns();
+}
+/* Na het scoren doorschuiven — in de beurtstand doet `turnStep()` dat al; in de lijst
+   verschuiven we de focus én de lijst met precies één kaart (`asListStep`, §41.13). */
+function focusNext(){
+  if(TURN){ turnStep(1); return; }
+  const host=$('lst'), cur=turnCard(); if(!host||!cur) return;
+  let nx=cur.nextElementSibling;
+  if(!nx && shown<deck.length){ appendMore(); nx=cur.nextElementSibling; }
+  if(!nx){ finShow(); return; }
+  cur.classList.remove('focus'); nx.classList.add('focus');
+  turnSetHide(nx,true);
+  asListStep(cur);
+}
 function turnIsHidden(sc){ if(!sc) return false; const id=sc.dataset.sc;
   return SET.showAns?hidden.has(id):!revealed.has(id); }
 /* Verbergen/onthullen gebeurt met dezelfde `revealed`/`hidden`-verzamelingen als in de lijst,
@@ -3529,13 +3642,24 @@ function landPaint(){
    even fysiek terug naar `#statrow`, waar ze de laatste twee knoppen waren — appendChild
    herstelt dus vanzelf de oorspronkelijke volgorde. Verplaatsen in plaats van kopiëren:
    één knop, één id, alle bestaande handlers en al het inkleuren blijven werken. */
+/* v11.25 §66 (D1.12) — ⚙ · 📖 · 👁 · 🔍 · ＋ verhuizen in landscape MEE naar rij 1, zodat
+   `.statrow` daar leeg achterblijft en met één CSS-regel verdwijnt. Verplaatsen, niet kopiëren
+   (zelfde afspraak als §55.2/§57.5): er bestaat nooit een tweede stel knoppen dat uit de pas
+   kan lopen, en alle klikhandlers blijven ongewijzigd.
+   ⚠ De volgorde bij het terugzetten is de oorspronkelijke van `.statrow`. */
+/* v11.26 §69.1 — JHS, 2026-08-22: «de oogjes knop moest eruit bij landscape». `btnBlur` gaat
+   dus NIET mee naar rij 1 en blijft in `.statrow`, die in landscape op `display:none` staat —
+   daarmee is hij daar weg, zonder een tweede stel knoppen of een extra regel. */
+const LANDROW1=['btnCfg','btnGram','btnSearch','btnAdd'];
 function landRow1(on){
   const prow=document.querySelector('.prow'), row=$('statrow');
   /* v11.20 §57.5 (D1.10) — #btnFON verhuist mee met #btnBM (bevestigd door JHS). */
   const d=$('btnDir'), b=$('btnBM'), n=$('btnFON'), f=$('btnFull');
   if(!prow||!row||!d||!b) return;
-  if(on){ prow.appendChild(d); prow.appendChild(b); if(n) prow.appendChild(n); if(f) prow.appendChild(f); }
-  else  { row.appendChild(d); row.appendChild(b); if(n) row.appendChild(n); }
+  const host=on?prow:row;
+  LANDROW1.forEach(function(id){ const e=$(id); if(e) host.appendChild(e); });
+  host.appendChild(d); host.appendChild(b); if(n) host.appendChild(n);
+  if(on&&f) prow.appendChild(f);
 }
 /* Het schermvullende selectiemenu — «until i click that button again». Het paneel houdt geen
    eigen kopie van de knoppen bij: `#fgrid`, `#srcrow` en `#subrows` VERHUIZEN erheen en
@@ -3619,7 +3743,9 @@ function landBtn(k){ return $(k==='g'?'bigOk':'bigBad'); }
 /* v11.16 §53.2 — de twee knoppen bestaan nu ook in portrait (halfdoorzichtig, linksonder en
    rechtsonder). De bleek-regel hangt daarom niet meer aan LAND maar aan TURN: buiten de
    beurtstand staan ze toch niet op het scherm. */
-function landPale(){ return TURN && !AS.on && turnIsHidden(turnCard()); }
+/* v11.25 §65.2 — §52.4 gold enkel in de beurtstand. Nu ook in de gewone lijst: staat het
+   antwoord nog dicht, dan onthult de eerste druk en scoort pas de tweede. */
+function landPale(){ return !AS.on && turnIsHidden(turnCard()); }
 function landPaintBtns(){
   const p=landPale();
   ['g','r'].forEach(function(k){ const el=landBtn(k); if(el) el.classList.toggle('pale',p); });
@@ -3662,7 +3788,7 @@ function turnScore(ok){
     if(ok) AS.nok++; else AS.nbad++;
     asTint(sc,ok?1:0,ok?0:1);
     setTimeout(function(){ asTint(sc,0,0); },380);
-    turnStep(1);
+    focusNext();                       /* v11.25 §65.2 — ook in de gewone lijst doorschuiven */
     asDrawBar(); renderPin();
     return;
   }
