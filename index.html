@@ -28,7 +28,7 @@
     --unseen:#dfe3e9; --unseen-bd:#b7bec8; --star:#e6c229; --fluo:#f2f74d; --fluobd:#d9dd2e;
     --scrolltrack:#dbe1ee; --scrollthumb:#000; --gridln:#e6ebf3;
     --bmc:#7c8aa3; --bmbg:rgba(125,140,165,.16);
-    --cBlack:#1b2334; --cGrey:#8a97ab; --cBlue:#2f6fd6; --cOrange:#e08b2b; --cGreen:#2e9e5b; --cStar:#e6c229; --cRot:#8b4bc9;
+    --cBlack:#1b2334; --cGrey:#8a97ab; --cBlue:#2f6fd6; --cOrange:#e08b2b; --cGreen:#2e9e5b; --cStar:#e6c229; --cRot:#8b4bc9; --cNext:#0e8f9c;
     --sSoS:#2f6fd6;--sNils:#1f8a5f;--sSomme:#8e44ad;--sJan:#c2622a;
     --prog:#8bb2ee;                        /* v11.6 §41.1 · v11.20 §57.3 (D1.6b) — was #c9dcfa, «te zacht» */
   }
@@ -44,7 +44,7 @@
     --unseen:#2a323d; --unseen-bd:#47515f; --star:#f0b429; --fluo:#c9d117; --fluobd:#8f9a10;
     --scrolltrack:#1b222c; --scrollthumb:#e7ecf3; --gridln:#242c37;
     --bmc:#9aa8bd; --bmbg:rgba(160,178,200,.18);
-    --cBlack:#39445a; --cGrey:#6b7789; --cBlue:#3f7fe0; --cOrange:#d68a1f; --cGreen:#2c9257; --cStar:#c9a51f; --cRot:#9a5bd8;
+    --cBlack:#39445a; --cGrey:#6b7789; --cBlue:#3f7fe0; --cOrange:#d68a1f; --cGreen:#2c9257; --cStar:#c9a51f; --cRot:#9a5bd8; --cNext:#12a2b0;
     --sSoS:#3f7fe0;--sNils:#2c9257;--sSomme:#a366c8;--sJan:#d1803f;
     --prog:#4a6ea8;                        /* v11.6 §41.1 · v11.20 §57.3 (D1.6b) — was #2b3d5c */
   }
@@ -190,7 +190,33 @@
   .abtn.bmt{font-size:11px;font-weight:900;letter-spacing:.5px;}
   .abtn.bmt.on{background:var(--accent);border-color:var(--accent);color:#fff;}
   .abtn.bmt.off{opacity:.5;}
-  .fgrid{display:grid;grid-template-columns:1fr 1fr 40px 1fr 1fr 1fr 1fr;gap:3px;}
+  /* v11.22 §59 — ACHT rasterkolommen: balkje · in db · Later · [rijlabel] · next · actief ·
+     zwak · ken · star. Het balkje staat altijd links en loopt over alle rijen (grid-row 1/-1);
+     een tik erop toont of verbergt «in db» en «Later». Standaard staan die twee DICHT — dan
+     valt het raster terug op zeven sporen en worden de knoppen breder met een grotere letter. */
+  .fgrid{display:grid;grid-template-columns:9px 1fr 1fr 40px 1fr 1fr 1fr 1fr 1fr;gap:3px;}
+  .fgrid.hid{grid-template-columns:9px 40px 1fr 1fr 1fr 1fr 1fr;}
+  .fgrid.hid .fb{font-size:18px;padding:8px 0;}
+  .fbar{grid-column:1;grid-row:1/-1;border-radius:4px;background:var(--hair);cursor:pointer;align-self:stretch;}
+  /* ---- v11.22 §60 · DE SONGS-TAB ---- */
+  .song{padding:8px 10px 40px;}
+  .songnav{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px;}
+  .songnav button{flex:1 1 30%;border:2px solid var(--hair);background:var(--surface);color:var(--ink);border-radius:10px;
+        padding:9px 6px;font-size:13px;font-weight:800;line-height:1.2;}
+  .songnav button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .songnav button small{display:block;font-weight:600;font-size:10px;opacity:.75;}
+  .songbody{border:1px solid var(--hair);border-radius:12px;background:var(--surface);padding:10px 12px;min-height:120px;}
+  .songpart{margin-bottom:14px;}
+  .songpart h5{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);
+        display:flex;align-items:center;gap:6px;}
+  .songpart h5 button{margin-left:auto;border:1px solid var(--hair);background:var(--ctrl);color:var(--muted);
+        border-radius:7px;font-size:11px;padding:2px 7px;}
+  .songline{margin-bottom:9px;}
+  .songline .so{display:block;font-size:15px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .songline .sn{display:block;font-size:13.5px;color:var(--muted);line-height:1.3;}
+  .songempty{color:var(--muted);font-size:13px;line-height:1.45;}
+  .songempty code{background:var(--ctrl);border-radius:4px;padding:1px 4px;font-size:12px;}
+  .fbar.on{background:var(--accent);}
   .fh{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);font-weight:800;text-align:center;padding-bottom:1px;}
   .fgrid.lbl .fh{display:block;}
   .rlb{font-size:10.5px;font-weight:900;color:var(--muted);letter-spacing:.4px;display:flex;align-items:center;justify-content:center;}
@@ -211,6 +237,7 @@
   .fb{color:#fff;font-size:15px;font-weight:800;text-align:center;border-radius:7px;padding:6px 0;border:2px solid transparent;line-height:1.15;}
   .fb.c0{background:var(--cBlack);} .fb.c1{background:var(--cGrey);} .fb.c2{background:var(--cBlue);}
   .fb.c3{background:var(--cOrange);} .fb.c4{background:var(--cGreen);} .fb.c5{background:var(--cStar);color:#4a4109;}
+  .fb.c6{background:var(--cNext);}   /* v11.22 §59 — de kolom «next» */
   /* v11.17 §54 — DE ROTTE APPELS. Paars, want het is geen kolomkeuze maar een dagset,
      net als de twee oranje ☀-knoppen; de kleur zet hem apart van de zes kolommen. */
   .fb.rot{background:var(--cRot);}
@@ -579,7 +606,8 @@
   .fpack{cursor:pointer;}
   .menublk.compact .fgrid,.menublk.compact .srcrow,.menublk.compact #subrows{display:none;}
   .menublk:not(.compact) .fpack{display:none;}
-  .fstrip{display:grid;grid-template-columns:1fr 1fr 40px 1fr 1fr 1fr 1fr;gap:3px;}
+  .fstrip{display:grid;grid-template-columns:9px 1fr 1fr 40px 1fr 1fr 1fr 1fr 1fr;gap:3px;}
+  .fstrip.hid{grid-template-columns:9px 40px 1fr 1fr 1fr 1fr 1fr;}   /* v11.22 §59 */
   .fstrip .fh{font-size:8px;line-height:1;padding-bottom:1px;}
   .fstrip b{display:block;height:9px;border-radius:3px;background:var(--cGrey);}
   .fstrip b.tr{background:var(--cGreen);}
@@ -589,6 +617,7 @@
   .fstrip i.c0{background:var(--cBlack);} .fstrip i.c1{background:var(--cGrey);}
   .fstrip i.c2{background:var(--cBlue);}  .fstrip i.c3{background:var(--cOrange);}
   .fstrip i.c4{background:var(--cGreen);} .fstrip i.c5{background:var(--cStar);}
+  .fstrip i.c6{background:var(--cNext);}   /* v11.22 §59 */
   .fstrip i.sel{box-shadow:0 0 0 2px var(--ink);}
   .fsrc{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:4px;}
   .fsrc span{font-size:9.5px;font-weight:800;text-align:center;color:var(--muted);
@@ -785,7 +814,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.20</span>
+    <span class="vers" id="vers">v11.22.1</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -920,6 +949,38 @@ const todayKey=()=>dayKey(0);
 let scores=load('sos_scores_v6',{});
 let USER=load('sos_user_v6',[]);
 let FAV=new Set(load('sos_fav_v6',[]));
+/* v11.22 §59 — «NEXT». Een eigen bewaarde verzameling naast FAV, precies zoals FAV: eigen
+   sleutel, mee in de Supabase-sync, mee in export/import, mee in de dubbelgangersmigratie.
+   Ze houdt de id's bij die JHS ZELF op next zette; het etiket `next` uit de gegevensbestanden
+   telt daarnaast gewoon mee (zie isNextNow). */
+let NEXT=new Set(load('sos_next_v6',[]));
+/* ============ v11.22 §60 · DE SONGS-TAB — HET RAAMWERK ============
+   Drie lege velden met drie knoppen. De app levert GEEN tekst mee: JHS laadt zelf XML-stukken
+   op en de app plakt ze per song aan elkaar, IN DE VOLGORDE WAARIN HIJ ZE OPLAADT.
+   ⚠ Waarom in localStorage en niet in index.html: zo overschrijft een nieuwe release zijn
+   teksten NOOIT. Publiceren raakt enkel index.html en sw.js; `sos_songs_v6` blijft staan.
+   Ze gaan wel mee in de Supabase-sync en in export/import, dus ook naar een ander toestel.
+   Vorm: { songsleutel: [ {t:'titel van het deel', lines:[{o:'origineel', nl:'vertaling'}]} , … ] }
+   Dit raakt scores noch kolommen — het is een neefje van renderGram(). */
+/* v11.22.1 — de lijst songs is RUIM, op vraag van JHS. Drie vaste vakjes om te beginnen, en
+   daarnaast zoveel eigen songs als hij wil: `sos_songlist_v6` bewaart die (zelfde behandeling
+   als de teksten — buiten index.html, mee in sync en export/import). Een song erbij kan op twee
+   manieren: met de knop «＋ song», of gewoon door een XML-stuk met een onbekende `song=` op te
+   laden — dan maakt de app het vakje zelf aan. */
+const SONGBASE=[{k:'happy',t:'Happy'},{k:'romme',t:'Rømme vekk'},{k:'million',t:'Million'}];
+let SONGEXTRA=load('sos_songlist_v6',[]);
+if(!Array.isArray(SONGEXTRA)) SONGEXTRA=[];
+let SONGS=load('sos_songs_v6',{});
+if(!SONGS||typeof SONGS!=='object'||Array.isArray(SONGS)) SONGS={};
+function SONGDEF(){ return SONGBASE.concat(SONGEXTRA.filter(function(d){ return d&&d.k; })); }
+function songTitle(k){ const d=SONGDEF().find(function(x){ return x.k===k; }); return d?d.t:k; }
+function songKey(t){ let b=String(t||'song').toLowerCase().replace(/[^a-z0-9]+/g,'')
+    .replace(/^$/,'song').slice(0,20); let k=b,i=2;
+  while(SONGDEF().some(function(d){ return d.k===k; })){ k=b+i; i++; } return k; }
+function songAdd(k,t){ if(SONGDEF().some(function(d){ return d.k===k; })) return;
+  SONGEXTRA.push({k:k,t:t||k}); save('sos_songlist_v6',SONGEXTRA); syncPushSoon(); }
+(function songInit(){ SONGDEF().forEach(function(d){ if(!Array.isArray(SONGS[d.k])) SONGS[d.k]=[]; }); })();
+let songSel=SONGBASE[0].k;
 let NOTES=load('sos_notes_v6',{});
 let CORR=load('sos_corr_v6',{});     /* correcties op officiële woorden → mee naar Claude bij sync */
 let FLUO=load('sos_fluo_v6',{});     /* {id:[rijindexen]} fluogele NB-cellen = foutgeheugen */
@@ -934,7 +995,10 @@ let GNOTE=load('sos_gnote_v6',{});   /* v10: eigen opmerkingen per grammaticahoo
 const RAWSET=load('sos_set_v6',null);
 let SET=Object.assign({types:['woord','zin'],eps:[],themes:[],basis:false,dark:false,showAns:false,panel:false,showBM:true,showPH:true,   /* v11.20 §57.5 — FON-knop */ fsel:null,nch:[],src:[],who:[],asSpeed:5,asSpeedV:1111,turnPct:50,   /* v11.11 §45.2/§45.3 — standaard 1,5s (index 5 in SPEEDS) en 50 % */
   /* v11.3 — nperday §32.5 · pick/train/newday §31.6+§31.9. Alles binnen de BESTAANDE sleutel sos_set_v6. */
-  nperday:15,pick:null,train:null,newday:null}, load('sos_set_v6',{}));
+  nperday:15,pick:null,train:null,newday:null,
+  /* v11.22 §59 — «in db» en «Later» staan STANDAARD DICHT; het balkje links zet ze open. */
+  fhide:true}, load('sos_set_v6',{}));
+if(typeof SET.fhide!=='boolean') SET.fhide=true;
 if(typeof SET.basis!=='boolean') SET.basis=false;
 if(typeof SET.showBM!=='boolean') SET.showBM=true;
 /* v11.5.1 §40.3 — SET.fsel houdt nu een LIJST van types aan: {s:'new', t:['woord','zin']}.
@@ -1017,6 +1081,8 @@ const isRev = () => DIR==='NB';        /* true = je moet het NEDERLANDS raden (N
 
 const saveSet=()=>save('sos_set_v6',SET);
 const saveFav=()=>{save('sos_fav_v6',[...FAV]); syncPushSoon();};
+const saveNext=()=>{save('sos_next_v6',[...NEXT]); syncPushSoon();};   /* v11.22 §59 */
+const saveSongs=()=>{save('sos_songs_v6',SONGS); save('sos_songlist_v6',SONGEXTRA); syncPushSoon();};    /* v11.22 §60 */
 const saveNotes=()=>{save('sos_notes_v6',NOTES); syncPushSoon();};
 const saveCorr=()=>{save('sos_corr_v6',CORR); syncPushSoon();};
 const saveFluo=()=>{save('sos_fluo_v6',FLUO); syncPushSoon();};
@@ -1188,6 +1254,7 @@ function migDubbels(MAP,FLAG,BAK){
   Object.keys(OF).forEach(function(d){
     const t=OF[d];
     if(FAV.has(d)){ FAV.add(t); FAV.delete(d); }
+    if(NEXT.has(d)){ NEXT.add(t); NEXT.delete(d); }   /* v11.22 §59 */
     if(NOTES[d]){ NOTES[t]=NOTES[t] ? (NOTES[t]+' · '+NOTES[d]) : NOTES[d]; delete NOTES[d]; }
     if(CORR[d]){  CORR[t]=CORR[t]  ? (CORR[t] +' · '+CORR[d])  : CORR[d];  delete CORR[d]; }
     if(FLUO[d]){  FLUO[t]=[...new Set([].concat(FLUO[t]||[],FLUO[d]))].sort((a,b)=>a-b); delete FLUO[d]; }
@@ -1202,7 +1269,7 @@ function migDubbels(MAP,FLAG,BAK){
   if(SET.daySkip) Object.keys(SET.daySkip).forEach(function(id){
     const t=OF[id]; if(t){ SET.daySkip[t]=SET.daySkip[id]; delete SET.daySkip[id]; } });
 
-  save('sos_scores_v6',scores); save('sos_fav_v6',[...FAV]); save('sos_notes_v6',NOTES);
+  save('sos_scores_v6',scores); save('sos_fav_v6',[...FAV]); save('sos_next_v6',[...NEXT]); save('sos_notes_v6',NOTES);
   save('sos_corr_v6',CORR); save('sos_fluo_v6',FLUO); save('sos_user_v6',USER);
   SET[FLAG]=1; saveSet();
 }
@@ -1215,7 +1282,7 @@ const SB_KEY='sb_publishable_wq_Xjq-7qVhmRrnbAsmpGg_rapM_oCb';
 const SB_TABLE='sync', SB_ROW='jhs';
 const SB_H={apikey:SB_KEY, Authorization:'Bearer '+SB_KEY};
 let SYNC_TS=load('sos_sync_ts_v6',0), syncState='idle', pushTimer=null;
-function localBundle(){ return {items:USER, scores, fav:[...FAV], notes:NOTES, corr:CORR, fluo:FLUO, daily:DAILY, gnote:GNOTE,
+function localBundle(){ return {items:USER, scores, fav:[...FAV], next:[...NEXT], songs:SONGS, songlist:SONGEXTRA, notes:NOTES, corr:CORR, fluo:FLUO, daily:DAILY, gnote:GNOTE,
   set:{showBM:SET.showBM}, ts:Date.now()}; }
 function setSyncState(s){ syncState=s; const el=document.getElementById('syncStat'); if(el) el.textContent=s; }
 function mergeRemote(rem){
@@ -1225,6 +1292,12 @@ function mergeRemote(rem){
   if(Array.isArray(rem.items)){ const byId={}; USER.forEach(x=>byId[x.id]=x);
     rem.items.forEach(x=>{ if(!byId[x.id]||remNewer) byId[x.id]=x; }); USER=Object.values(byId); }
   if(Array.isArray(rem.fav)) rem.fav.forEach(x=>FAV.add(x));
+  if(Array.isArray(rem.next)) rem.next.forEach(x=>NEXT.add(x));   /* v11.22 §59 — samensmelten, nooit wissen */
+  /* v11.22 §60 — songteksten: per song wint de LANGSTE lijst delen. Zo kan een sync nooit
+     stukken wegnemen die op dit toestel al opgeladen zijn. */
+  if(Array.isArray(rem.songlist)) rem.songlist.forEach(function(d){ if(d&&d.k) songAdd(d.k,d.t); });
+  if(rem.songs&&typeof rem.songs==='object'){ for(const k in rem.songs){ const b=rem.songs[k];
+    if(Array.isArray(b)&&b.length>((SONGS[k]||[]).length)) SONGS[k]=b; } save('sos_songs_v6',SONGS); }
   if(rem.notes){ if(remNewer) Object.assign(NOTES,rem.notes); else NOTES=Object.assign({},rem.notes,NOTES); }
   if(rem.corr){ if(remNewer) Object.assign(CORR,rem.corr); else CORR=Object.assign({},rem.corr,CORR); }
   if(rem.fluo){ for(const k in rem.fluo){ const a=FLUO[k]||[], b=rem.fluo[k]||[]; FLUO[k]=[...new Set([...a,...b])]; } }
@@ -1232,7 +1305,7 @@ function mergeRemote(rem){
   if(rem.daily){ for(const k in rem.daily){ const a=DAILY[k], b=rem.daily[k]||{};
     if(!a) DAILY[k]=b; else ['ok','bad','new','add','aok','abad'].forEach(f=>{ a[f]=Math.max(a[f]||0,b[f]||0); }); } }
   if(rem.set&&typeof rem.set.showBM==='boolean'&&remNewer){ SET.showBM=rem.set.showBM; saveSet(); }
-  save('sos_scores_v6',scores); save('sos_user_v6',USER); save('sos_fav_v6',[...FAV]);
+  save('sos_scores_v6',scores); save('sos_user_v6',USER); save('sos_fav_v6',[...FAV]); save('sos_next_v6',[...NEXT]);
   save('sos_notes_v6',NOTES); save('sos_corr_v6',CORR); save('sos_fluo_v6',FLUO); save('sos_daily_v6',DAILY);
   buildPool();
 }
@@ -1284,6 +1357,20 @@ const skey=id=>id+'|'+DIR;
 function bucket(ema){ if(ema==null) return null; if(ema<1/3) return 'bad'; if(ema<2/3) return 'half'; return 'ok'; }
 const BUCKCOL={ok:'var(--ok)',half:'var(--half)',bad:'var(--wrong)'};
 function getScore(id){ return scores[skey(id)]||null; }
+/* ============ v11.21 §58 · DE RICHTING NL? ============
+   De namen zijn verwarrend, dus hier één keer helder (zie ook `paintDir()`):
+     `NO?` = je raadt het NOORS   = NL -> NO = sleutel `id|NL` = de MOEILIJKE richting.
+     `NL?` = je raadt het NEDERLANDS = NO -> NL = sleutel `id|NB` = de MAKKELIJKE richting.
+   In de export van JHS staan ~300 sleutels op `|NL` en exact 9 op `|NB`. Daardoor viel aan de
+   NL?-kant bijna alles in TO DO en bleven actief/zwak/gekend leeg.
+   JHS' regel, letterlijk: «de NO->NL score wordt nooit driving voor de NL->NO score».
+   Dus EENRICHTINGSVERKEER: moeilijk -> makkelijk mag overerven, makkelijk -> moeilijk NOOIT. */
+function rawScore(id,dir){ return scores[id+'|'+dir]||null; }
+function hasHist(id,dir){ const s=rawScore(id,dir); return !!(s&&s.hist&&s.hist.length); }
+/* «Heb ik dit al gezien?» leest de MOEILIJKE sleutel. Sta je aan de NL?-kant, dan telt een
+   eigen `|NB`-score daar ook als gezien — dat is makkelijk->makkelijk en dus toegelaten.
+   Aan de NO?-kant wordt `|NB` NOOIT gelezen; die kant blijft exact wat ze was. */
+function seenAny(id){ return hasHist(id,'NL') || (isRev() && hasHist(id,'NB')); }
 function isDone(it){ const s=getScore(it.id); return !!(s&&s.hist&&s.hist.length); }
 function isWeakOrNew(it){ const s=getScore(it.id); return bucket(s&&s.ema)!=='ok'; }
 /* v8: elk nieuw item start met één "fout" — staat dus meteen op actief/zwak */
@@ -1297,7 +1384,14 @@ function seedWrong(id){ const k=skey(id); if(scores[k]&&scores[k].hist&&scores[k
    Ze staan bij ZWAK zonder dat ze een kunstmatige foutswipe krijgen (dat was de oude seedWrong-truc).
    Zodra er een echte score is, telt gewoon die score. */
 function isNext(it){ return (it.labels||[]).indexOf('next')>=0; }
-function isFresh(it){ const s=getScore(it.id); return !(s&&s.hist&&s.hist.length); }
+/* v11.22 §59 — DE ENE LIJST. JHS' eigen keuze (NEXT) en het etiket uit de gegevens zijn
+   samengesmolten tot één begrip (antwoord D1.2b). Alles wat «next» wil weten, vraagt het hier. */
+function isNextNow(it){ return NEXT.has(it.id) || isNext(it); }
+/* v11.21 §58 — «vers» loopt voortaan via `seenAny()`, precies dezelfde voorwaarde als de tak
+   `'new'` van `stateOf()`. Vóór §58 liepen die twee uiteen aan de NL?-kant: `stateOf` zei
+   «zwak» (overgeërfd) terwijl `isFresh` «ja, vers» zei, waardoor `newIds()` datzelfde woord
+   alsnog als NIEUW woord van de dag voorstelde. */
+function isFresh(it){ return !seenAny(it.id); }
 /* ---- v11.5 §38.8 · eenmalige migratie van `gfirst` (en `first`) ----
    «nieuw geleerd» telde te hoog (72·60·60). De fix van §34.6 werkt enkel voor woorden die ná
    v11.3.1 groen werden: alles wat daarvóór al groen stond draagt geen `gfirst`, en kreeg er
@@ -1316,16 +1410,45 @@ function isFresh(it){ const s=getScore(it.id); return !(s&&s.hist&&s.hist.length
   SET.gfirstmig=1; saveSet();
 })();
 /* toestand van een item voor de filterbalk */
-function stateOf(it){ const s=getScore(it.id);
-  if(!s||!s.hist||!s.hist.length) return isNext(it)?'weak':'new';
-  return bucket(s.ema)==='ok'?'known':'weak'; }
+/* v11.21 §58 — de enige plaats waar de twee richtingen elkaar raken.
+   NO? (moeilijk): ongewijzigd, leest UITSLUITEND `|NL`.
+   NL? (makkelijk): een eigen `|NB`-score wint altijd; is die er niet maar bestaat er wel een
+   `|NL`-historiek, dan wordt de toestand OVERGEËRFD — «ÉÉN STAP VOORZICHTIGER», beslist door
+   JHS op 2026-08-22: gekend wordt ACTIEF, en dat is in dit model de toestand `weak`
+   (de kolom «actief» = alles wat niet `new` is). Zo hoeft hij niets opnieuw te leren, maar
+   krijgt hij ook niets cadeau. */
+/* v11.22 §59 — «NEXT», de regel van JHS in één zin:
+     een item is next als het (door JHS aangeduid OF met het etiket `next` uit de data)
+     EN nog nooit gescoord is. Anders is het wat zijn score zegt.
+   Daaruit volgt alles: next is een DEELVERZAMELING van «Later» (de kolom die vroeger TO DO
+   heette) en botst dus nooit met actief/zwak/ken/star; een item verlaat next VANZELF bij zijn
+   eerste score, dus er is geen opruiming nodig in `sos_next_v6`.
+   ⚠ De tak `isNext(it)?'weak':'new'` van §29.6 is hier VERDWENEN: items die door hun etiket in
+   ZWAK stonden, staan nu in NEXT. Dat verschuift zichtbaar cijfers — gewild, gemeten, bevestigd
+   door JHS op 2026-08-22. */
+function stateOf(it){
+  if(!seenAny(it.id)) return isNextNow(it)?'next':'new';
+  if(isRev()){
+    const own=rawScore(it.id,'NB');
+    if(own&&own.hist&&own.hist.length) return bucket(own.ema)==='ok'?'known':'weak';
+    return 'weak';                      /* §58 — overgeërfd uit |NL, één stap voorzichtiger */
+  }
+  const s=rawScore(it.id,'NL');
+  return bucket(s.ema)==='ok'?'known':'weak';
+}
+/* v11.22 §59 — ZEVEN kolommen: in db · Later · next · actief · zwak · ken · star.
+   `c` is de KLEURKLASSE en staat los van de volgorde, zodat de bestaande CSS (c0..c5) niet
+   hoeft te verschuiven; next kreeg er één bij (c6). «Later» is de oude kolom TO DO en telt
+   ALLES wat nog nooit gescoord is — dus `new` én `next` samen (antwoord D1.2c: next blijft in
+   Later staan). «actief» is alles wat WEL al gescoord is. */
 const FCOLS=[
-  {k:'db',    lb:'in db',  f:function(){return true;}},
-  {k:'new',   lb:'TO DO',  f:function(x){return stateOf(x)==='new';}},
-  {k:'act',   lb:'actief', f:function(x){return stateOf(x)!=='new';}},
-  {k:'weak',  lb:'zwak',   f:function(x){return stateOf(x)==='weak';}},
-  {k:'known', lb:'gekend', f:function(x){return stateOf(x)==='known';}},
-  {k:'star',  lb:'starred',f:function(x){return FAV.has(x.id);}}
+  {k:'db',    lb:'in db',  c:0, f:function(){return true;}},
+  {k:'new',   lb:'Later',  c:1, f:function(x){var s=stateOf(x); return s==='new'||s==='next';}},
+  {k:'next',  lb:'next',   c:6, f:function(x){return stateOf(x)==='next';}},
+  {k:'act',   lb:'actief', c:2, f:function(x){var s=stateOf(x); return s!=='new'&&s!=='next';}},
+  {k:'weak',  lb:'zwak',   c:3, f:function(x){return stateOf(x)==='weak';}},
+  {k:'known', lb:'ken',    c:4, f:function(x){return stateOf(x)==='known';}},
+  {k:'star',  lb:'star',   c:5, f:function(x){return FAV.has(x.id);}}
 ];
 const FFN=k=>(FCOLS.find(c=>c.k===k)||FCOLS[0]).f;
 /* v11.2 §29.5 — `auto`=true betekent: deze swipe komt uit de autoscroll.
@@ -1480,7 +1603,7 @@ function cardHTML(it){
   const note=corrOf(it)?('✏️ '+corrOf(it)):noteOf(it);
   const cmt=note?'<div class="cmt">💡 '+esc(note)+'</div>':'';
   /* v11.2 §29.6 — klein merkje zodat je ziet waarom een woord zónder score toch bij «zwak» staat */
-  const nx=(isNext(it)&&isFresh(it))?'<span class="nx">next</span>':'';
+  const nx=(isNextNow(it)&&isFresh(it))?'<span class="nx">next</span>':'';
   return '<div class="card'+(fav?' starred':'')+'" data-id="'+it.id+'">'+hdr
     +'<div class="grid">'+cells+'</div>'
     +'<div class="meta"><span class="src">'+src+'</span>'+nx+'<span class="eps">'+eps+'</span></div>'+cmt+'</div>';
@@ -1509,11 +1632,12 @@ function swipedToday(id){ const s=getScore(id); return !!(s&&s.ts&&s.ts>=dayStar
    («vandaag nog niet relevant»), dus het mag morgen gewoon opnieuw voorgesteld worden.
    De uitstel-id's staan als NIEUW VELD in de BESTAANDE sleutel sos_set_v6: {id:dagnummer}.
    Oudere dagen worden bij het opstarten opgeruimd — ze gelden toch enkel voor hun eigen dag. */
-if(!SET.daySkip || typeof SET.daySkip!=='object' || Array.isArray(SET.daySkip)) SET.daySkip={};
-(function pruneDaySkip(){ const t=todayKey(); let n=0;
-  Object.keys(SET.daySkip).forEach(function(k){ if(SET.daySkip[k]!==t){ delete SET.daySkip[k]; n++; } });
-  if(n) saveSet(); })();
-function daySkipped(id){ return SET.daySkip[id]===todayKey(); }
+/* v11.22 §59 — «VANDAAG EVEN NIET» (§41.21/§41.22) IS VERVALLEN, op vraag van JHS (D1.2a).
+   Die tik betekent nu «zet op next». SET.daySkip wordt bij het opstarten één keer opgeruimd en
+   nooit meer gevuld; `daySkipped()` blijft als lege huls bestaan zodat oudere aanroepen niet
+   breken. De dubbelgangersmigratie kijkt nog naar SET.daySkip en heeft daar zijn eigen guard. */
+(function dropDaySkip(){ if(SET.daySkip){ delete SET.daySkip; saveSet(); } })();
+function daySkipped(){ return false; }
 function trainN(){ return SET.trainn||50; }
 function trainIds(){
   if(!SET.train || SET.train.d!==todayKey() || SET.train.n!==trainN()){
@@ -1586,7 +1710,18 @@ function rotOpen(){ return rotIds().filter(id=>!swipedToday(id)); }
    eerste uit; zolang die er niet is, vallen we terug op «next», dan Somme, dan de rest. */
 /* v11.4 §36.3 — binnen «Home» telt de prioriteit mee: groep 1 (de eerste week) komt eerst,
    dan 2, dan 3. Zonder deze regel kwamen de nieuwe woorden in willekeurige volgorde. */
-function newRank(x){ if(x.who==='home') return (x.prio||3)-1; if(isNext(x)) return 4; if(x.src==='somme') return 5; return 6; }
+/* v11.22 §59 — DE ☀-DAGKNOP TREKT UIT NEXT. Next staat vooraan in de prioriteit (rang 0), dus
+   de dagset vult zich eerst helemaal met next-items; is next leeg — of raakt ze op vóór de N
+   van de dag bereikt is — dan schuift de rest van «Later» aan, in de oude volgorde
+   (Home op prioriteit, dan Somme, dan de rest). Zo staat de knop in de kolom «next» én blijft
+   een dagset van 15 ook een dagset van 15 wanneer er maar drie next-items zijn. */
+function newRank(x){ if(isNextNow(x)) return 0; if(x.who==='home') return 1+((x.prio||3)-1); if(x.src==='somme') return 5; return 6; }
+/* v11.22.1 §59.5bis — JHS, 2026-08-22: «nee, ik wil zelf manueel altijd next aanvullen».
+   De dagset komt dus UITSLUITEND uit next. Alleen wanneer er GEEN enkel vers next-item meer is,
+   valt ze terug op de rest van «Later». Ze wordt dus NIET aangevuld tot N wanneer next kleiner
+   is dan N — dat is de bedoeling: de ☀-knop is dan gewoon korter, en JHS vult next zelf aan. */
+function newPool(){ return ITEMS.filter(x=>isFresh(x)&&(x.type==='woord'||x.who==='home')); }
+function newSrc(pool){ const nx=pool.filter(isNextNow); return nx.length?nx:pool; }
 function newIds(){
   const n=SET.nperday||15;
   if(!SET.newday || SET.newday.d!==todayKey() || SET.newday.n!==n){
@@ -1594,11 +1729,11 @@ function newIds(){
        ook door de gele knop kunnen komen, anders blijft de helft van Home onbereikbaar.
        Buiten Home blijft het bij losse woorden, zoals vroeger. */
     /* v11.6 §41.21 — wat je vandaag uit de dagset geschoven hebt, komt er vandaag niet in terug */
-    const cand=ITEMS.filter(x=>isFresh(x)&&!daySkipped(x.id)&&(x.type==='woord'||x.who==='home'));
+    const cand=newSrc(newPool());
     cand.sort(function(a,b){ return (newRank(a)-newRank(b))||(orderKey(a)-orderKey(b)); });
     SET.newday={d:todayKey(),n:n,ids:cand.slice(0,n).map(x=>x.id)}; saveSet();
   }
-  return (SET.newday.ids||[]).filter(id=>!daySkipped(id));
+  return SET.newday.ids||[];
 }
 /* ---- v11.5 §38.2 · de ☀-teller telt ELK vers woord van vandaag ----
    Vroeger telde de knop enkel af als je precies de 15 vastgezette woorden veegde. JHS kiest
@@ -1616,7 +1751,8 @@ function newOpen(){
   let ids=newIds().filter(id=>!swipedToday(id));
   if(ids.length<left){                       /* suggesties op, teller nog niet → aanvullen */
     const have=new Set(ids);
-    const extra=ITEMS.filter(x=>isFresh(x)&&!daySkipped(x.id)&&(x.type==='woord'||x.who==='home')&&!have.has(x.id))
+    /* v11.22.1 — aanvullen mag ook alleen binnen next, zolang er nog vers next-materiaal is. */
+    const extra=newSrc(newPool()).filter(x=>!have.has(x.id))
                      .sort(function(a,b){ return (newRank(a)-newRank(b))||(orderKey(a)-orderKey(b)); });
     for(let i=0;i<extra.length&&ids.length<left;i++) ids.push(extra[i].id);
   }
@@ -1674,6 +1810,7 @@ function render(){
   if(typeof finClear==='function') finClear();
   if(mode==='voc') renderList();
   else if(mode==='gram') renderGram();
+  else if(mode==='songs') renderSongs();   /* v11.22 §60 */
   else if(mode==='stats') renderStats();
   renderPin();
   /* v11.10 §44.13 — in de beurtstand moet er altijd precies één kaart in focus staan */
@@ -1737,6 +1874,128 @@ function renderGram(){
   $('stage').querySelectorAll('[data-gn]').forEach(b=>b.onclick=function(){ openGNote(b.dataset.gn); });
 }
 
+/* ============ v11.22 §60 · HET SONGSCHERM ============
+   Drie knoppen, drie lege velden. De app brengt zelf GEEN tekst mee — wat je hier ziet, komt
+   uit `sos_songs_v6` en dus uitsluitend uit de XML-stukken die JHS zelf oplaadt. Delen worden
+   getoond in de volgorde waarin ze opgeladen zijn; elk deel is apart te wissen.
+   Geen groen/rood, geen score, geen kolom: het is leestekst, net als de grammatica. */
+function songTotal(){ let t=0; SONGDEF().forEach(function(d){ t+=(SONGS[d.k]||[]).length; }); return t; }
+function songLines(k){ let t=0; (SONGS[k]||[]).forEach(function(p){ t+=(p.lines||[]).length; }); return t; }
+function renderSongs(){
+  const nav=SONGDEF().map(function(d){
+    const np=(SONGS[d.k]||[]).length;
+    return '<button class="'+(songSel===d.k?'on':'')+'" data-song="'+d.k+'">'+esc(d.t)
+      +'<small>'+(np?(np+' deel'+(np===1?'':'en')+' · '+songLines(d.k)+' regels'):'nog leeg')+'</small></button>';
+  }).join('');
+  const parts=SONGS[songSel]||[];
+  let body;
+  if(!parts.length){
+    body='<div class="songempty">Nog niets opgeladen voor deze song.<br><br>'
+      +'Tik op <b>＋ deel opladen</b> en plak een XML-stuk in deze vorm:<br><br>'
+      +'<code>&lt;songdeel song="'+esc(songSel)+'" titel="deel 1"&gt;</code><br>'
+      +'<code>&nbsp;&nbsp;&lt;r&gt;&lt;o&gt;originele regel&lt;/o&gt;&lt;nl&gt;vertaling&lt;/nl&gt;&lt;/r&gt;</code><br>'
+      +'<code>&lt;/songdeel&gt;</code><br><br>'
+      +'Laad je meerdere stukken op, dan komen ze onder elkaar te staan in de volgorde waarin je ze oplaadt. '
+      +'Een nieuwe versie van de app raakt deze teksten nooit aan.</div>';
+  } else {
+    body=parts.map(function(p,i){
+      const ls=(p.lines||[]).map(function(l){
+        return '<div class="songline"><span class="so">'+esc(l.o||'')+'</span>'
+             +(l.nl?'<span class="sn">'+esc(l.nl)+'</span>':'')+'</div>'; }).join('');
+      return '<div class="songpart"><h5>'+esc(p.t||('deel '+(i+1)))
+        +'<button data-sdel="'+i+'">wis dit deel</button></h5>'+ls+'</div>';
+    }).join('');
+  }
+  $('stage').innerHTML='<div class="song"><div class="sthdr"><button class="bk" id="stBack">←</button>🎵 Songs</div>'
+    +'<div class="songnav">'+nav+'</div>'
+    +'<div style="display:flex;gap:6px;margin-bottom:8px;">'
+    +'<button class="btn save" id="sAdd" style="flex:1">＋ deel opladen</button>'
+    +'<button class="btn cancel" id="sNew" style="flex:0 0 auto">＋ song</button>'
+    +'<button class="btn cancel" id="sHelp" style="flex:0 0 auto">?</button></div>'
+    +'<div class="songbody">'+body+'</div></div>';
+  $('stBack').onclick=function(){ setMode('voc'); };
+  $('sAdd').onclick=function(){ openSongImport(); };
+  $('sNew').onclick=function(){ openSongNew(); };
+  $('sHelp').onclick=function(){ openSongHelp(); };
+  $('stage').querySelectorAll('[data-song]').forEach(function(b){ b.onclick=function(){ songSel=b.dataset.song; renderSongs(); }; });
+  $('stage').querySelectorAll('[data-sdel]').forEach(function(b){ b.onclick=function(){
+    const i=+b.dataset.sdel; (SONGS[songSel]||[]).splice(i,1); saveSongs(); renderSongs();
+    toastn('Deel gewist.'); }; });
+}
+/* De XML wordt met DOMParser gelezen — mild in wat ze aanvaardt: <songdeel>, <part> of <song>
+   als omhulsel, <r>, <line> of <regel> als regel, <o>/<orig> en <nl>/<vert> als de twee kanten.
+   Staat er geen `song=`-attribuut op, dan komt het stuk bij de song die nu openstaat. */
+function songParse(txt){
+  const doc=new DOMParser().parseFromString(String(txt||'').trim(),'application/xml');
+  if(doc.querySelector('parsererror')) return {err:'Dat is geen geldige XML.'};
+  const roots=[].slice.call(doc.querySelectorAll('songdeel,part,song'));
+  const list=roots.length?roots:(doc.documentElement?[doc.documentElement]:[]);
+  const out=[];
+  list.forEach(function(el){
+    const key=(el.getAttribute('song')||el.getAttribute('key')||songSel).toLowerCase();
+    const stt=el.getAttribute('songtitel')||el.getAttribute('songtitle')||'';
+    const t=el.getAttribute('titel')||el.getAttribute('title')||'';
+    const lines=[];
+    [].slice.call(el.querySelectorAll('r,line,regel')).forEach(function(r){
+      const g=function(sel){ const e=r.querySelector(sel); return e?(e.textContent||'').trim():''; };
+      const o=g('o')||g('orig'), nl=g('nl')||g('vert');
+      if(o||nl) lines.push({o:o,nl:nl});
+    });
+    if(lines.length) out.push({k:key,t:t,st:stt,lines:lines});
+  });
+  return out.length?{parts:out}:{err:'Geen regels gevonden in die XML.'};
+}
+function openSongImport(){
+  openSheet('<div class="sgrip"></div><h3>🎵 Een songdeel opladen</h3>'
+    +'<div class="hintbox">📥 <div>Plak hier één XML-stuk (of meerdere na elkaar). Het wordt <b>achteraan toegevoegd</b> bij de song — de volgorde waarin je oplaadt, is de volgorde waarin het staat.</div></div>'
+    +'<div class="field"><textarea id="sx" rows="8" placeholder="&lt;songdeel song=&quot;'+esc(songSel)+'&quot; titel=&quot;deel 1&quot;&gt;…&lt;/songdeel&gt;"></textarea></div>'
+    +'<div class="actions"><button class="btn cancel" id="c">Annuleer</button><button class="btn save" id="do">Voeg toe</button></div>');
+  $('c').onclick=closeSheet;
+  $('do').onclick=function(){
+    const r=songParse($('sx').value);
+    if(r.err){ $('do').textContent=r.err; return; }
+    let nl=0;
+    r.parts.forEach(function(p){
+      /* v11.22.1 — een onbekende `song=` is geen fout meer: de app maakt het vakje zelf aan. */
+      let k=p.k;
+      if(!SONGDEF().some(function(d){ return d.k===k; })){ songAdd(k,p.st||k); }
+      if(!Array.isArray(SONGS[k])) SONGS[k]=[];
+      SONGS[k].push({t:p.t||('deel '+(SONGS[k].length+1)),lines:p.lines});
+      nl+=p.lines.length;
+    });
+    saveSongs(); closeSheet(); renderSongs();
+    toastn('Toegevoegd: '+r.parts.length+' deel'+(r.parts.length===1?'':'en')+', '+nl+' regels.');
+  };
+}
+function openSongNew(){
+  openSheet('<div class="sgrip"></div><h3>🎵 Een song erbij</h3>'
+    +'<div class="hintbox">💡 <div>Geef de song een naam. De app maakt er zelf een sleutel bij (die zet je in je XML als <code>song="…"</code>). Je kan er zoveel bijzetten als je wil.</div></div>'
+    +'<div class="field"><label>Naam</label><input id="snm" placeholder="bv. Ingenting"></div>'
+    +'<div class="actions"><button class="btn cancel" id="c">Annuleer</button><button class="btn save" id="do">Voeg toe</button></div>');
+  $('c').onclick=closeSheet;
+  $('do').onclick=function(){ const t=($('snm').value||'').trim();
+    if(!t){ $('do').textContent='Geef een naam'; return; }
+    const k=songKey(t); songAdd(k,t); SONGS[k]=SONGS[k]||[]; saveSongs();
+    songSel=k; closeSheet(); renderSongs(); toastn('Song «'+t+'» toegevoegd — sleutel: '+k); };
+}
+function openSongDel(){
+  const k=songSel, base=SONGBASE.some(function(d){ return d.k===k; });
+  if(base){ toastn('Dit is een van de drie vaste vakjes — die blijven staan.'); return; }
+  if((SONGS[k]||[]).length){ toastn('Wis eerst de delen van deze song.'); return; }
+  SONGEXTRA=SONGEXTRA.filter(function(d){ return d.k!==k; }); delete SONGS[k];
+  saveSongs(); songSel=SONGBASE[0].k; renderSongs(); toastn('Song verwijderd.');
+}
+function openSongHelp(){
+  openSheet('<div class="sgrip"></div><h3>🎵 Hoe werkt dit?</h3>'
+    +'<div class="hintbox">💡 <div>De app bevat zelf <b>geen songteksten</b>. Wat hier staat, heb jij opgeladen; het zit in dit toestel (en in de sync), niet in de app. <b>Een nieuwe versie overschrijft het dus nooit.</b></div></div>'
+    +'<div class="field"><label>De vorm van een deel</label><textarea rows="7" readonly>'
+    +esc('<songdeel song="'+songSel+'" titel="deel 1">\n  <r><o>originele regel</o><nl>vertaling</nl></r>\n  <r><o>volgende regel</o><nl>vertaling</nl></r>\n</songdeel>')
+    +'</textarea></div>'
+    +'<div class="hintbox">🔑 <div>De sleutels die nu bestaan: <b>'+SONGDEF().map(function(d){return esc(d.k);}).join('</b> · <b>')+'</b>. Laat je <code>song=</code> weg, dan komt het stuk bij de song die nu openstaat. Zet je er een <b>onbekende</b> sleutel in, dan maakt de app dat vakje zelf aan — geef er dan <code>songtitel="…"</code> bij voor de naam op de knop.</div></div>'
+    +'<div class="actions"><button class="btn cancel" id="c">Sluit</button></div>');
+  $('c').onclick=closeSheet;
+}
+
 /* ---- swipes/dag bovenaan (laatste 7 dagen, vandaag vet) ---- */
 function renderSwipes(){
   /* v11.3 §31.7 — nog maar drie getallen: vandaag + de twee vorige dagen */
@@ -1752,37 +2011,50 @@ function renderSwipes(){
 
 }
 /* ---- filterbalk (2 rijen × 6 knoppen, single select) ---- */
+/* ============ v11.22 §59 · DE KOLOMMEN, «NEXT» EN «LATER» ============
+   Het raster wordt niet langer met de hand uitgeschreven met lege <span>'s als opvulling —
+   dat was precies de plaats waar renderFgrid() en renderStrip() uit elkaar konden lopen.
+   Beide tekenen nu uit ÉÉN beschrijving: `fcolsVis()` zegt welke kolommen zichtbaar zijn en
+   `fRow()` schuift het rijlabel op de juiste plaats. Zo schuiven allebei automatisch mee
+   wanneer «in db» en «Later» dichtklappen. */
+function fcolsVis(){ return SET.fhide ? FCOLS.filter(function(c){ return c.k!=='db'&&c.k!=='new'; }) : FCOLS.slice(); }
+function fLabIdx(){ return SET.fhide ? 0 : 2; }   /* rijlabel: open ná «Later», dicht vooraan */
+function fRow(cells,lab){ var out=cells.slice(); out.splice(fLabIdx(),0,lab); return out.join(''); }
 function renderFgrid(){
   const base=baseList();
-  const rows=[['woord','wrd'],['zin','zin'],['conv','gsp']];   /* v11.3 §31.6 · v11.16 §53.1 — derde rij: de gesprekjes */
-  /* kolomvolgorde: in db · nieuw · [rijlabel] · actief · zwak · gekend · starred */
-  let h=FCOLS.slice(0,2).map(c=>'<span class="fh">'+c.lb+'</span>').join('')+'<span class="fh"></span>'
-       +FCOLS.slice(2).map(c=>'<span class="fh">'+c.lb+'</span>').join('');
-  /* v11.3.1 §34.7 — dagrij: ☀ boven TO DO (grijs), ☀ train boven gekend (groen) */
-  const nOpen=newLeft(), tOpen=trainOpen().length;   /* v11.5 §38.2 — teller = wat er nog rest */
-  /* v11.17 §54 — de rotte appels staan op de VIJFDE plaats van de ☀-rij, dus in de kolom
-     «zwak», recht boven de twee oranje knoppen van die kolom. */
-  const rOpen=rotOpen().length;
-  h+='<span></span>'
-    +'<button class="fb c1 day'+(SET.pick==='new'?' sel':'')+'" data-pick="new" title="nieuwe woorden van vandaag"'
-      +((nOpen===0&&SET.pick!=='new')?' disabled':'')+'>☀ '+nOpen+'</button>'
-    +'<span></span><span></span>'
-    +'<button class="fb rot day'+(SET.pick==='rot'?' sel':'')+'" data-pick="rot" title="de rotte appels — je slechtst gescoorde woorden en zinnen"'
-      +((rOpen===0&&SET.pick!=='rot')?' disabled':'')+'>✱ '+rOpen+'</button>'
-    +'<button class="fb c4 day'+(SET.pick==='train'?' sel':'')+'" data-pick="train" title="train — gekende woorden opfrissen"'
-      +((tOpen===0&&SET.pick!=='train')?' disabled':'')+'>☀ '+tOpen+'</button>'
-    +'<span></span>';
+  const rows=[['woord','wrd'],['zin','zin'],['conv','gsp']];   /* v11.3 §31.6 · v11.16 §53.1 */
+  const cols=fcolsVis();
+  const g=$('fgrid'); if(!g) return;
+  g.classList.toggle('hid',!!SET.fhide);
+  /* het balkje links: één element dat over alle rijen loopt (grid-row 1/-1) */
+  let h='<span class="fbar'+(SET.fhide?'':' on')+'" id="fbar" title="«in db» en «Later» tonen of verbergen"></span>';
+  h+=fRow(cols.map(function(c){ return '<span class="fh">'+c.lb+'</span>'; }),'<span class="fh"></span>');
+  /* v11.22 §59 — de ☀-dagknop staat nu in de kolom NEXT (was TO DO). De rotte appels blijven
+     in «zwak», train blijft in «ken». */
+  /* v11.22.1 — nu de dagset uitsluitend uit next komt, kan ze KORTER zijn dan de dagteller.
+     De knop toont dan «☀ 3/15»: 3 klaar, 15 nog te gaan vandaag. Zijn ze gelijk, dan blijft het
+     gewoon «☀ 15», precies zoals in §38.2. */
+  const nLeft=newLeft(), nHave=newOpen().length;
+  const nOpen=nLeft, nTxt=(nHave<nLeft?(nHave+'/'+nLeft):String(nLeft));
+  const tOpen=trainOpen().length, rOpen=rotOpen().length;
+  h+=fRow(cols.map(function(c){
+    if(c.k==='next') return '<button class="fb c6 day'+(SET.pick==='new'?' sel':'')+'" data-pick="new" title="de nieuwe woorden van vandaag — eerst uit next, daarna uit Later"'
+      +((nOpen===0&&SET.pick!=='new')?' disabled':'')+'>☀ '+nTxt+'</button>';
+    if(c.k==='weak') return '<button class="fb rot day'+(SET.pick==='rot'?' sel':'')+'" data-pick="rot" title="de rotte appels — je slechtst gescoorde woorden en zinnen"'
+      +((rOpen===0&&SET.pick!=='rot')?' disabled':'')+'>✱ '+rOpen+'</button>';
+    if(c.k==='known') return '<button class="fb c4 day'+(SET.pick==='train'?' sel':'')+'" data-pick="train" title="train — gekende woorden opfrissen"'
+      +((tOpen===0&&SET.pick!=='train')?' disabled':'')+'>☀ '+tOpen+'</button>';
+    return '<span></span>';
+  }),'<span></span>');
   rows.forEach(function(r){
-    const sub=base.filter(x=>x.type===r[0]);
-    const btn=function(c,i){
-      const n=sub.filter(c.f).length;
+    const sub=base.filter(function(x){ return x.type===r[0]; });
+    h+=fRow(cols.map(function(c){
+      const nn=sub.filter(c.f).length;
       const on=!!(SET.fsel&&SET.fsel.s===c.k&&SET.fsel.t.indexOf(r[0])>=0);
-      return '<button class="fb c'+i+(on?' sel':'')+'" data-ft="'+r[0]+'" data-fs="'+c.k+'" title="'+r[1]+' · '+c.lb+'">'+n+'</button>';
-    };
-    h+=btn(FCOLS[0],0)+btn(FCOLS[1],1)+'<span class="rlb">'+r[1]+'</span>';
-    for(let i=2;i<FCOLS.length;i++) h+=btn(FCOLS[i],i);
+      return '<button class="fb c'+c.c+(on?' sel':'')+'" data-ft="'+r[0]+'" data-fs="'+c.k+'" title="'+r[1]+' · '+c.lb+'">'+nn+'</button>';
+    }),'<span class="rlb">'+r[1]+'</span>');
   });
-  $('fgrid').innerHTML=h;
+  g.innerHTML=h;
   renderStrip();
 }
 /* ---- v11.10 §44.12 · DE COMPACTE SELECTIERIJ ----
@@ -1794,18 +2066,21 @@ function renderFgrid(){
 function renderStrip(){
   const st=$('fstrip'); if(!st) return;
   const sel=SET.fsel||null;
-  const on=(k,t)=>!!(sel&&sel.s===k&&sel.t.indexOf(t)>=0);
-  let h=FCOLS.slice(0,2).map(c=>'<span class="fh">'+c.lb+'</span>').join('')+'<span class="fh"></span>'
-       +FCOLS.slice(2).map(c=>'<span class="fh">'+c.lb+'</span>').join('');
-  h+='<span></span><b'+(SET.pick==='new'?' class="sel"':'')+'></b><span class="rlb">☀</span>'
-    +'<span></span>'
-    +'<b class="rot'+(SET.pick==='rot'?' sel':'')+'"></b>'   /* v11.17 §54 — het paarse streepje, kolom zwak */
-    +'<b class="tr'+(SET.pick==='train'?' sel':'')+'"></b><span></span>';
+  const on=function(k,t){ return !!(sel&&sel.s===k&&sel.t.indexOf(t)>=0); };
+  const cols=fcolsVis();
+  st.classList.toggle('hid',!!SET.fhide);
+  let h='<span class="fbar'+(SET.fhide?'':' on')+'"></span>';
+  h+=fRow(cols.map(function(c){ return '<span class="fh">'+c.lb+'</span>'; }),'<span class="fh"></span>');
+  /* v11.22 §59 — het grijze ☀-streepje staat mee verhuisd naar de kolom «next». */
+  h+=fRow(cols.map(function(c){
+    if(c.k==='next')  return '<b'+(SET.pick==='new'?' class="sel"':'')+'></b>';
+    if(c.k==='weak')  return '<b class="rot'+(SET.pick==='rot'?' sel':'')+'"></b>';
+    if(c.k==='known') return '<b class="tr'+(SET.pick==='train'?' sel':'')+'"></b>';
+    return '<span></span>';
+  }),'<span class="rlb">☀</span>');
   [['wrd','woord'],['zin','zin'],['gsp','conv']].forEach(function(r){   /* v11.16 §53.1 */
-    h+='<i class="c0'+(on('db',r[1])?' sel':'')+'"></i><i class="c1'+(on('new',r[1])?' sel':'')+'"></i>'
-      +'<span class="rlb">'+r[0]+'</span>';
-    ['act','weak','known','star'].forEach(function(k,i){
-      h+='<i class="c'+(i+2)+(on(k,r[1])?' sel':'')+'"></i>'; });
+    h+=fRow(cols.map(function(c){ return '<i class="c'+c.c+(on(c.k,r[1])?' sel':'')+'"></i>'; }),
+            '<span class="rlb">'+r[0]+'</span>');
   });
   st.innerHTML=h;
   const src=new Set(SET.src||[]);
@@ -1844,6 +2119,9 @@ function whoChips(){
      de bestaande verfijning van §27.4 (`whoMatch`) doet het werk; er is geen vijfde bron
      bijgekomen en de teller van Somme telt ze vanzelf mee. */
   h+='<button class="chipx'+(sel.has('conv')?' on':'')+'" data-w="conv">💬 Gesprekjes <small>'+n('conv')+'</small></button>';
+  /* v11.22 §60 — de songs-tab. GEEN filterchip: hij zet geen bron aan maar opent een eigen
+     scherm, precies zoals 📖 grammatica. Vandaar `data-songs` en niet `data-w`. */
+  h+='<button class="chipx'+(mode==='songs'?' on':'')+'" data-songs="1">🎵 Songs <small>'+songTotal()+'</small></button>';
   return h;
 }
 function epsChips(){
@@ -1918,6 +2196,8 @@ $('subrows').addEventListener('click',e=>{
     if(v==='all'){ if(st.has('all')) st.delete('all'); else { st.clear(); st.add('all'); } }
     else { st.delete('all'); const n=+v; st.has(n)?st.delete(n):st.add(n); }
     SET.nch=[...st]; saveSet(); mode='voc'; render(); return; }
+  /* v11.22 §60 — de songs-chip opent het songscherm en raakt de bronkeuze niet aan. */
+  if(e.target.closest('[data-songs]')){ setMode(mode==='songs'?'voc':'songs'); return; }
   const bw=e.target.closest('[data-w]');
   if(bw){ const v=bw.dataset.w, st=new Set(SET.who||[]);
     st.has(v)?st.delete(v):st.add(v);
@@ -1944,7 +2224,7 @@ $('btnAdd').onclick=()=>openEditor(null);
    `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
    Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
    dat zo. */
-const APPVER='v11.20';
+const APPVER='v11.22.1';
 let FRESHBUSY=false;
 async function hardRefresh(){
   if(FRESHBUSY) return; FRESHBUSY=true;
@@ -2011,8 +2291,13 @@ $('btnBM').onclick=()=>{ SET.showBM=!SET.showBM; saveSet(); syncPushSoon(); rend
 $('btnFON').onclick=()=>{ SET.showPH=!SET.showPH; saveSet(); syncPushSoon(); render(); };   /* v11.20 §57.5 */
 $('swipes').onclick=()=>setMode(mode==='stats'?'voc':'stats');
 $('newlearn').onclick=()=>setMode(mode==='stats'?'voc':'stats');
-$('fgrid').addEventListener('click',e=>{ const pk=e.target.closest('[data-pick]');
-  if(pk){ setPick(pk.dataset.pick); return; }
+$('fgrid').addEventListener('click',e=>{
+  /* v11.22 §59 — het balkje links toont of verbergt «in db» en «Later». */
+  if(e.target.closest&&e.target.closest('#fbar')){ SET.fhide=!SET.fhide; saveSet(); renderFgrid(); return; }
+  const pk=e.target.closest('[data-pick]');
+  /* v11.22 §59 — het klapt ook dicht bij een tik op eender welke andere knop van de rij
+     (zelfde gedachte als het automatisme van §52.2 voor de compacte rij). */
+  if(pk){ SET.fhide=true; setPick(pk.dataset.pick); return; }
   const b=e.target.closest('[data-ft]'); if(!b) return;
   const t=b.dataset.ft, s=b.dataset.fs;
   /* v11.5.1 §40.3 — binnen ÉÉN kolom mogen wrd en zin samen aanstaan; ze schakelen elk apart
@@ -2026,6 +2311,7 @@ $('fgrid').addEventListener('click',e=>{ const pk=e.target.closest('[data-pick]'
      SET.fsel al op null, maar omgekeerd bleef SET.pick staan; buildDeck() gaf die voorrang,
      zodat een klik op «gekend» toch nog de 15 woorden van de ☀-knop toonde (§38.7). */
   SET.pick=null;
+  SET.fhide=true;                       /* v11.22 §59 — dicht na een keuze */
   saveSet();
   /* v11.7 §42.9 — nieuwe selectie = nieuwe beurt: groene en rode teller terug op nul. */
   asResetCount();
@@ -2232,7 +2518,7 @@ $('stage').addEventListener('pointerup',e=>{
      item schuift dat item uit de dagset (uitgesteld, niet afgekeurd). */
   /* v11.15 §51.6 — UITSTELLEN bestaat niet in landscape (bewust weggelaten door JHS). De tik
      op het bolletje doet daar dus niets; in portrait blijft §41.21 ongewijzigd. */
-  if(d.tgt.closest && d.tgt.closest('.scoreblk')){ if(!LAND) asDayDrop(d.id); return; }
+  if(d.tgt.closest && d.tgt.closest('.scoreblk')){ if(!LAND) asNextTap(d.id); return; }
   /* v11.2 §29.7 · v11.6 §41.8 — een tik op de kaartenzone pauzeert of speelt verder. Zacht:
      het menublok blijft staan zoals het staat. Scoren doet die tik niet meer (§41.20). */
   /* v11.10 §44.12 — staat de selectierij open, dan is de EERSTE tik op de kaarten enkel
@@ -2829,16 +3115,22 @@ function asListStep(cardEl){
 /* v11.6 §41.21/§41.22 — tik op het bolletje van een NOG NIET gescoord item in ☀15: dat item
    gaat uit de dagset van vandaag en wordt meteen vervangen door het volgende in prioriteit.
    Is het al gescoord, dan blijft het staan. Buiten ☀15 doet de tik niets (§41.20). */
-function asDayDrop(id){
-  if(SET.pick!=='new'||!id) return;
+/* v11.22 §59 — DE TIK OP HET BOLLETJE ZET «NEXT». «Vandaag even niet» (§41.21/§41.22) is
+   vervallen op vraag van JHS (D1.2a). De tik werkt overal in de lijst, niet enkel in ☀, maar
+   ENKEL bij items zonder historiek — next is per definitie een deelverzameling van «Later»,
+   dus een gescoord item kan niet op next. Nog eens tikken haalt het er weer af; een item dat
+   zijn `next` uit de gegevensbestanden haalt, kan niet afgezet worden (dat is data, geen keuze).
+   In landscape doet de tik nog altijd niets (§51.6, keuze van JHS). */
+function asNextTap(id){
+  if(!id) return;
   const it=ITEMS.find(function(x){ return x.id===id; }); if(!it) return;
-  if(!isFresh(it)){ toastn('Al gescoord — dit item blijft staan.'); return; }
-  SET.daySkip[id]=todayKey();
-  SET.newday=null;                      /* de dagset opnieuw samenstellen, zonder dit item */
-  saveSet();
+  if(seenAny(it.id)){ toastn('Al gescoord — «next» geldt enkel voor items zonder historiek.'); return; }
+  if(NEXT.has(id)){ NEXT.delete(id); saveNext(); toastn('Van next gehaald.'); }
+  else if(isNext(it)){ toastn('Staat al op next — etiket uit de gegevens.'); return; }
+  else { NEXT.add(id); saveNext(); toastn('Op next gezet.'); }
+  SET.newday=null; saveSet();           /* de dagset opnieuw samenstellen, met dit item vooraan */
   /* v11.7 §42.2 — §41.14 vervalt: in de lijst blijft het menublok staan. */
   mode='voc'; render();
-  toastn('Vandaag even niet — vervangen door het volgende in prioriteit.');
 }
 /* ---- v11.5.1 · TWEE SOORTEN PAUZE ----
    `soft` = je houdt even je vinger op de lijst of je veegt (§38.5/§29.8). Dan stopt enkel de
@@ -3574,7 +3866,7 @@ function openFilter(){
   $('fapply').onclick=()=>{ closeSheet(); render(); };
 }
 /* v11 §27.11 — exportversie 11; `who` zit in de items zelf, import van v10 en lager blijft werken */
-function openExport(){ const data=JSON.stringify({v:11,items:USER,scores:scores,fav:[...FAV],notes:NOTES,corr:CORR,fluo:FLUO,daily:DAILY,gnote:GNOTE});
+function openExport(){ const data=JSON.stringify({v:12,items:USER,scores:scores,fav:[...FAV],next:[...NEXT],songs:SONGS,songlist:SONGEXTRA,notes:NOTES,corr:CORR,fluo:FLUO,daily:DAILY,gnote:GNOTE});
   openSheet('<div class="sgrip"></div><h3>Exporteer (back-up)</h3><div class="hintbox">💡 <div>Kopieer en bewaar dit. Geef het aan Claude en je toevoegingen én correcties komen mee in de officiële versie.</div></div>'
     +'<div class="field"><textarea id="exp" rows="7" readonly>'+esc(data)+'</textarea></div>'
     +'<div class="actions"><button class="btn cancel" id="c">Sluit</button><button class="btn save" id="cp">Kopieer</button></div>');
@@ -3589,12 +3881,16 @@ function openImport(){ openSheet('<div class="sgrip"></div><h3>Importeer</h3><di
     if(Array.isArray(d.items)){ const ids=new Set(USER.map(x=>x.id)); d.items.forEach(it=>{ if(!ids.has(it.id)) USER.push(it); }); }
     if(d.scores) Object.assign(scores,d.scores);
     if(Array.isArray(d.fav)) d.fav.forEach(x=>FAV.add(x));
+    if(Array.isArray(d.next)) d.next.forEach(x=>NEXT.add(x));   /* v11.22 §59 */
+    if(Array.isArray(d.songlist)) d.songlist.forEach(function(x){ if(x&&x.k) songAdd(x.k,x.t); });   /* v11.22.1 */
+    if(d.songs&&typeof d.songs==='object'){ for(const k in d.songs){ const b=d.songs[k];   /* v11.22 §60 */
+      if(Array.isArray(b)&&b.length>((SONGS[k]||[]).length)) SONGS[k]=b; } saveSongs(); }
     if(d.notes) Object.assign(NOTES,d.notes);
     if(d.corr) Object.assign(CORR,d.corr);
     if(d.fluo) Object.assign(FLUO,d.fluo);
     if(d.daily) Object.assign(DAILY,d.daily);
     if(d.gnote){ Object.assign(GNOTE,d.gnote); save('sos_gnote_v6',GNOTE); }
-    save('sos_user_v6',USER); save('sos_scores_v6',scores); saveFav(); saveNotes(); saveCorr(); saveFluo(); saveDaily();
+    save('sos_user_v6',USER); save('sos_scores_v6',scores); saveFav(); saveNext(); saveNotes(); saveCorr(); saveFluo(); saveDaily();
     buildPool(); closeSheet(); render();
   }catch(e){ $('do').textContent='Ongeldig ✕'; } }; }
 /* v11.17 §54 — «🗑️ Alle scores wissen» is VERWIJDERD op vraag van JHS (2026-08-17): één
