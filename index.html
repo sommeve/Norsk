@@ -190,14 +190,23 @@
   .abtn.bmt{font-size:11px;font-weight:900;letter-spacing:.5px;}
   .abtn.bmt.on{background:var(--accent);border-color:var(--accent);color:#fff;}
   .abtn.bmt.off{opacity:.5;}
-  /* v11.22 §59 — ACHT rasterkolommen: balkje · in db · Later · [rijlabel] · next · actief ·
-     zwak · ken · star. Het balkje staat altijd links en loopt over alle rijen (grid-row 1/-1);
-     een tik erop toont of verbergt «in db» en «Later». Standaard staan die twee DICHT — dan
-     valt het raster terug op zeven sporen en worden de knoppen breder met een grotere letter. */
-  .fgrid{display:grid;grid-template-columns:9px 1fr 1fr 40px 1fr 1fr 1fr 1fr 1fr;gap:3px;}
-  .fgrid.hid{grid-template-columns:9px 40px 1fr 1fr 1fr 1fr 1fr;}
-  .fgrid.hid .fb{font-size:18px;padding:8px 0;}
-  .fbar{grid-column:1;grid-row:1/-1;border-radius:4px;background:var(--hair);cursor:pointer;align-self:stretch;}
+  /* ============ v11.23 §62 · HET BALKJE STAAT NAAST HET RASTER, NIET ERIN ============
+     ⚠ In v11.22 stond het balkje ÍN het raster met `grid-row:1/-1`. Zonder een
+     `grid-template-rows` betekent `-1` in CSS de EERSTE rijlijn, dus het spande één rij in
+     plaats van vijf: een stipje van 9 × 11 px. Erger nog, het bezette een plaats in de kopregel
+     die de volgende rijen niet hadden, waardoor élke rij één kolom opschoof — de trap die JHS
+     zag — en de knoppen in de smalle sporen van 9 px en 40 px belandden.
+     De vaste oplossing: het balkje is een BROER van het raster in een flexrij. Dan is het per
+     definitie even hoog als het hele blok, en telt het raster weer exact evenveel vakjes als
+     sporen. Schuiven kán niet meer.
+     Sporen: OPEN acht (in db · Later · [rijlabel] · next · actief · zwak · ken · star),
+     DICHT zes (in db en Later weg). */
+  .fwrap{display:flex;gap:5px;align-items:stretch;}
+  .fbar{flex:0 0 9px;align-self:stretch;border:0;padding:0;border-radius:5px;
+        background:var(--hair);cursor:pointer;transition:background .15s;}
+  .fgrid{flex:1;min-width:0;display:grid;grid-template-columns:1fr 1fr 30px 1fr 1fr 1fr 1fr 1fr;gap:3px;}
+  .fgrid.hid{grid-template-columns:30px 1fr 1fr 1fr 1fr 1fr;}
+  .fgrid.hid .fb{font-size:18px;padding:9px 0;}
   /* ---- v11.22 §60 · DE SONGS-TAB ---- */
   .song{padding:8px 10px 40px;}
   .songnav{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px;}
@@ -234,7 +243,7 @@
   .subrow{display:flex;gap:4px;flex-wrap:wrap;padding:5px;border-radius:9px;margin-top:4px;border:1px dashed var(--sSoS);background:rgba(47,111,214,.12);}
   .subrow.n{border-color:var(--sNils);background:rgba(31,138,95,.12);}
   .subrow.s{border-color:var(--sSomme);background:rgba(142,68,173,.12);}
-  .fb{color:#fff;font-size:15px;font-weight:800;text-align:center;border-radius:7px;padding:6px 0;border:2px solid transparent;line-height:1.15;}
+  .fb{color:#fff;font-size:13px;font-weight:800;text-align:center;border-radius:7px;padding:6px 0;border:2px solid transparent;line-height:1.15;}
   .fb.c0{background:var(--cBlack);} .fb.c1{background:var(--cGrey);} .fb.c2{background:var(--cBlue);}
   .fb.c3{background:var(--cOrange);} .fb.c4{background:var(--cGreen);} .fb.c5{background:var(--cStar);color:#4a4109;}
   .fb.c6{background:var(--cNext);}   /* v11.22 §59 — de kolom «next» */
@@ -604,10 +613,10 @@
   .phone.playing .menublk{max-height:900px;opacity:1;}
   /* §44.12 — de compacte selectierij: streepjes van 9 px, geen cijfers */
   .fpack{cursor:pointer;}
-  .menublk.compact .fgrid,.menublk.compact .srcrow,.menublk.compact #subrows{display:none;}
+  .menublk.compact #fwrap,.menublk.compact .srcrow,.menublk.compact #subrows{display:none;}
   .menublk:not(.compact) .fpack{display:none;}
-  .fstrip{display:grid;grid-template-columns:9px 1fr 1fr 40px 1fr 1fr 1fr 1fr 1fr;gap:3px;}
-  .fstrip.hid{grid-template-columns:9px 40px 1fr 1fr 1fr 1fr 1fr;}   /* v11.22 §59 */
+  .fstrip{flex:1;min-width:0;display:grid;grid-template-columns:1fr 1fr 30px 1fr 1fr 1fr 1fr 1fr;gap:3px;}
+  .fstrip.hid{grid-template-columns:30px 1fr 1fr 1fr 1fr 1fr;}   /* v11.23 §62 */
   .fstrip .fh{font-size:8px;line-height:1;padding-bottom:1px;}
   .fstrip b{display:block;height:9px;border-radius:3px;background:var(--cGrey);}
   .fstrip b.tr{background:var(--cGreen);}
@@ -814,7 +823,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.22.1</span>
+    <span class="vers" id="vers">v11.23</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -892,10 +901,14 @@
       <!-- v11.5 §38.6/§38.14 · v11.6 §41.11 · v11.10 §44.12 — de selectierij, dichtgeklapt -->
       <div class="menublk compact" id="menublk">
         <div class="fpack" id="fpack">
-          <div class="fstrip" id="fstrip"></div>
+          <!-- v11.23 §62 — het balkje staat NAAST het raster (flex), niet erin -->
+          <div class="fwrap"><span class="fbar" id="sbar"></span><div class="fstrip" id="fstrip"></div></div>
           <div class="fsrc" id="fsrc"></div>
         </div>
-        <div class="fgrid" id="fgrid"></div>
+        <div class="fwrap" id="fwrap">
+          <button class="fbar" id="fbar" title="«in db» en «Later» tonen of verbergen"></button>
+          <div class="fgrid" id="fgrid"></div>
+        </div>
         <div class="srcrow" id="srcrow"></div>
         <div id="subrows"></div>
       </div>
@@ -2026,9 +2039,10 @@ function renderFgrid(){
   const cols=fcolsVis();
   const g=$('fgrid'); if(!g) return;
   g.classList.toggle('hid',!!SET.fhide);
-  /* het balkje links: één element dat over alle rijen loopt (grid-row 1/-1) */
-  let h='<span class="fbar'+(SET.fhide?'':' on')+'" id="fbar" title="«in db» en «Later» tonen of verbergen"></span>';
-  h+=fRow(cols.map(function(c){ return '<span class="fh">'+c.lb+'</span>'; }),'<span class="fh"></span>');
+  /* v11.23 §62 — het balkje staat naast het raster en wordt hier NIET meer meegetekend;
+     het enige wat het raster nog doet, is zijn eigen vakjes uitschrijven. */
+  const bar=$('fbar'); if(bar) bar.classList.toggle('on',!SET.fhide);
+  let h=fRow(cols.map(function(c){ return '<span class="fh">'+c.lb+'</span>'; }),'<span class="fh"></span>');
   /* v11.22 §59 — de ☀-dagknop staat nu in de kolom NEXT (was TO DO). De rotte appels blijven
      in «zwak», train blijft in «ken». */
   /* v11.22.1 — nu de dagset uitsluitend uit next komt, kan ze KORTER zijn dan de dagteller.
@@ -2069,8 +2083,8 @@ function renderStrip(){
   const on=function(k,t){ return !!(sel&&sel.s===k&&sel.t.indexOf(t)>=0); };
   const cols=fcolsVis();
   st.classList.toggle('hid',!!SET.fhide);
-  let h='<span class="fbar'+(SET.fhide?'':' on')+'"></span>';
-  h+=fRow(cols.map(function(c){ return '<span class="fh">'+c.lb+'</span>'; }),'<span class="fh"></span>');
+  const sb=$('sbar'); if(sb) sb.classList.toggle('on',!SET.fhide);   /* v11.23 §62 */
+  let h=fRow(cols.map(function(c){ return '<span class="fh">'+c.lb+'</span>'; }),'<span class="fh"></span>');
   /* v11.22 §59 — het grijze ☀-streepje staat mee verhuisd naar de kolom «next». */
   h+=fRow(cols.map(function(c){
     if(c.k==='next')  return '<b'+(SET.pick==='new'?' class="sel"':'')+'></b>';
@@ -2224,7 +2238,7 @@ $('btnAdd').onclick=()=>openEditor(null);
    `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
    Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
    dat zo. */
-const APPVER='v11.22.1';
+const APPVER='v11.23';
 let FRESHBUSY=false;
 async function hardRefresh(){
   if(FRESHBUSY) return; FRESHBUSY=true;
@@ -2291,9 +2305,10 @@ $('btnBM').onclick=()=>{ SET.showBM=!SET.showBM; saveSet(); syncPushSoon(); rend
 $('btnFON').onclick=()=>{ SET.showPH=!SET.showPH; saveSet(); syncPushSoon(); render(); };   /* v11.20 §57.5 */
 $('swipes').onclick=()=>setMode(mode==='stats'?'voc':'stats');
 $('newlearn').onclick=()=>setMode(mode==='stats'?'voc':'stats');
+/* v11.23 §62 — het balkje heeft nu zijn eigen knop, want het hangt niet meer in #fgrid. */
+$('fbar').addEventListener('click',function(e){ e.stopPropagation();
+  SET.fhide=!SET.fhide; saveSet(); renderFgrid(); });
 $('fgrid').addEventListener('click',e=>{
-  /* v11.22 §59 — het balkje links toont of verbergt «in db» en «Later». */
-  if(e.target.closest&&e.target.closest('#fbar')){ SET.fhide=!SET.fhide; saveSet(); renderFgrid(); return; }
   const pk=e.target.closest('[data-pick]');
   /* v11.22 §59 — het klapt ook dicht bij een tik op eender welke andere knop van de rij
      (zelfde gedachte als het automatisme van §52.2 voor de compacte rij). */
@@ -3486,7 +3501,8 @@ function landRow1(on){
 var FULL=false;
 function fullMove(to){
   const host=to?$('fullselin'):$('menublk');
-  const a=$('fgrid'), b=$('srcrow'), c=$('subrows');
+  /* v11.23 §62 — het balkje hangt nu buiten #fgrid, dus verhuist de WRAPPER mee. */
+  const a=$('fwrap')||$('fgrid'), b=$('srcrow'), c=$('subrows');
   if(!host||!a||!b||!c) return;
   host.appendChild(a); host.appendChild(b); host.appendChild(c);
 }
