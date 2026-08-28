@@ -1,5 +1,5 @@
 /* Side om side — service worker (offline-cache) */
-const CACHE = 'sos-v11-33';
+const CACHE = 'sos-v11-35';
 const ASSETS = [
   './',
   './index.html',

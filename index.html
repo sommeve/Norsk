@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <meta name="application-version" content="v11.17">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.17 (§54) — service-worker cache: sos-v11-22 -->
+<!-- Side om side · v11.28 (§71) — service-worker cache: sos-v11-35 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -146,8 +146,26 @@
         color:var(--muted);vertical-align:1px;}
   .cell.conv .cph{display:block;font-size:11.5px;color:var(--muted);line-height:1.25;margin-top:1px;}
   .cell.conv .tbc{font-size:10px;font-weight:700;color:var(--wrong);opacity:.85;}
+  /* v11.27 §70.3 — de ondertitel: Johanne zette bij elk gesprek een thema (Heading 1) bóven de
+     titel (Heading 2). De titel blijft de titel; het thema komt er klein onder te staan. */
+  .csub{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;
+        color:var(--muted);opacity:.75;margin-top:1px;}
+  .cdiv{display:block;font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;
+        color:var(--accent);padding:3px 0 1px;}
+  .cdivrow .cell{background:transparent!important;border-color:transparent!important;}
   .ctitle{text-align:right;font-size:13px;font-weight:700;color:var(--muted);
         margin-top:1px;padding-right:2px;line-height:1.2;min-height:20px;}
+  /* v11.28 §71.1 — DE KOP VAN EEN GESPREKSKAART STAAT VOORTAAN IN TWEE HELFTEN.
+     JHS: «zet NL links boven de NL kolom en NO rechts boven de rechtse kolom». De Noorse
+     titel/ondertitel komen uit `titleNO`/`subNO` (Johannes Heading 2 en Heading 1, omgezet
+     naar Bergens in §71.5).
+     Het SCOREBLOK blijft staan — de tik erop (`asNextTap`, §59) moet blijven werken — maar
+     zijn inhoud wordt onzichtbaar: «ze werken nog, maar je ziet ze gewoon ff niet meer». */
+  .ctitle.ctl{text-align:left;padding-right:0;padding-left:2px;}
+  .convsc .agg,.convsc .hist,.convsc .dirmark{display:none;}
+  /* v11.28 §71.2 — de grote groen/rode knoppen zijn verborgen zodra de FOCUSKAART een
+     gesprekje is (poort op de kaart, niet op de stand — §65.2 zette ze ook in de lijst). */
+  .phone.convfoc .bigsw{display:none!important;}
   /* v11.8 §43.3 — de cel verdwijnt met inhoud én achtergrond; het lege gekleurde vlak wordt
      door een ::after teruggezet, zodat je nog steeds ziet dát er een kolom staat. */
   .cell{position:relative;}
@@ -203,7 +221,11 @@
      DICHT zes (in db en Later weg). */
   .fwrap{display:flex;gap:5px;align-items:stretch;}
   .fbar{flex:0 0 9px;align-self:stretch;border:0;padding:0;border-radius:5px;
-        background:var(--hair);cursor:pointer;transition:background .15s;}
+        /* v11.28 §71.3 — DICHT was `var(--hair)` en dus zo goed als onzichtbaar; net dát is
+           JHS' klacht («nu is daar niks zichtbaar, en ik ga dat vergeten»). Dicht is nu een
+           BLEKE versie van dezelfde accentkleur, open de volle kleur: je ziet altijd dát er
+           iets open te klappen valt, en meteen ook of het open staat. */
+        background:var(--accent);opacity:.32;cursor:pointer;transition:opacity .15s;}
   .fgrid{flex:1;min-width:0;display:grid;grid-template-columns:1fr 1fr 30px 1fr 1fr 1fr 1fr 1fr;gap:3px;}
   .fgrid.hid{grid-template-columns:30px 1fr 1fr 1fr 1fr 1fr;}
   .fgrid.hid .fb{font-size:18px;padding:9px 0;}
@@ -225,12 +247,17 @@
   .songline .sn{display:block;font-size:13.5px;color:var(--muted);line-height:1.3;}
   .songempty{color:var(--muted);font-size:13px;line-height:1.45;}
   .songempty code{background:var(--ctrl);border-radius:4px;padding:1px 4px;font-size:12px;}
-  .fbar.on{background:var(--accent);}
+  .fbar.on{background:var(--accent);opacity:1;}
   .fh{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);font-weight:800;text-align:center;padding-bottom:1px;}
   .fgrid.lbl .fh{display:block;}
   .rlb{font-size:10.5px;font-weight:900;color:var(--muted);letter-spacing:.4px;display:flex;align-items:center;justify-content:center;}
   .pgap{flex:1;}
   .srcrow{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:3px;}
+  /* v11.28 §71.3 — JHS: «zet dat openklap-balkje toch ook links van de categorieknoppen,
+     want nu is daar niks zichtbaar, en ik ga dat vergeten». Zelfde balkje, zelfde knop-
+     gedrag, enkel een tweede plaats. */
+  #swrap{margin-top:3px;}
+  #swrap .srcrow{flex:1;min-width:0;margin-top:0;}
   .sb{border:2px solid transparent;border-radius:7px;padding:4px 0 3px;text-align:center;background:var(--surface);
       font-size:12px;font-weight:800;color:var(--muted);line-height:1.15;}
   .sb small{display:block;font-size:11px;font-weight:800;opacity:.9;}
@@ -495,10 +522,12 @@
      getallen bij de progress bar horen». Vandaar: absoluut gecentreerd IN `.pbarn`, twee
      regels, en niets meer dat plaats inneemt in de flexrij. `pointer-events:none` zodat een
      tik op de teller nog altijd de balk zelf bedient. */
+  /* v11.27 §70.1 — JHS, 2026-08-22: «zet de cijfers na elkaar bij portrait en landscape (en
+     maak font groter)». Dus niet meer «1 /» bóven «2065», maar op één regel en groter. */
   .pbarn .pcnt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;
-        pointer-events:none;min-width:0;text-align:center;font-size:10.5px;font-weight:800;
-        line-height:1.05;color:var(--muted);white-space:nowrap;}
-  .pbarn .pcnt i{display:block;font-style:normal;}
+        pointer-events:none;min-width:0;text-align:center;font-size:14px;font-weight:800;
+        line-height:1;color:var(--muted);white-space:nowrap;}
+  .pbarn .pcnt i{font-style:normal;}
   .pcnt{flex:0 0 auto;min-width:54px;text-align:right;font-size:12px;font-weight:800;
         color:var(--muted);letter-spacing:.02em;font-variant-numeric:tabular-nums;}
   /* v11.7 §42.6 — het versienummer stond enkel in een <meta>; nu zichtbaar in de bovenbalk. */
@@ -557,7 +586,7 @@
   .statrow{justify-content:space-between;gap:5px;}
   .prow{gap:5px;}
   .pbarn{height:38px!important;}
-  .pbarn .pcnt{font-size:10.5px!important;min-width:0!important;}
+  .pbarn .pcnt{font-size:14px!important;min-width:0!important;}
   /* §44.6 — ▶ met drie standen: wit = lijst · blauw = loopt · lichtblauw = pauze.
      De knop wordt NOOIT ❚❚; een tik op blauw brengt je terug naar de lijst. */
   /* v11.26 §69.2 — JHS: «in portrait mag de play knop wat smaller, zo groot als de andere
@@ -625,7 +654,7 @@
   .phone.playing .menublk{max-height:900px;opacity:1;}
   /* §44.12 — de compacte selectierij: streepjes van 9 px, geen cijfers */
   .fpack{cursor:pointer;}
-  .menublk.compact #fwrap,.menublk.compact .srcrow,.menublk.compact #subrows{display:none;}
+  .menublk.compact #fwrap,.menublk.compact #swrap,.menublk.compact #subrows{display:none;}
   .menublk:not(.compact) .fpack{display:none;}
   .fstrip{flex:1;min-width:0;display:grid;grid-template-columns:1fr 1fr 30px 1fr 1fr 1fr 1fr 1fr;gap:3px;}
   .fstrip.hid{grid-template-columns:30px 1fr 1fr 1fr 1fr 1fr;}   /* v11.23 §62 */
@@ -827,7 +856,9 @@
   /* v11.20 §57.5 (D1.10) — FON uit = alle klankspelling weg, in de kop (`.pho`), per
      gesprekjesregel (`.cph`) en de bokmål-klank (`.bmp`, uitdrukkelijk bevestigd door JHS). */
   .phone.nofon .pho,.phone.nofon .cph,.phone.nofon .bmp{display:none!important;}
-  .fullsel .fgrid,.fullsel .srcrow{margin-bottom:6px;}
+  /* v11.28 §71.3 — de marge hoort op de WRAPPER, niet op het raster: anders rekt het
+     balkje ernaast 6 px verder uit dan de rij waar het bij hoort. */
+  .fullsel #fwrap,.fullsel #swrap{margin-bottom:6px;}
 
   /* ============ v11.18 §55.3 · HET EINDE VAN DE REEKS ============ */
   /* JHS: «when i am at the end, the last card remains there eternally which is not good».
@@ -865,7 +896,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.26</span>
+    <span class="vers" id="vers">v11.28</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -951,7 +982,8 @@
           <button class="fbar" id="fbar" title="«in db» en «Later» tonen of verbergen"></button>
           <div class="fgrid" id="fgrid"></div>
         </div>
-        <div class="srcrow" id="srcrow"></div>
+        <!-- v11.28 §71.3 — hetzelfde balkje, nu ook links van de bronknoppen -->
+        <div class="fwrap" id="swrap"><button class="fbar" id="cbar" title="«in db» en «Later» tonen of verbergen"></button><div class="srcrow" id="srcrow"></div></div>
         <div id="subrows"></div>
       </div>
     </div>
@@ -1440,6 +1472,23 @@ function seedWrong(id){ const k=skey(id); if(scores[k]&&scores[k].hist&&scores[k
 (function seedNew(){ if(load('sos_seed_v81',0)) return;
   ['kor','ka','kem','koffor','kordan','naar_vraag'].forEach(seedWrong);
   save('sos_scores_v6',scores); save('sos_seed_v8',1); save('sos_seed_v81',1); })();
+/* v11.27 §70.4 — JHS: «geef alle gesprekken 1 slechte startscore en zet ze in actief».
+   `seedWrong()` bestaat al sinds v8 en doet precies dat: één foute veeg, dus `ema:0`, dus de
+   toestand `weak` — en die telt mee in «actief». Eénmalig, met een eigen vlag, zodat een latere
+   echte score nooit overschreven wordt. */
+(function seedJohanne(){ if(load('sos_seed_jo1',0)) return;
+  let n=0;
+  (window.CONV||[]).forEach(function(c){ if(c && c.jo && seedWrong(c.id)) n++; });
+  if(n) save('sos_scores_v6',scores);
+  save('sos_seed_jo1',1); })();
+/* v11.28 §71.6 — JHS: «move de 2 gesprekken die er al in stonden naar status next (en delete
+   de scores van die 2 oude gesprekjes)». Het etiket `next` staat in `data/conv.js`; hier
+   verdwijnen enkel hun scores, in BEIDE richtingen (`|NL` én `|NB`), zodat `seenAny()` weer
+   «vers» zegt en `stateOf()` ze in de kolom NEXT zet (§59). Eénmalig, eigen vlag. */
+(function seedOld2(){ if(load('sos_seed_old2',0)) return;
+  ['cv_morgen','cv_sulten'].forEach(function(id){
+    delete scores[id+'|NL']; delete scores[id+'|NB']; NEXT.add(id); });
+  save('sos_scores_v6',scores); save('sos_next_v6',[...NEXT]); save('sos_seed_old2',1); })();
 /* v11.2 §29.6 — label «next» (next to learn): woorden die je als volgende wil leren.
    Ze staan bij ZWAK zonder dat ze een kunstmatige foutswipe krijgen (dat was de oude seedWrong-truc).
    Zodra er een echte score is, telt gewoon die score. */
@@ -1605,6 +1654,13 @@ function askCell(side){ return '<span class="note">'+(side==='nb'?'? — vraag p
    De klankregel staat ONDER de Noorse zin (niet in de kop, want er zijn er meerdere) en gaat
    dus mee dicht met de rest van het Noors. */
 function convRow(l,i){
+  /* v11.27 §70.3 — een regel met `div` is geen dialoogregel maar een SCHEIDING binnen het
+     gesprek: het punt waar Johannes «Alternativ» begint. Ze gebruikt gewoon de twee kolommen
+     van de kaart (NL links, NO rechts), dus er is geen enkele wijziging aan de kaartopbouw
+     nodig — de alternatieven staan onder elkaar op dezelfde kaart en je scrolt erdoor, precies
+     zoals JHS vroeg. */
+  if(l.div) return ['<span class="cdiv">'+esc(l.div)+'</span>',
+                    '<span class="cdiv">'+esc(l.divNO||l.div)+'</span>','sent conv cdivrow',''];
   const sp=l.sp?'<b class="sp">'+esc(l.sp)+'</b>':'';
   const tb=l.tbc?' <span class="tbc">(tbc)</span>':'';
   const ph=l.ph?'<span class="cph">'+l.ph+'</span>':'';
@@ -1648,11 +1704,16 @@ function cardHTML(it){
      en wordt in landscape onderaan afgeknipt. Het potlood ✏️ valt weg: de editor van §11 kent
      enkel «woord» en «zin», en een gesprekje via dat scherm openen zou de regels wissen. */
   const conv=(it.type==='conv');
+  /* v11.28 §71.1 — bij een gesprekje draagt de LINKERhelft de Nederlandse titel; het
+     scoreblok blijft er staan (onzichtbaar, zie CSS) zodat de tik erop blijft werken. */
   const hdr='<div class="chdr">'
-    +'<div class="chalf scoreblk">'+(rev?'<span class="dirmark">←</span>':'')
-      +aggDot(it.id)+'<span class="hist">'+dots((getScore(it.id)||{}).hist)+'</span></div>'
+    +'<div class="chalf scoreblk'+(conv?' convsc':'')+'">'+(rev?'<span class="dirmark">←</span>':'')
+      +aggDot(it.id)+'<span class="hist">'+dots((getScore(it.id)||{}).hist)+'</span>'
+      +(conv?'<div class="ctitle ctl">💬 '+esc(it.title||'Gesprekje')
+        +(it.sub?'<span class="csub">'+esc(it.sub)+'</span>':'')+'</div>':'')+'</div>'
     +(conv
-      ? '<div class="chalf"><div class="ctitle">💬 '+esc(it.title||'Gesprekje')+'</div></div>'
+      ? '<div class="chalf"><div class="ctitle">'+esc(it.titleNO||'')
+        +(it.subNO?'<span class="csub">'+esc(it.subNO)+'</span>':'')+'</div></div>'
       : '<div class="chalf"><span class="pen" data-edit="'+it.id+'">✏️</span>'
         +'<div class="pho'+((blur&&!rev)?' blur':'')+'">'+ph+'</div></div>')
     +'</div>';
@@ -2137,6 +2198,7 @@ function renderFgrid(){
   /* v11.23 §62 — het balkje staat naast het raster en wordt hier NIET meer meegetekend;
      het enige wat het raster nog doet, is zijn eigen vakjes uitschrijven. */
   const bar=$('fbar'); if(bar) bar.classList.toggle('on',!SET.fhide);
+  const cb=$('cbar'); if(cb) cb.classList.toggle('on',!SET.fhide);   /* v11.28 §71.3 */
   let h=fRow(cols.map(function(c){ return '<span class="fh">'+c.lb+'</span>'; }),'<span class="fh"></span>');
   /* v11.22 §59 — de ☀-dagknop staat nu in de kolom NEXT (was TO DO). De rotte appels blijven
      in «zwak», train blijft in «ken». */
@@ -2335,7 +2397,7 @@ $('btnAdd').onclick=()=>openEditor(null);
    `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
    Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
    dat zo. */
-const APPVER='v11.26';
+const APPVER='v11.28';
 let FRESHBUSY=false;
 async function hardRefresh(){
   if(FRESHBUSY) return; FRESHBUSY=true;
@@ -2411,8 +2473,10 @@ $('btnFON').onclick=()=>{ SET.showPH=!SET.showPH; saveSet(); syncPushSoon(); ren
 $('swipes').onclick=()=>setMode(mode==='stats'?'voc':'stats');
 $('newlearn').onclick=()=>setMode(mode==='stats'?'voc':'stats');
 /* v11.23 §62 — het balkje heeft nu zijn eigen knop, want het hangt niet meer in #fgrid. */
-$('fbar').addEventListener('click',function(e){ e.stopPropagation();
-  SET.fhide=!SET.fhide; saveSet(); renderFgrid(); });
+/* v11.28 §71.3 — twee balkjes, één gedrag: #fbar naast het raster, #cbar naast de bronrij. */
+['fbar','cbar'].forEach(function(id){ const el=$(id); if(!el) return;
+  el.addEventListener('click',function(e){ e.stopPropagation();
+    SET.fhide=!SET.fhide; saveSet(); renderFgrid(); }); });
 $('fgrid').addEventListener('click',e=>{
   const pk=e.target.closest('[data-pick]');
   /* v11.22 §59 — het klapt ook dicht bij een tik op eender welke andere knop van de rij
@@ -2899,6 +2963,7 @@ function asSetFocus(){
   if(AS.cur){ AS.cur.classList.toggle('focus',asStarted(AS.idx));
     asFill(ITEMS.find(x=>x.id===AS.cur.dataset.sc)); }
   asDrawBar(); asNewSegment();
+  if(typeof convSync==='function') convSync();   /* v11.28 §71.2 */
   return true;
 }
 
@@ -3035,11 +3100,11 @@ function asDrawBar(){
   const c=$('pcnt');
   if(c){
     if(SET.pick==='new'){
-      c.innerHTML='<i>nog</i>'+newLeft();
+      c.innerHTML='<i>nog </i>'+newLeft();
       c.title='nog te doen vandaag van de '+(SET.nperday||15)+' nieuwe woorden';
     } else {
       /* v11.26 §69.3 — «1 /» boven «1991», gecentreerd in de balk zelf. */
-      c.innerHTML=tot?('<i>'+pos+' /</i>'+tot):'';
+      c.innerHTML=tot?('<i>'+pos+' / </i>'+tot):'';
       c.title='';
     }
   }
@@ -3092,6 +3157,12 @@ function asStart(){
   AS.autoWrong=false; AS.badLog=[]; AS.hold=false; clearTimeout(AS.holdT);
   AS.round=0; AS.roundAt=performance.now();
   AS.lead=false;                         /* v11.5.1 — nog géén leadruimte: de lijst blijft staan */
+  /* v11.27 §70.2 — JHS: «als ik play klik, gaat het categorie menu automatisch weg (dat is
+     zeker van belang bij landscape, omdat dat anders in de achtergrond draait zonder dat je het
+     ziet)». In landscape stond het schermvullende paneel van §55.2 gewoon open te blijven; in
+     portrait bleef het menublok staan. Allebei gaan ze nu dicht bij het starten. */
+  if(typeof fullClose==='function' && typeof FULL!=='undefined' && FULL) fullClose();
+  asSetMenu(false); setCompact(true);
   const keep=$('stage').scrollTop;
   $('phone').classList.add('play');      /* eerst de speelstand: dan klopt de hoogte van #stage */
   $('phone').classList.remove('playing');
@@ -3359,6 +3430,27 @@ $('btnTurn').onclick=function(){ turnToggle(); };
 function turnPer(){ return (SPEEDS[SET.asSpeed]||2)*1000; }
 function turnPct(){ const p=+SET.turnPct; return TPCTS.indexOf(p)>=0?p:50; }
 function turnCard(){ const h=$('lst'); return h?h.querySelector('.scrollcard.focus'):null; }
+/* ============ v11.28 §71.2 · DE FOCUSKAART IS EEN GESPREKJE ============
+   Twee gevolgen, allebei geënt op DE KAART en niet op de stand (§65.2 zette de grote knoppen
+   ook in de gewone lijst, dus een poort op «beurtstand ja/nee» zou fout zijn):
+     1. de grote groen/rode knoppen gaan weg (klasse `convfoc` op #phone → CSS);
+     2. de categorieknoppen klappen automatisch weg — met het BESTAANDE balkje van §62
+        (`SET.fhide`) en de bestaande compacte stand, precies zoals JHS vroeg.
+   Het wegklappen gebeurt enkel op de OVERGANG (de focus wordt een gesprekje). Zonder die
+   voorwaarde zou het menu opnieuw dichtslaan telkens hij het zelf openzet. */
+let CONVFOC=false;
+function focusItem(){ const el=turnCard()||AS.cur;
+  const id=el&&el.dataset?el.dataset.sc:null; return id?(BYID[id]||null):null; }
+function convSync(){
+  const it=focusItem(), on=!!(it&&it.type==='conv');
+  const p=$('phone'); if(p) p.classList.toggle('convfoc',on);
+  if(on&&!CONVFOC){
+    if(typeof FULL!=='undefined'&&FULL&&typeof fullClose==='function') fullClose();
+    setCompact(true);
+    if(!SET.fhide){ SET.fhide=true; saveSet(); renderFgrid(); }
+  }
+  CONVFOC=on;
+}
 /* ============ v11.25 §65.2 · DE FOCUSKAART IN DE GEWONE LIJST (D1.3) ============
    JHS' antwoord op D1.3: «de app duidt zelf een focuskaart aan; na scoren doorschuiven».
    Buiten de beurtstand en buiten de autoscroll krijgt de bovenste zichtbare kaart daarom de
@@ -3387,6 +3479,7 @@ function focusNext(){
   cur.classList.remove('focus'); nx.classList.add('focus');
   turnSetHide(nx,true);
   asListStep(cur);
+  if(typeof convSync==='function') convSync();   /* v11.28 §71.2 */
 }
 function turnIsHidden(sc){ if(!sc) return false; const id=sc.dataset.sc;
   return SET.showAns?hidden.has(id):!revealed.has(id); }
@@ -3432,6 +3525,7 @@ function turnFocus(){
   if(!cur){ cur=host.querySelector('.scrollcard');
     if(cur){ cur.classList.add('focus'); turnSetHide(cur,true); } }
   turnFit();
+  if(typeof convSync==='function') convSync();   /* v11.28 §71.2 */
 }
 /* AS.cur is wat asScore(), de veeg en de balk gebruiken. In de beurtstand wijst hij naar de
    kaart in focus, zodat al die logica ongewijzigd kan blijven werken. */
@@ -3456,6 +3550,7 @@ function turnStep(dir){
   cur.classList.remove('focus'); nx.classList.add('focus');
   /* V4 (JHS 2026-08-16): meteen de volgende kaart, met de antwoordkolom weer dicht */
   turnSetHide(nx,true);
+  if(typeof convSync==='function') convSync();   /* v11.28 §71.2 */
 }
 /* §45.1 — de volgende kaart tijdens de lopende beurtstand */
 function turnAdvance(){
@@ -3476,6 +3571,7 @@ function turnAdvance(){
   turnSetHide(nx,turnPct()>0);
   turnRestartClock();
   asDrawBar();
+  if(typeof convSync==='function') convSync();   /* v11.28 §71.2 */
 }
 /* §45.1 — einde van de lijst: opnieuw schudden en van voor af aan, net als asRound() in de
    autoscroll (§34.3), maar zonder de scroll-geometrie. */
@@ -3553,6 +3649,10 @@ function finShow(){
   st.scrollTop=0;
   /* antwoord 4 van C5.5 — portrait: het gewone menublok opengeklapt; landscape: het
      schermvullende paneel van §55.2, want daar staat het menublok toch op display:none. */
+  /* v11.28 §71.4 — §55.3 klapte het MENUBLOK open, maar §62 liet het RASTER dichtgeklapt
+     achter (`SET.fhide`): JHS zag dus nog altijd geen categorieknoppen. Op het eindscherm
+     gaat het raster nu echt open. */
+  if(SET.fhide){ SET.fhide=false; saveSet(); renderFgrid(); }
   if(LAND){ if(typeof fullOpen==='function') fullOpen(); }
   else { asSetMenu(true); setCompact(false); }
   asDrawBar(); landPaintBtns();
@@ -3573,6 +3673,18 @@ function finTap(){
   } else if(AS.on){ asSetFocus(); asNewSegment(); }
   asDrawBar();
 }
+/* v11.28 §71.4 — JHS: «als er dan een knop wordt geklikt, is dat sowieso een reshuffle».
+   Het eindscherm klapt het menu open; élke keuze daarin telt meteen als een schudbeurt.
+   De vlag wordt in de VANGFASE gezet (dan bestaat de aangeklikte knop nog — zie §52.2) en
+   pas ná de gewone afhandeling omgezet in `finTap()`. */
+let FINPICK=false;
+function finArm(e){
+  if(!FIN) return;
+  const t=e.target.closest&&e.target.closest('[data-pick],[data-ft],[data-src],[data-e],[data-n],[data-w],[data-songs]');
+  if(t) FINPICK=true;
+}
+['menublk','fullsel'].forEach(function(id){ const el=$(id); if(el) el.addEventListener('click',finArm,true); });
+document.addEventListener('click',function(){ if(FINPICK){ FINPICK=false; finTap(); } },false);
 
 /* §45.1 — de klok. Draait in dezelfde rAF-lus als de autoscroll (asTick), maar zonder scroll:
    op `turnPct` % van de tijd valt de kolom open, op 100 % van de tijd komt de volgende kaart.
@@ -3670,7 +3782,8 @@ var FULL=false;
 function fullMove(to){
   const host=to?$('fullselin'):$('menublk');
   /* v11.23 §62 — het balkje hangt nu buiten #fgrid, dus verhuist de WRAPPER mee. */
-  const a=$('fwrap')||$('fgrid'), b=$('srcrow'), c=$('subrows');
+  /* v11.28 §71.3 — de bronrij zit nu in haar eigen wrapper mét balkje; die verhuist mee. */
+  const a=$('fwrap')||$('fgrid'), b=$('swrap')||$('srcrow'), c=$('subrows');
   if(!host||!a||!b||!c) return;
   host.appendChild(a); host.appendChild(b); host.appendChild(c);
 }
@@ -3749,6 +3862,7 @@ function landPale(){ return !AS.on && turnIsHidden(turnCard()); }
 function landPaintBtns(){
   const p=landPale();
   ['g','r'].forEach(function(k){ const el=landBtn(k); if(el) el.classList.toggle('pale',p); });
+  if(typeof convSync==='function') convSync();   /* v11.28 §71.2 */
 }
 function landClear(){
   ['g','r'].forEach(function(k){ if(LB[k]){ LB[k]=false; const el=landBtn(k); if(el) el.classList.remove('down'); } });
