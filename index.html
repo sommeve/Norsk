@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <meta name="application-version" content="v11.17">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.28 (§71) — service-worker cache: sos-v11-35 -->
+<!-- Side om side · v11.29 (§72) — service-worker cache: sos-v11-36 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -32,21 +32,35 @@
     --sSoS:#2f6fd6;--sNils:#1f8a5f;--sSomme:#8e44ad;--sJan:#c2622a;
     --prog:#8bb2ee;                        /* v11.6 §41.1 · v11.20 §57.3 (D1.6b) — was #c9dcfa, «te zacht» */
   }
+  /* ============ v11.29 §72.5 · DE ECHTE DARK MODE — ZACHT WIT OP ZWART ============
+     Beslist door JHS op 2026-08-22: `--w:#d7d7d7` op `#000`, en dit VERVANGT het oude
+     `.dark`-blok volledig. `SET.dark` en de maanknop #dk blijven zoals ze zijn; er is en komt
+     geen «auto»-stand. Mockup: `_cw_dump\mockup-darkmode-v1129.html` (stand «zacht wit»).
+     De drie inkttinten zijn de enige lichtbron: --w hoofdinkt · --w2 bijschrift · --w3 lijnen.
+     Vorm draagt de betekenis, niet kleur — met drie uitzonderingen die JHS uitdrukkelijk
+     wilde houden: de SCORES (vol groen · half oranje · leeg rood), de veegtinten (groen/rood,
+     een flits die je voelt en niet leest) en het randje in de oorspronkelijke kleur op de
+     categorieknoppen. */
   .dark{
-    --pg:#10141b; --surface:#171c25;
-    --nb-bg:#1e3f66; --nl-bg:#4a3c26; --ink:#f4f7fb; --muted:#aab6c8; --hair:#2a323d; --ring:#6c7a90;
-    --en:#9cc4ff; --ex:#ff8a8a; --g:#d3a9f7; --sep:#2f3844;
-    --ok:#3fbf74; --half:#f0b429; --wrong:#f16a66; --accent:#4f8ef0; --purple:#a68cff;
-    --ok-lt:#2b6e4a; --wrong-lt:#8f4340;   /* v11.2 §29.5 — autoscroll-swipes in de grafiek */
-    --cTrain:#3c8d61; --cTrainBd:#57b183;
-    --yellow:#c9a51f; --yellowbd:#a8880f;
-    --pin:#0e1219; --pinline:#232b36; --ctrl:#1b222c;
-    --unseen:#2a323d; --unseen-bd:#47515f; --star:#f0b429; --fluo:#c9d117; --fluobd:#8f9a10;
-    --scrolltrack:#1b222c; --scrollthumb:#e7ecf3; --gridln:#242c37;
-    --bmc:#9aa8bd; --bmbg:rgba(160,178,200,.18);
-    --cBlack:#39445a; --cGrey:#6b7789; --cBlue:#3f7fe0; --cOrange:#d68a1f; --cGreen:#2c9257; --cStar:#c9a51f; --cRot:#9a5bd8; --cNext:#12a2b0;
-    --sSoS:#3f7fe0;--sNils:#2c9257;--sSomme:#a366c8;--sJan:#d1803f;
-    --prog:#4a6ea8;                        /* v11.6 §41.1 · v11.20 §57.3 (D1.6b) — was #2b3d5c */
+    --w:#d7d7d7; --w2:#9d9d9d; --w3:#5d5d5d;
+    --pg:#000; --surface:#000;
+    --nb-bg:transparent; --nl-bg:transparent; --ink:#d7d7d7; --muted:#9d9d9d;
+    --hair:#5d5d5d; --ring:#5d5d5d; --sep:#5d5d5d;
+    --en:#d7d7d7; --ex:#d7d7d7; --g:#d7d7d7;
+    /* de scores blijven in kleur — uitdrukkelijke keuze van JHS */
+    --ok:#2e9e5b; --half:#e08b2b; --wrong:#d94b46; --accent:#d7d7d7; --purple:#d7d7d7;
+    --ok-lt:#5d5d5d; --wrong-lt:#3a3a3a;
+    --cTrain:#5d5d5d; --cTrainBd:#9d9d9d;
+    --yellow:#5d5d5d; --yellowbd:#d7d7d7;
+    --pin:#000; --pinline:#5d5d5d; --ctrl:#000;
+    --unseen:#000; --unseen-bd:#5d5d5d; --star:#d7d7d7; --fluo:transparent; --fluobd:#d7d7d7;
+    --scrolltrack:#000; --scrollthumb:#d7d7d7; --gridln:#2a2a2a;
+    --bmc:#9d9d9d; --bmbg:transparent;
+    /* de OORSPRONKELIJKE light-kleuren blijven bestaan — enkel nog als RANDJE (zie .fb) */
+    --cBlack:#1b2334; --cGrey:#8a97ab; --cBlue:#2f6fd6; --cOrange:#e08b2b;
+    --cGreen:#2e9e5b; --cStar:#e6c229; --cRot:#8b4bc9; --cNext:#0e8f9c;
+    --sSoS:#d7d7d7;--sNils:#d7d7d7;--sSomme:#d7d7d7;--sJan:#d7d7d7;
+    --prog:#d7d7d7;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   /* v11 §27.8 — Samsung A53: de adresbalk van Chrome-mobiel wijzigde de viewporthoogte,
@@ -73,6 +87,10 @@
   /* v11.3.1 §34.7 — ☀ (nieuw) en ☀ (train) staan in de filterbalk zelf, in dezelfde kleur
      als de kolom eronder: grijs boven TO DO, groen boven gekend. */
   .fb.day[disabled]{opacity:.42;}
+  /* v11.29 §72.5 — de staafkleuren van de grafiek staan nu in CSS (waren inline `fill`).
+     Light mode is exact wat het was. */
+  .cb1{fill:var(--ok);} .cb2{fill:var(--ok-lt);} .cb3{fill:var(--wrong);} .cb4{fill:var(--wrong-lt);}
+  .cb5{fill:var(--accent);}
   .abtn.cog{font-size:15px;}
   /* v11 §27.7 — zelfde opbouw als het blok links (swipes/dag): klein hoofdletterlabel
      boven, groot cijfer in accentkleur, de rest klein en grijs. */
@@ -165,7 +183,28 @@
   .convsc .agg,.convsc .hist,.convsc .dirmark{display:none;}
   /* v11.28 §71.2 — de grote groen/rode knoppen zijn verborgen zodra de FOCUSKAART een
      gesprekje is (poort op de kaart, niet op de stand — §65.2 zette ze ook in de lijst). */
-  .phone.convfoc .bigsw{display:none!important;}
+  /* v11.29 §72.2.13 — §71.2 TERUGGEDRAAID: de groene/rode knoppen blijven bij een gesprekje
+     staan, in portrait EN landscape (uitdrukkelijke vraag van JHS, 23/08). De klasse `convfoc`
+     blijft bestaan — ze stuurt nu de eigen scroll van de gesprekskaart (§72.2.10). */
+  /* v11.29 §72.2.10 — DE GESPREKSKAART SCROLT ZELF. In de beurtstand staat #stage op
+     overflow:hidden + touch-action:none (§52.1); bij een gesprekje gaat dat terug open, zodat
+     een lange kaart op volle breedte blijft staan in plaats van te krimpen (§72.2.9). */
+  .phone.turn.convfoc .stage{overflow-y:auto!important;touch-action:pan-y!important;}
+  /* v11.29 §72.1.3 — de dunne pauzeknop tussen de twee grote knoppen (enkel portrait) */
+  .thinpz{display:none;}
+  .phone:not(.land):not(.novoc) .thinpz{display:flex;position:absolute;bottom:8px;z-index:6;
+        left:50%;transform:translateX(-50%);width:44px;height:120px;
+        align-items:center;justify-content:center;border:0;border-radius:14px;
+        background:var(--ctrl);color:var(--ink);font-weight:800;cursor:pointer;touch-action:none;
+        user-select:none;-webkit-user-select:none;opacity:.55;
+        box-shadow:0 4px 12px rgba(20,30,60,.16);transition:filter .06s,opacity .12s;}
+  .phone:not(.land):not(.novoc) .thinpz b{font-size:15px;line-height:1;letter-spacing:1px;}
+  .phone:not(.land):not(.novoc) .thinpz.pale{opacity:.22;box-shadow:none;}
+  .phone:not(.land):not(.novoc) .thinpz.down{filter:brightness(.82);}
+  .phone.fin .thinpz{display:none!important;}
+  /* v11.29 §72.1.1 — #btnTurn heeft geen zin meer: er is nog één stand. De knop blijft in de
+     DOM staan (landPaint() en §51.1.3 lezen hem) maar is onzichtbaar. */
+  #btnTurn{display:none!important;}
   /* v11.8 §43.3 — de cel verdwijnt met inhoud én achtergrond; het lege gekleurde vlak wordt
      door een ::after teruggezet, zodat je nog steeds ziet dát er een kolom staat. */
   .cell{position:relative;}
@@ -256,20 +295,22 @@
   /* v11.28 §71.3 — JHS: «zet dat openklap-balkje toch ook links van de categorieknoppen,
      want nu is daar niks zichtbaar, en ik ga dat vergeten». Zelfde balkje, zelfde knop-
      gedrag, enkel een tweede plaats. */
-  #swrap{margin-top:3px;}
-  #swrap .srcrow{flex:1;min-width:0;margin-top:0;}
+  /* v11.29 §72.5 — het raster en de bronrij delen EEN kolom en dus EEN balkje. */
+  .fcol{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;}
+  .fcol .fgrid{flex:0 0 auto;}
+  .fcol .srcrow{margin-top:0;}
   .sb{border:2px solid transparent;border-radius:7px;padding:4px 0 3px;text-align:center;background:var(--surface);
       font-size:12px;font-weight:800;color:var(--muted);line-height:1.15;}
   .sb small{display:block;font-size:11px;font-weight:800;opacity:.9;}
-  .sb.sos{box-shadow:inset 0 -3px 0 var(--sSoS);} .sb.nils{box-shadow:inset 0 -3px 0 var(--sNils);}
-  .sb.somme{box-shadow:inset 0 -3px 0 var(--sSomme);} .sb.jan{box-shadow:inset 0 -3px 0 var(--sJan);}
-  .sb.on{color:#fff;box-shadow:none;border-color:var(--ink);}
-  .sb.sos.on{background:var(--sSoS);} .sb.nils.on{background:var(--sNils);}
-  .sb.somme.on{background:var(--sSomme);} .sb.jan.on{background:var(--sJan);}
+  /* v11.29 §72.5 — DE BRONKNOPPEN VERLIEZEN HUN KLEURCODE, ook in light mode (JHS, 22/08:
+     «is niet meer nodig»). De aan-stand is voortaan hetzelfde patroon als bij de
+     categorieknoppen: OMGEKEERD — gevuld vlak, tegenkleur tekst. */
+  .sb{border-color:var(--hair);}
+  .sb.on{color:var(--surface);background:var(--ink);box-shadow:none;border-color:var(--ink);}
   /* v11 §27.3 — elke gekozen bron toont zijn eigen verfijningsrij, gestapeld */
-  .subrow{display:flex;gap:4px;flex-wrap:wrap;padding:5px;border-radius:9px;margin-top:4px;border:1px dashed var(--sSoS);background:rgba(47,111,214,.12);}
-  .subrow.n{border-color:var(--sNils);background:rgba(31,138,95,.12);}
-  .subrow.s{border-color:var(--sSomme);background:rgba(142,68,173,.12);}
+  /* v11.29 §72.5 — ook de verfijningskadertjes zijn kleurloos. */
+  .subrow{display:flex;gap:4px;flex-wrap:wrap;padding:5px;border-radius:9px;margin-top:4px;border:1px dashed var(--ring);background:transparent;}
+  .subrow.n,.subrow.s{border-color:var(--ring);background:transparent;}
   .fb{color:#fff;font-size:13px;font-weight:800;text-align:center;border-radius:7px;padding:6px 0;border:2px solid transparent;line-height:1.15;}
   .fb.c0{background:var(--cBlack);} .fb.c1{background:var(--cGrey);} .fb.c2{background:var(--cBlue);}
   .fb.c3{background:var(--cOrange);} .fb.c4{background:var(--cGreen);} .fb.c5{background:var(--cStar);color:#4a4109;}
@@ -306,6 +347,31 @@
   .legend.open{display:block;}
 
   /* ---------- SEARCH ---------- */
+  /* ============ v11.29 §72.4 (D1.9) · DE SYNONIEMRIJ ============ */
+  .lnk{grid-column:1/-1;display:grid;grid-template-columns:20px 1fr 1fr;gap:3px;
+       align-items:stretch;margin:2px 0 1px;}
+  .lnk .lnkico{display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;}
+  .lnk .lnkico svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+  .lnk .c{padding:5px 9px;border-radius:4px;border:1px dashed var(--ring);
+          font-size:13.5px;color:var(--ink);background:transparent;position:relative;}
+  .lnk .c small{display:block;font-size:10.5px;color:var(--muted);}
+  .lnk.second .lnkico{opacity:0;pointer-events:none;}
+  .lnk .c.blur{color:transparent;}
+  .lnk .c.blur small{color:transparent;}
+  .lnk .c.blur *{visibility:hidden;}
+  /* de zoekresultaten met hun link-knop (§72.4) */
+  .hit{position:relative;}
+  .hit .lb{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+           border:1px solid var(--hair);background:var(--surface);color:var(--muted);
+           border-radius:9px;padding:4px 8px;font-size:13px;font-weight:800;cursor:pointer;}
+  .hit .lb.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .hit .lb.anch{background:var(--purple);border-color:var(--purple);color:#fff;}
+  .anchbar{display:flex;align-items:center;gap:8px;padding:8px 10px;margin:0 0 8px;
+           border:1px dashed var(--ring);border-radius:10px;font-size:13.5px;background:var(--surface);}
+  .anchbar b{font-weight:800;}
+  .anchbar .x{margin-left:auto;border:1px solid var(--hair);background:var(--surface);
+              color:var(--ink);border-radius:8px;padding:3px 9px;font-weight:800;cursor:pointer;}
+  .anchbar .hintl{display:block;font-size:11px;color:var(--muted);font-weight:600;}
   .searchbar{display:none;padding:0 0 6px;gap:6px;} .searchbar.open{display:flex;}
   .searchbar input{flex:1;font-size:15px;padding:9px 10px;border:1px solid var(--hair);border-radius:10px;background:var(--surface);color:var(--ink);}
   .searchbar .clr{border:1px solid var(--hair);background:var(--surface);color:var(--ink);border-radius:10px;padding:0 12px;font-weight:700;}
@@ -342,6 +408,8 @@
   .clegend{display:flex;gap:14px;font-size:11px;color:var(--muted);font-weight:700;padding:2px 6px;flex-wrap:wrap;}
   .clegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:middle;}
   .clegend i.ln{width:14px;height:3px;border-radius:2px;background:var(--purple);}
+  .clegend i.lg1{background:var(--ok);} .clegend i.lg2{background:var(--ok-lt);}
+  .clegend i.lg3{background:var(--wrong);} .clegend i.lg4{background:var(--wrong-lt);}
   .chartcard svg{width:100%;height:auto;display:block;}
   .gl{stroke:var(--gridln);stroke-width:1;} .yl{fill:var(--muted);font-size:8px;text-anchor:end;} .xl{fill:var(--muted);font-size:8px;text-anchor:middle;}
   .pl{fill:var(--muted);font-size:8px;font-weight:700;text-anchor:middle;}
@@ -672,11 +740,9 @@
   .fsrc{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:4px;}
   .fsrc span{font-size:9.5px;font-weight:800;text-align:center;color:var(--muted);
              border-radius:4px;padding:1px 0 2px;opacity:.55;}
-  .fsrc span.sos{box-shadow:inset 0 -2px 0 var(--sSoS);} .fsrc span.nils{box-shadow:inset 0 -2px 0 var(--sNils);}
-  .fsrc span.somme{box-shadow:inset 0 -2px 0 var(--sSomme);} .fsrc span.jan{box-shadow:inset 0 -2px 0 var(--sJan);}
-  .fsrc span.on{opacity:1;color:#fff;}
-  .fsrc span.sos.on{background:var(--sSoS);} .fsrc span.nils.on{background:var(--sNils);}
-  .fsrc span.somme.on{background:var(--sSomme);} .fsrc span.jan.on{background:var(--sJan);}
+  /* v11.29 §72.5 — de compacte bronstrip: kleurloos, aan = omgekeerd. */
+  .fsrc span{box-shadow:inset 0 0 0 1px var(--hair);}
+  .fsrc span.on{opacity:1;color:var(--surface);background:var(--ink);box-shadow:none;}
   /* §44.13 · v11.11 §45.4 — BEURTSTAND: één kaart, geen scrollen.
      §45.4a — GEEN flex meer. Met `display:flex` + centreren kreeg de kaart een andere breedte
      dan in de lijst; met het gewone blok-model is ze exact even breed als overal elders.
@@ -883,6 +949,96 @@
   .finish span{font-size:15px;font-weight:700;color:var(--muted);line-height:1.35;}
   .phone.land .finish b{font-size:22px;}
   .phone.land .finish span{font-size:13.5px;}
+  /* ============ v11.29 §72.5 · DE DARK MODE — DE VORMREGELS ============
+     Dit blok staat BEWUST helemaal onderaan de stijlbladzijde. De light-mode-regels
+     (`.fb.c2`, `.sb.on`, `.phone:not(.land) .bigsw.ok` …) hebben dezelfde soortelijkheid als
+     een `.dark`-regel; wie gelijk staat, wint door LATER te komen. Gemeten in v11.29: met het
+     blok bovenaan bleven de categorieknoppen gewoon blauw, oranje en groen.
+     De keuze `body.dark` (en niet `.dark`) geeft er nog één element bij, zodat ook de langere
+     poorten van §51/§53 het afleggen. */
+  /* ---- alles zwart, kaders in een dun wit lijntje ---- */
+  body.dark .phone,.dark .top,.dark .pin,.dark .stage,.dark .sheet,.dark .ovl{background:#000;}
+  body.dark .card{background:#000;border:1px solid rgba(215,215,215,.45);border-left:5px solid var(--w);
+              box-shadow:none;}
+  body.dark .cell{background:transparent;border:1px solid var(--w3);}
+  /* gemarkeerd kaartje: enkel een DIKKERE WITTE buitenrand */
+  body.dark .card.starred{background:#000;border:2.5px solid var(--w);border-left-width:5px;}
+  /* fluo: enkel een dikkere WITTE celrand */
+  body.dark .cell.fluo{background:transparent;border:2.5px solid var(--w);color:var(--w);}
+  /* rode tekst (uitzonderingen) → wit met een klein wit bolletje rechts */
+  body.dark .ex{color:var(--w);font-weight:700;}
+  body.dark .ex::after{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;
+                   background:var(--w);margin-left:5px;vertical-align:2px;}
+  body.dark .en{color:var(--w);font-weight:700;border-bottom:1px solid var(--w3);}
+  body.dark .g{color:var(--w);font-weight:700;font-style:italic;}
+  /* klankspelling en de BM-regel worden gewoon --w2 */
+  body.dark .pho,.dark .bm,.dark .bmp,.dark .cph,.dark .note,.dark .cmt{color:var(--w2);}
+  body.dark .bm,.dark .bmp{background:transparent;}
+  body.dark .cmt{border:1px dashed var(--w3);background:transparent;}
+  /* de ster: wit vol / wit open */
+  body.dark .star{color:var(--w3);}
+  body.dark .star.on{color:var(--w);}
+  /* ---- knoppen: drie standen — rust · aan (omgekeerd) · uit (grijs + schuine streep) ---- */
+  body.dark .abtn,.dark .shuf,.dark .pp,.dark .spbtn,.dark .clr,.dark .btn{
+      background:#000;border:1.5px solid var(--w);color:var(--w);box-shadow:none;}
+  body.dark .abtn.on,.dark .shuf.on,.dark .pp.on,.dark .spbtn.on{background:var(--w);color:#000;border-color:var(--w);}
+  body.dark .pp.paused{background:var(--w2);color:#000;border-color:var(--w2);}
+  body.dark .abtn.off,.dark .pp.off{border-color:var(--w3);color:var(--w3);position:relative;overflow:hidden;}
+  body.dark .abtn.off::after,.dark .pp.off::after{content:'';position:absolute;left:-4px;right:-4px;top:50%;
+      height:1.5px;background:var(--w3);transform:rotate(-28deg);}
+  /* icoontjes: simpel zwart/wit */
+  body.dark .ico{stroke:currentColor;fill:none;}
+  /* ---- de categorieknoppen: zwart met een randje in hun oorspronkelijke light-kleur ---- */
+  body.dark .fb{background:#000;color:var(--w);border:1.5px solid var(--w3);}
+  body.dark .fb.c0{border-color:var(--cGrey);} .dark .fb.c1{border-color:var(--cGrey);}
+  body.dark .fb.c2{border-color:var(--cBlue);} .dark .fb.c3{border-color:var(--cOrange);}
+  body.dark .fb.c4{border-color:var(--cGreen);} .dark .fb.c5{border-color:var(--cStar);color:var(--w);}
+  body.dark .fb.c6{border-color:var(--cNext);} .dark .fb.rot{border-color:var(--cRot);}
+  /* gekozen = OMGEKEERD: wit vlak, zwarte cijfers — je hoeft de kleur niet te lezen */
+  body.dark .fb.sel{background:var(--w);color:#000;border-color:var(--w);box-shadow:none;}
+  body.dark .sb{background:#000;border:1.5px solid var(--w3);color:var(--w);}
+  body.dark .sb.on{background:var(--w);color:#000;border-color:var(--w);}
+  body.dark .fsrc span{background:#000;color:var(--w2);box-shadow:inset 0 0 0 1px var(--w3);}
+  body.dark .fsrc span.on{background:var(--w);color:#000;box-shadow:none;}
+  body.dark .subrow{border:1px dashed var(--w3);background:transparent;}
+  body.dark .fbar{background:var(--w);opacity:.30;}
+  body.dark .fbar.on{background:var(--w);opacity:1;}
+  /* ---- de speelbalk ---- */
+  body.dark .pbarn{border:1.5px solid var(--w3);background:#000;}
+  body.dark .pbarn em{background:var(--w);opacity:.18;}
+  body.dark .pcnt,.dark .pcnt i{color:var(--w);}
+  body.dark .cok{color:var(--ok);} .dark .cbad{color:var(--wrong);}
+  /* ---- de twee grote knoppen: grijs, en ze verschillen op DRIE dingen tegelijk ----
+     icoon (✓ / ✗) · rand (vol / streepjes) · vulling (lichter / donkerder grijs). Nooit op
+     kleur alleen. */
+  body.dark .phone:not(.land):not(.novoc) .bigsw.ok,
+  body.dark .phone.land:not(.novoc) .bigsw.ok{
+      background:#1e1e1e;border:1.5px solid var(--w);color:var(--w);box-shadow:none;opacity:1;}
+  body.dark .phone:not(.land):not(.novoc) .bigsw.bad,
+  body.dark .phone.land:not(.novoc) .bigsw.bad{
+      background:#0d0d0d;border:1.5px dashed var(--w);color:var(--w);box-shadow:none;opacity:1;}
+  body.dark .phone:not(.land):not(.novoc) .bigsw.pale{opacity:.42;}
+  body.dark .phone:not(.land):not(.novoc) .thinpz{
+      background:#141414;border:1.5px solid var(--w3);color:var(--w);box-shadow:none;}
+  /* de veegtinten HOUDEN groen en rood — een flits die je voelt, niet leest */
+  /* ---- de grafieken: vier witte tinten + een open kader ---- */
+  body.dark .cb1{fill:var(--w);fill-opacity:1;}
+  body.dark .cb2{fill:var(--w);fill-opacity:.72;}
+  body.dark .cb3{fill:var(--w);fill-opacity:.48;}
+  body.dark .cb4{fill:var(--w);fill-opacity:.28;}
+  body.dark .cb5{fill:none;stroke:var(--w3);stroke-width:1;}
+  body.dark .clegend i.lg1{background:var(--w);}
+  body.dark .clegend i.lg2{background:var(--w);opacity:.72;}
+  body.dark .clegend i.lg3{background:var(--w);opacity:.48;}
+  body.dark .clegend i.lg4{background:var(--w);opacity:.28;}
+  body.dark .clegend i.ln{background:var(--w);}
+  body.dark svg .gl{stroke:var(--w3);} .dark svg .yl,.dark svg .xl,.dark svg .pl{fill:var(--w2);}
+  body.dark svg .lln{stroke:var(--w);} .dark svg .lpt{fill:var(--w);}
+  body.dark .searchbar input,.dark textarea,.dark input,.dark select{
+      background:#000;color:var(--w);border:1px solid var(--w3);}
+  body.dark .anchbar,.dark .hit .lb{background:#000;color:var(--w);}
+  body.dark .hit .lb.on,.dark .hit .lb.anch{background:var(--w);color:#000;border-color:var(--w);}
+  body.dark .lnk .c{border:1px dashed var(--w3);}
 </style>
 </head>
 <body>
@@ -896,7 +1052,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.28</span>
+    <span class="vers" id="vers">v11.29</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -906,6 +1062,8 @@
   <div class="stagewrap" id="stagewrap">
     <button class="bigsw ok" id="bigOk" title="juist"><b>✓</b><small>JUIST</small></button>
     <div class="stage" id="stage"></div>
+    <!-- v11.29 §72.1.3 — de dunne pauzeknop, tussen groen en rood, enkel in portrait -->
+    <button class="thinpz" id="btnPz" title="pauze"><b>❚❚</b></button>
     <button class="bigsw bad" id="bigBad" title="fout"><b>✗</b><small>FOUT</small></button>
   </div>
 
@@ -978,12 +1136,18 @@
           <div class="fwrap"><span class="fbar" id="sbar"></span><div class="fstrip" id="fstrip"></div></div>
           <div class="fsrc" id="fsrc"></div>
         </div>
+        <!-- v11.29 §72.5 (blok 8 van de mockup) — EEN DOORLOPENDE BALK. §71.3 knipte de balk
+             in twee stukken (#fbar bij het raster, #cbar bij de bronrij); JHS vindt dat raar.
+             Het raster en de bronrij staan nu in EEN kolom met EEN balkje ernaast: een trefvlak
+             van boven tot onder. #cbar bestaat niet meer; de handlers die hem opzochten zijn
+             allemaal beveiligd en doen gewoon niets meer. -->
         <div class="fwrap" id="fwrap">
           <button class="fbar" id="fbar" title="«in db» en «Later» tonen of verbergen"></button>
-          <div class="fgrid" id="fgrid"></div>
+          <div class="fcol">
+            <div class="fgrid" id="fgrid"></div>
+            <div class="srcrow" id="srcrow"></div>
+          </div>
         </div>
-        <!-- v11.28 §71.3 — hetzelfde balkje, nu ook links van de bronknoppen -->
-        <div class="fwrap" id="swrap"><button class="fbar" id="cbar" title="«in db» en «Later» tonen of verbergen"></button><div class="srcrow" id="srcrow"></div></div>
         <div id="subrows"></div>
       </div>
     </div>
@@ -1071,6 +1235,14 @@ let songSel=SONGBASE[0].k;
 let NOTES=load('sos_notes_v6',{});
 let CORR=load('sos_corr_v6',{});     /* correcties op officiële woorden → mee naar Claude bij sync */
 let FLUO=load('sos_fluo_v6',{});     /* {id:[rijindexen]} fluogele NB-cellen = foutgeheugen */
+/* ============ v11.29 §72.4 (D1.9) · DE SYNONIEMLINKS ============
+   NIEUWE sleutel `sos_links_v6` — nooit een bestaande sleutel hernoemen. Vorm: {id:[id,…]},
+   ALTIJD in beide richtingen weggeschreven, want de link is bidirectioneel en er is maar één
+   soort: SYNONIEM. Verwanten (A2) worden niet gelinkt.
+   ⚠ DE FLUO-VALKUIL: `FLUO` bewaart RIJNUMMERS per kaart (`data-row`). Een synoniemrij krijgt
+   daarom GÉÉN `data-row`: ze telt niet mee in de rijnummering, is niet te markeren en niet te
+   scoren. Zo springt geen enkele bestaande markering naar een verkeerde rij. */
+let LINKS=load('sos_links_v6',{});
 /* v11.2 §29.5 — aok/abad = het deel van ok/bad dat uit de AUTOSCROLL komt.
    ok/bad blijven de TOTALEN, zodat alles buiten de grafiek samengevoegd blijft zoals vroeger. */
 let DAILY=load('sos_daily_v6',{});   /* {'2026-08-03':{ok,bad,new,add,aok,abad}} */
@@ -1148,11 +1320,18 @@ if([0,25,50,75,100].indexOf(+SET.turnPct)<0) SET.turnPct=50;
    render() en asRenderSpeedMenu() lezen `TURN` vóór dat punt in het bestand.
    TU = de klok van de lopende kaart (t0 = starttijd · el = verstreken ms, bevroren bij pauze ·
    shown = is de doelkolom van deze kaart al onthuld?). */
-let TURN=false;
+let TURN=true;   /* v11.29 §72.1 — de scrollstand is onbereikbaar: er is nog EEN speelstand, de beurtstand. AS.on/AS.playing blijven de vlaggen voor «er wordt gespeeld». */
 /* v11.15 §51 — `hold` erbij: zolang een van de twee grote landscape-knoppen ingedrukt is,
    staat de klok stil. De pauze wordt bij het loslaten weggewerkt als een VERSCHUIVING van
    `t0` (t0 = nu − el), niet als een gat — anders slaat de inhaalbeveiliging van §46.2 aan. */
 const TU={t0:0,el:0,shown:false,hold:false};
+/* v11.29 §72.2.11 — RIJ PER RIJ, ENKEL BIJ GESPREKJES. CROW[id] = het aantal rijen van dat
+   gesprekje dat al open ligt. Staat enkel in het geheugen (het is speelstand, geen kennis) en
+   wordt nooit bewaard. Woordkaarten raken dit nooit aan: daar blijft één tik de hele kolom
+   openen, precies zoals vandaag. */
+let CROW={};
+function convRows(it){ return (it&&it.type==='conv')?((it.lines||[]).length):0; }
+function convOpen(id){ return CROW[id]||0; }
 /* v11.15 §51.1 — staat het toestel dwars? Wordt door applyLand() gezet vanuit matchMedia.
    Staat hier bovenaan om dezelfde reden als TURN: turnFit() en render() lezen hem eerder. */
 let LAND=false;
@@ -1174,6 +1353,20 @@ const saveSongs=()=>{save('sos_songs_v6',SONGS); save('sos_songlist_v6',SONGEXTR
 const saveNotes=()=>{save('sos_notes_v6',NOTES); syncPushSoon();};
 const saveCorr=()=>{save('sos_corr_v6',CORR); syncPushSoon();};
 const saveFluo=()=>{save('sos_fluo_v6',FLUO); syncPushSoon();};
+const saveLinks=()=>{save('sos_links_v6',LINKS); syncPushSoon();};
+function linksOf(id){ return (LINKS[id]||[]).filter(function(x){ return x!==id && !!BYID[x]; }); }
+function isLinked(a,b){ return (LINKS[a]||[]).indexOf(b)>=0; }
+function linkAdd(a,b){ if(!a||!b||a===b) return false;
+  if(!LINKS[a]) LINKS[a]=[]; if(!LINKS[b]) LINKS[b]=[];
+  if(LINKS[a].indexOf(b)<0) LINKS[a].push(b);
+  if(LINKS[b].indexOf(a)<0) LINKS[b].push(a);
+  saveLinks(); return true; }
+function linkDel(a,b){ if(!a||!b) return false;
+  if(LINKS[a]) LINKS[a]=LINKS[a].filter(function(x){ return x!==b; });
+  if(LINKS[b]) LINKS[b]=LINKS[b].filter(function(x){ return x!==a; });
+  if(LINKS[a]&&!LINKS[a].length) delete LINKS[a];
+  if(LINKS[b]&&!LINKS[b].length) delete LINKS[b];
+  saveLinks(); return true; }
 const saveDaily=()=>{save('sos_daily_v6',DAILY); syncPushSoon();};
 const saveGNote=()=>{save('sos_gnote_v6',GNOTE); syncPushSoon();};
 function bumpDay(field,n){ const k=todayKey(); const d=DAILY[k]||(DAILY[k]={ok:0,bad:0,new:0,add:0});
@@ -1301,8 +1494,46 @@ const DUPMERGE2 = {
   n_fredag:["fredag"],
   n_sondag:["sondag"]
 };
-const DUPOF = {};   /* verdwenen id -> id van de overlevende, beide rondes samen */
-[DUPMERGE,DUPMERGE2].forEach(m=>Object.keys(m).forEach(k=>m[k].forEach(d=>DUPOF[d]=k)));
+/* v11.29 §72.3 — DERDE RONDE: de 30 groepen van A1 die JHS op 2026-08-23 heeft afgevinkt
+   (`_cw_dump\20260823-A1-BESLISSING.md`, lijst M). 34 kaarten verdwijnen; hun score, ster,
+   notitie, correctie en fluo verhuizen mee via migDubbels(). De vormen en de voorbeeldzinnen
+   van de verdwijnende kaarten staan sinds deze versie in `forms[]` / `cmt` van de overlevende.
+   ⚠ Bij A1-16 en A1-21 blijft de GRONDVORM staan (gjerne, gal) en niet de kaart met de hoogste
+   volledigheidsscore — dat is uitdrukkelijk het voorstel in het beslissingsdocument. */
+const DUPMERGE3 = {
+  jeg:["n_meg"],
+  n_deg:["du"],
+  n_ham:["han"],
+  n_henne:["hun"],
+  n_dem:["de"],
+  n_oss:["vi"],
+  god:["n_bedre","n_best"],
+  darlig:["n_verre"],
+  fin:["n_finere","n_finest"],
+  liten:["n_mindre","n_smaa"],
+  n_billig:["n_billigere"],
+  n_kjedelig:["n_kjedeligere"],
+  n_lett:["n_lettere"],
+  n_stor:["n_storste"],
+  n_gjerne:["n_heller","n_helst"],
+  n_gal:["n_galt"],
+  n_min:["n_mine"],
+  "være":["n_var"],
+  n_tann:["n_tann_k18"],
+  sm_hellsike:["sm_hellsikes"],
+  n_miste:["sm_mast"],
+  n_noe:["sm_nokke"],
+  n_skjule:["n_skjult"],
+  n_norsk:["n_norge"],
+  n_sverige:["n_svensk"],
+  n_russland:["n_russisk"],
+  n_island:["n_islandsk"],
+  n_hellas:["n_gresk"],
+  n_polen:["n_polsk"],
+  n_tyrkia:["n_tyrkisk"]
+};
+const DUPOF = {};   /* verdwenen id -> id van de overlevende, alle rondes samen */
+[DUPMERGE,DUPMERGE2,DUPMERGE3].forEach(m=>Object.keys(m).forEach(k=>m[k].forEach(d=>DUPOF[d]=k)));
 
 function migDubbels(MAP,FLAG,BAK){
   if(SET[FLAG]) return;
@@ -1346,6 +1577,12 @@ function migDubbels(MAP,FLAG,BAK){
     if(NOTES[d]){ NOTES[t]=NOTES[t] ? (NOTES[t]+' · '+NOTES[d]) : NOTES[d]; delete NOTES[d]; }
     if(CORR[d]){  CORR[t]=CORR[t]  ? (CORR[t] +' · '+CORR[d])  : CORR[d];  delete CORR[d]; }
     if(FLUO[d]){  FLUO[t]=[...new Set([].concat(FLUO[t]||[],FLUO[d]))].sort((a,b)=>a-b); delete FLUO[d]; }
+    /* v11.29 §72.4 — de synoniemlinks van een verdwenen id verhuizen mee naar de overlevende. */
+    if(LINKS[d]){ LINKS[d].forEach(function(o){
+        if(o!==t){ if(!LINKS[t]) LINKS[t]=[]; if(LINKS[t].indexOf(o)<0) LINKS[t].push(o);
+                   if(LINKS[o]&&LINKS[o].indexOf(t)<0) LINKS[o].push(t); }
+        if(LINKS[o]) LINKS[o]=LINKS[o].filter(function(x){ return x!==d; }); });
+      delete LINKS[d]; }
     /* een eigen (bewerkte) kaart met een verdwenen id gaat mee naar de prullenmand */
     const u=USER.findIndex(x=>x.id===d); if(u>=0) USER[u].deleted=true;
   });
@@ -1358,11 +1595,25 @@ function migDubbels(MAP,FLAG,BAK){
     const t=OF[id]; if(t){ SET.daySkip[t]=SET.daySkip[id]; delete SET.daySkip[id]; } });
 
   save('sos_scores_v6',scores); save('sos_fav_v6',[...FAV]); save('sos_next_v6',[...NEXT]); save('sos_notes_v6',NOTES);
-  save('sos_corr_v6',CORR); save('sos_fluo_v6',FLUO); save('sos_user_v6',USER);
+  save('sos_corr_v6',CORR); save('sos_fluo_v6',FLUO); save('sos_user_v6',USER); save('sos_links_v6',LINKS);
   SET[FLAG]=1; saveSet();
 }
 migDubbels(DUPMERGE , 'dupmig' , 'sos_scores_pre1112_v6');    /* v11.12   · 81 groepen */
 migDubbels(DUPMERGE2, 'dupmig2', 'sos_scores_pre11121_v6');   /* v11.12.1 · 13 groepen */
+migDubbels(DUPMERGE3, 'dupmig3', 'sos_scores_pre1129_v6');    /* v11.29   · 30 groepen (A1) */
+/* v11.29 §72.4 — DE ZEVEN SYNONIEMLINKS VAN JHS (lijst L van A1, beslist op 2026-08-23).
+   Eenmalig, achter een vlag in de bestaande sleutel sos_set_v6: wie ze zelf weghaalt, krijgt ze
+   niet opnieuw. Verwanten (A2) worden NIET gelinkt. */
+const LINKSEED=[['n_gammel','n_eldre'],['n_mye','n_mer'],['n_annen','n_den_andre'],
+                ['n_denne','n_dette'],['n_alle','n_alt'],['hjem','sm_h_heim'],['n_sent','n_senere']];
+/* ⚠ BYID bestaat hier nog niet (die staat lager in het bestand); de zaaifunctie wordt daarom
+   pas in het STARTblok onderaan aangeroepen. */
+function seedLinks(){ if(SET.linkseed) return;
+  let k=0; LINKSEED.forEach(function(pr){ if(BYID[pr[0]]&&BYID[pr[1]]){
+    if(!LINKS[pr[0]]) LINKS[pr[0]]=[]; if(!LINKS[pr[1]]) LINKS[pr[1]]=[];
+    if(LINKS[pr[0]].indexOf(pr[1])<0) LINKS[pr[0]].push(pr[1]);
+    if(LINKS[pr[1]].indexOf(pr[0])<0) LINKS[pr[1]].push(pr[0]); k++; } });
+  save('sos_links_v6',LINKS); SET.linkseed=1; saveSet(); }
 
 /* ===================== SUPABASE SYNC ===================== */
 const SB_URL='https://uhpzabicbhvuxpdszxib.supabase.co';
@@ -1370,7 +1621,7 @@ const SB_KEY='sb_publishable_wq_Xjq-7qVhmRrnbAsmpGg_rapM_oCb';
 const SB_TABLE='sync', SB_ROW='jhs';
 const SB_H={apikey:SB_KEY, Authorization:'Bearer '+SB_KEY};
 let SYNC_TS=load('sos_sync_ts_v6',0), syncState='idle', pushTimer=null;
-function localBundle(){ return {items:USER, scores, fav:[...FAV], next:[...NEXT], songs:SONGS, songlist:SONGEXTRA, notes:NOTES, corr:CORR, fluo:FLUO, daily:DAILY, gnote:GNOTE,
+function localBundle(){ return {items:USER, scores, fav:[...FAV], next:[...NEXT], songs:SONGS, songlist:SONGEXTRA, notes:NOTES, corr:CORR, fluo:FLUO, daily:DAILY, gnote:GNOTE, links:LINKS,   /* v11.29 §72.4 */
   set:{showBM:SET.showBM}, ts:Date.now()}; }
 function setSyncState(s){ syncState=s; const el=document.getElementById('syncStat'); if(el) el.textContent=s; }
 function mergeRemote(rem){
@@ -1389,12 +1640,15 @@ function mergeRemote(rem){
   if(rem.notes){ if(remNewer) Object.assign(NOTES,rem.notes); else NOTES=Object.assign({},rem.notes,NOTES); }
   if(rem.corr){ if(remNewer) Object.assign(CORR,rem.corr); else CORR=Object.assign({},rem.corr,CORR); }
   if(rem.fluo){ for(const k in rem.fluo){ const a=FLUO[k]||[], b=rem.fluo[k]||[]; FLUO[k]=[...new Set([...a,...b])]; } }
+  /* v11.29 §72.4 — links smelten samen, ze worden nooit gewist door een sync. */
+  if(rem.links){ for(const k in rem.links){ const a=LINKS[k]||[], b=rem.links[k]||[]; LINKS[k]=[...new Set([...a,...b])]; } }
   if(rem.gnote){ for(const k in rem.gnote) if(!(k in GNOTE)||remNewer) GNOTE[k]=rem.gnote[k]; save('sos_gnote_v6',GNOTE); }
   if(rem.daily){ for(const k in rem.daily){ const a=DAILY[k], b=rem.daily[k]||{};
     if(!a) DAILY[k]=b; else ['ok','bad','new','add','aok','abad'].forEach(f=>{ a[f]=Math.max(a[f]||0,b[f]||0); }); } }
   if(rem.set&&typeof rem.set.showBM==='boolean'&&remNewer){ SET.showBM=rem.set.showBM; saveSet(); }
   save('sos_scores_v6',scores); save('sos_user_v6',USER); save('sos_fav_v6',[...FAV]); save('sos_next_v6',[...NEXT]);
   save('sos_notes_v6',NOTES); save('sos_corr_v6',CORR); save('sos_fluo_v6',FLUO); save('sos_daily_v6',DAILY);
+  save('sos_links_v6',LINKS);   /* v11.29 §72.4 */
   buildPool();
 }
 async function syncPull(){ if(!navigator.onLine) return false;
@@ -1685,6 +1939,25 @@ function rowsOf(it){
   return rows;
 }
 function bmLine(t){ return (SET.showBM&&t)?'<span class="bm"><i>BM</i>'+t+'</span>':''; }
+/* v11.29 §72.4 — DE SYNONIEMRIJ. Staat tussen de hoofdregel en de eerste vormenrij, met het
+   link-symbooltje vooraan (enkel bij de eerste), dezelfde twee kolommen (NL links, NO rechts)
+   en een STREEPJESrand in plaats van een volle. Onder het Noorse synoniem staat de
+   klankspelling. De rij volgt de richting mee: raad je het Noors, dan gaat de rechterkolom óók
+   dicht — anders geeft ze het antwoord weg. ⚠ GEEN `data-row` (zie de valkuil bij LINKS). */
+const LNKICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.6a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10.4a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/></svg>';
+function linkRowsHTML(it,rev,blur){
+  const ids=linksOf(it.id); if(!ids.length) return '';
+  return ids.map(function(pid,k){
+    const p=BYID[pid]; if(!p) return '';
+    const nl=(p.type==='woord')?(p.hnl||''):(p.nl||''), nb=(p.type==='woord')?(p.hnb||''):(p.nb||'');
+    const ph=p.phNB||p.ph||'';
+    return '<div class="lnk'+(k?' second':'')+'" data-lnk="'+pid+'">'
+      +'<span class="lnkico" title="ontkoppelen">'+(k?'':LNKICO)+'</span>'
+      +'<span class="c'+((rev&&blur)?' blur':'')+'">'+nl+'<small>synoniem</small></span>'
+      +'<span class="c'+((!rev&&blur)?' blur':'')+'">'+nb+(ph?'<small>'+esc(ph)+'</small>':'')+'</span>'
+      +'</div>';
+  }).join('');
+}
 function cardHTML(it){
   const blur = SET.showAns ? hidden.has(it.id) : !revealed.has(it.id);
   const fav=FAV.has(it.id);
@@ -1717,10 +1990,18 @@ function cardHTML(it){
       : '<div class="chalf"><span class="pen" data-edit="'+it.id+'">✏️</span>'
         +'<div class="pho'+((blur&&!rev)?' blur':'')+'">'+ph+'</div></div>')
     +'</div>';
+  /* v11.29 §72.2.11 — bij een GESPREKJE gaat de waas per rij weg (CROW), bij al de rest in
+     één keer, zoals altijd. Eén regel verschil, geen tweede machinerie. */
+  const copen=conv?convOpen(it.id):0;
+  /* v11.29 §72.4 — de synoniemrijen komen NA de hoofdregel en VOOR de eerste vormenrij. Ze
+     staan buiten de rijnummering: `i` blijft precies wat het was, dus FLUO klopt nog. */
+  const lnkrows=linkRowsHTML(it,rev,blur);
   const cells=rowsOf(it).map(function(r,i){
     const hl=rev?' hidecol':'', hb=rev?'':' hidecol';
-    return '<div class="cell col-nl '+r[2]+hl+((rev&&blur)?' blur':'')+((rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[0]+'</div>'
-     +'<div class="cell col-nb '+r[2]+hb+((!rev&&blur)?' blur':'')+((!rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[1]+bmLine(r[3])+'</div>'; }).join('');
+    const bl=conv?(blur&&i>=copen):blur;
+    return '<div class="cell col-nl '+r[2]+hl+((rev&&bl)?' blur':'')+((rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[0]+'</div>'
+     +'<div class="cell col-nb '+r[2]+hb+((!rev&&bl)?' blur':'')+((!rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[1]+bmLine(r[3])+'</div>'
+     +((i===0&&!conv)?lnkrows:''); }).join('');
   const note=corrOf(it)?('✏️ '+corrOf(it)):noteOf(it);
   const cmt=note?'<div class="cmt">💡 '+esc(note)+'</div>':'';
   /* v11.2 §29.6 — klein merkje zodat je ziet waarom een woord zónder score toch bij «zwak» staat */
@@ -2344,7 +2625,9 @@ function onCtl(a){
   else if(a==='gram'){ setMode(mode==='gram'?'voc':'gram'); }
 }
 $('btnGram').onclick=()=>onCtl('gram');
-$('btnShuf').onclick=()=>onCtl('shuf');
+/* v11.29 §72.1.5 — 🔀 STOPT OOK HET SPELEN en zet je terug in de lijst. De tellers AS.nok/
+   AS.nbad worden door asResetCount() op nul gezet zoals altijd (§42.9, ongewijzigd). */
+$('btnShuf').onclick=()=>{ if(AS.on) asExit(); onCtl('shuf'); };
 /* v11.18 §55.2 — uiterst rechts in rij 1 (enkel landscape): het volledige selectiemenu
    schermvullend open, en bij een tweede tik weer dicht. */
 $('btnFull').onclick=function(){ if(typeof fullToggle==='function') fullToggle(); };
@@ -2397,7 +2680,7 @@ $('btnAdd').onclick=()=>openEditor(null);
    `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
    Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
    dat zo. */
-const APPVER='v11.28';
+const APPVER='v11.29';
 let FRESHBUSY=false;
 async function hardRefresh(){
   if(FRESHBUSY) return; FRESHBUSY=true;
@@ -2696,6 +2979,11 @@ $('stage').addEventListener('pointerup',e=>{
   if(d.moved) return;
   /* ---- tik ---- */
   if(d.tgt.closest&&d.tgt.closest('.pen')){ const it=ITEMS.find(x=>x.id===d.id); if(it) openEditor(it); return; }
+  /* v11.29 §72.4 — een tik op het link-symbooltje vraagt of de link weg mag. */
+  if(d.tgt.closest&&d.tgt.closest('.lnkico')){
+    const row=d.tgt.closest('.lnk'), card=d.tgt.closest('.card');
+    if(row&&card) openUnlink(card.dataset.id,row.dataset.lnk);
+    return; }
   /* v11.5 §38.9 · v11.5.1 §40.1 · v11.6 §41.20 — de grijze samenvattingsbol en de historiek-
      bolletjes zijn puur informatief. De tik-guard gold enkel in de autoscroll; hij geldt nu
      ALTIJD: tikken scoort nergens nog, alleen vegen scoort.
@@ -2725,26 +3013,33 @@ $('stage').addEventListener('pointerup',e=>{
      - Pauzeren gaat voortaan met ▶ en de voortgangsbalk; de tik op het speelveld pauzeert niet
        meer, want die scoort. Een LANGE druk (§29.8) blijft wel pauzeren en scoort niet.
      In LANDSCAPE verandert er niets: daar doen de twee grote knoppen het werk (§51). */
-  if(TURN && !LAND){
+  /* ============ v11.29 §72.1 · DE WAARHEIDSTABEL (spec 23/08, deel B) ============
+     PORTRAIT EN LANDSCAPE, dezelfde regel — §51 sloeg deze tak in landscape volledig over
+     (`if(TURN && !LAND)`); die poort staat nu open.
+       · er wordt gespeeld → ELKE tik pauzeert (links of rechts, dat maakt niet uit);
+       · pauze of stil     → LINKS tikken onthult (bij een gesprekje één rij per tik),
+                             RECHTS tikken markeert die rij fluo.
+     §72.1.7 — TIKKEN OM TE SCOREN BESTAAT NIET MEER. Scoren gaat met de groene/rode knop
+     (96 × 120, staat er in portrait altijd) of met een veeg.
+     §72.1.4 — in PAUZE hervat een tik op de kaart NIET; dat doen enkel ▶ en de balk.
+     De links/rechts-grens is het midden van het TOESTEL, net als vandaag. */
+  if(TURN){
     if(held) return;
     const sc=turnCard(); if(!sc) return;
-    if(!AS.on && turnIsHidden(sc)){ turnSetHide(sc,false); return; }
-    const cell=d.tgt.closest&&d.tgt.closest('.cell.hidecol');
-    if(cell && !turnIsHidden(sc)){
-      const i=+cell.dataset.row, arr=new Set(FLUO[d.id]||[]);
-      arr.has(i)?arr.delete(i):arr.add(i);
-      FLUO[d.id]=[...arr]; if(!FLUO[d.id].length) delete FLUO[d.id];
-      saveFluo(); cell.classList.toggle('fluo'); return;
-    }
+    if(AS.on && AS.playing){ asPause(false); return; }
     const bx=$('phone').getBoundingClientRect();
-    turnScore(d.x0 < bx.left+bx.width/2);
+    if(d.x0 < bx.left+bx.width/2){ turnRevealStep(sc); return; }
+    /* §72.1.6 — fluo enkel als er NIET gespeeld wordt, en enkel op de kolom die dicht stond
+       (de antwoordkolom), precies zoals vandaag. Een rij die nog achter de waas zit, kan je
+       niet markeren. */
+    const cell=d.tgt.closest&&d.tgt.closest('.cell.hidecol');
+    if(cell && !cell.classList.contains('blur')){
+      const id=sc.dataset.sc, i=+cell.dataset.row, arr=new Set(FLUO[id]||[]);
+      arr.has(i)?arr.delete(i):arr.add(i);
+      FLUO[id]=[...arr]; if(!FLUO[id].length) delete FLUO[id];
+      saveFluo(); cell.classList.toggle('fluo');
+    }
     return;
-  }
-  if(TURN && AS.on){
-    if(held) return;
-    const sc=turnCard();
-    if(sc && turnIsHidden(sc)){ turnReveal(); return; }
-    asToggle(); return;
   }
   if(AS.on){ if(!held) asToggle(); return; }
   subOpen.clear();
@@ -3046,7 +3341,7 @@ function deckDrop(id){
 function asBarFrac(){
   if(!AS.on) return 0;
   /* v11.11 §45.1 — in de beurtstand is er geen scroll: de vulling volgt de klok van de kaart. */
-  if(TURN){ const per=turnPer(); return per?Math.min(1,Math.max(0,TU.el/per)):0; }
+  if(TURN){ const per=turnDur(); return per?Math.min(1,Math.max(0,TU.el/per)):0; }
   if(!AS.cards.length) return 0;
   const i=Math.min(Math.max(0,AS.idx),AS.cards.length-1);
   const s=$('stage').scrollTop, a=asStartTop(i), len=asSegLen(i);
@@ -3104,7 +3399,7 @@ function asDrawBar(){
       c.title='nog te doen vandaag van de '+(SET.nperday||15)+' nieuwe woorden';
     } else {
       /* v11.26 §69.3 — «1 /» boven «1991», gecentreerd in de balk zelf. */
-      c.innerHTML=tot?('<i>'+pos+' / </i>'+tot):'';
+      c.innerHTML=tot?('<i>'+pos+' - </i>'+tot):'';   /* v11.29 §72.1.8 */
       c.title='';
     }
   }
@@ -3210,10 +3505,12 @@ function asPaintPlay(){
     /* v11.7 §42.3 — in IN DB, TO DO en ☀15 dooft ▶ en doet hij niets */
     const blk=asBlocked();
     p.classList.toggle('off',blk&&!AS.on);
-    p.title=AS.playing?'terug naar de lijst'
+    p.title=AS.playing?'speelt — pauzeer met de dunne knop of een tik op de kaart'
            :(AS.on?'verder spelen'
-           :(blk?'autoscroll is uit in «in db», «TO DO» en ☀15':'start'));
+           :(blk?'spelen kan hier niet':'start'));
   }
+  /* v11.29 §72.1.3 — de dunne pauzeknop staat bleek zolang er niets te pauzeren valt. */
+  const pz=$('btnPz'); if(pz) pz.classList.toggle('pale',!(AS.on&&AS.playing));
   const sp=$('spbtn');
   /* v11.11 §45.2 — dezelfde knop stuurt de autoscroll én de beurtstand, dus hij is ook
      bruikbaar zodra de beurtstand aanstaat (§44.7 grijsde hem buiten de autoscroll uit). */
@@ -3394,7 +3691,10 @@ function asExit(){
 function asPlayTap(){
   if(fpackOpen()) setCompact(true);      /* §44.12 — ▶ klapt de selectierij dicht */
   closeSpeed();
-  if(AS.on && AS.playing){ asExit(); return; }
+  /* v11.29 §72.1.2 — ▶ STOPT NIET MEER. Hier stond `if(AS.on&&AS.playing){asExit();}`, en dat
+     is precies waarom JHS «het begint weer van voren af aan» zag. ▶ = start / hervat, meer niet.
+     Stoppen doet de reshuffle (§72.1.5); pauzeren de dunne knop of een tik op de kaart. */
+  if(AS.on && AS.playing) return;
   if(AS.on){ asResume(); return; }
   if(asBlocked()) return;
   asStart(); asResume();
@@ -3412,9 +3712,15 @@ function asBarTap(){
   if(!AS.playing) asResume();
 }
 $('pp').onclick=asPlayTap;
+/* v11.29 §72.1.3 — de dunne pauzeknop tussen groen en rood. Ze pauzeert enkel; hervatten doe
+   je met ▶ of met de voortgangsbalk (§72.1.4). */
+$('btnPz').onclick=function(){ if(AS.on&&AS.playing) asPause(false); };
 $('pbar').onclick=asBarTap;
 /* v11.10 §44.8 — 🔀 en de beurtstand staan nu in de speelrij */
-$('btnTurn').onclick=function(){ turnToggle(); };
+/* v11.29 §72.1.1 — #btnTurn heeft geen zin meer (er is nog één stand); de knop is verborgen
+   en de handler is een lege huls, zodat er niets kan breken als ze toch bereikt wordt. */
+$('btnTurn').onclick=function(){};
+function turnToggle(){}
 /* ---- v11.10 §44.13 · v11.11 §45.1/§45.4 · DE BEURTSTAND ----
    Eén kaart, geen scrollen. v11.10 bouwde de VORM; v11.11 bouwt het GEDRAG:
    - §45.1 de stand loopt vanzelf door op dezelfde klok als de autoscroll (SPEEDS), en de
@@ -3428,6 +3734,10 @@ $('btnTurn').onclick=function(){ turnToggle(); };
 /* `TURN` en `TU` staan bewust hoger in het bestand (bij de instellingen): asRenderSpeedMenu()
    en render() lezen ze al vóór dit blok, en een `let` hier zou daar een TDZ-fout geven. */
 function turnPer(){ return (SPEEDS[SET.asSpeed]||2)*1000; }
+/* v11.29 §72.2.12 — de volle duur van de kaart die er staat: bij een gesprekje n × per. */
+function turnDur(){ const sc=(typeof turnCard==='function')?turnCard():null;
+  const it=sc?BYID[sc.dataset.sc]:null;
+  return turnPer()*((it&&it.type==='conv')?Math.max(1,convRows(it)):1); }
 function turnPct(){ const p=+SET.turnPct; return TPCTS.indexOf(p)>=0?p:50; }
 function turnCard(){ const h=$('lst'); return h?h.querySelector('.scrollcard.focus'):null; }
 /* ============ v11.28 §71.2 · DE FOCUSKAART IS EEN GESPREKJE ============
@@ -3445,6 +3755,7 @@ function convSync(){
   const it=focusItem(), on=!!(it&&it.type==='conv');
   const p=$('phone'); if(p) p.classList.toggle('convfoc',on);
   if(on&&!CONVFOC){
+    const st=$('stage'); if(st) st.scrollTop=0;   /* v11.29 §72.2.10 — een nieuw gesprekje begint bovenaan */
     if(typeof FULL!=='undefined'&&FULL&&typeof fullClose==='function') fullClose();
     setCompact(true);
     if(!SET.fhide){ SET.fhide=true; saveSet(); renderFgrid(); }
@@ -3487,10 +3798,29 @@ function turnIsHidden(sc){ if(!sc) return false; const id=sc.dataset.sc;
    niet met een eigen mechaniek — zo blijft er één waarheid over wat er dicht staat. */
 function turnSetHide(sc,hide){
   if(!sc) return; const id=sc.dataset.sc; if(!id) return;
-  if(hide){ if(SET.showAns) hidden.add(id); else revealed.delete(id); }
-  else     { if(SET.showAns) hidden.delete(id); else revealed.add(id); }
+  if(hide){ if(SET.showAns) hidden.add(id); else revealed.delete(id); CROW[id]=0; }
+  else     { if(SET.showAns) hidden.delete(id); else revealed.add(id); delete CROW[id]; }
   const c=sc.querySelector('.card'); if(c) refreshCard(c,id);
   turnFit();
+}
+/* v11.29 §72.2.11 — ÉÉN TIK ONTHULT. Bij een gesprekje de VOLGENDE RIJ, bij al de rest de
+   hele antwoordkolom (ongewijzigd). Geeft true als er iets veranderd is. */
+function convRevealTo(sc,k){
+  if(!sc) return false;
+  const id=sc.dataset.sc, it=BYID[id]; if(!it) return false;
+  const n=convRows(it); if(!n) return false;
+  if(k>=n){ turnSetHide(sc,false); return true; }
+  if(k<=convOpen(id)) return false;
+  CROW[id]=k;
+  const c=sc.querySelector('.card'); if(c) refreshCard(c,id);
+  turnFit(); return true;
+}
+function turnRevealStep(sc){
+  if(!sc) return false;
+  const id=sc.dataset.sc, it=BYID[id]; if(!it) return false;
+  if(!turnIsHidden(sc)) return false;
+  if(it.type!=='conv'){ turnSetHide(sc,false); return true; }
+  return convRevealTo(sc,convOpen(id)+1);
 }
 function turnReveal(){ const sc=turnCard(); if(sc&&turnIsHidden(sc)) turnSetHide(sc,false); TU.shown=true; }
 function turnRestartClock(){ TU.t0=performance.now(); TU.el=0; TU.shown=(turnPct()===0); }
@@ -3509,6 +3839,11 @@ function turnFit(){
      en wordt onderaan afgeknipt («pech voor hoge kaarten», beslist door JHS). Zo blijven de
      eerste rijen en de klankregel altijd op dezelfde plaats staan. */
   if(LAND) return;
+  /* v11.29 §72.2.9 — DE GESPREKSKAART KRIMPT NOOIT. Hier zat het «versmallen» dat JHS zag:
+     transform:scale() tot 0,35× op een hoge kaart. Een gesprekje houdt de volle breedte en
+     scrolt in plaats daarvan (§72.2.10). Voor woordkaarten verandert er niets. */
+  const itF=BYID[sc.dataset.sc];
+  if(itF&&itF.type==='conv') return;
   const avail=st.clientHeight-6, h=sc.offsetHeight;
   if(h>avail && avail>24 && h>0) sc.style.transform='scale('+Math.max(.35,avail/h).toFixed(4)+')';
 }
@@ -3550,6 +3885,7 @@ function turnStep(dir){
   cur.classList.remove('focus'); nx.classList.add('focus');
   /* V4 (JHS 2026-08-16): meteen de volgende kaart, met de antwoordkolom weer dicht */
   turnSetHide(nx,true);
+  $('stage').scrollTop=0;                /* v11.29 §72.2.10 */
   if(typeof convSync==='function') convSync();   /* v11.28 §71.2 */
 }
 /* §45.1 — de volgende kaart tijdens de lopende beurtstand */
@@ -3570,6 +3906,7 @@ function turnAdvance(){
   turnSyncCur();
   turnSetHide(nx,turnPct()>0);
   turnRestartClock();
+  $('stage').scrollTop=0;                /* v11.29 §72.2.10 */
   asDrawBar();
   if(typeof convSync==='function') convSync();   /* v11.28 §71.2 */
 }
@@ -3697,6 +4034,20 @@ function turnTick(){
   if(TU.hold) return;
   TU.el=performance.now()-TU.t0;
   const per=turnPer(), p=turnPct();
+  /* v11.29 §72.2.12 — BIJ EEN GESPREKJE GELDT DE INGESTELDE TIJD PER RIJ. Rij k valt open op
+     (k−1)×per + per×pct/100, en na de laatste rij springt hij vanzelf naar het volgende
+     kaartje. Een gesprekje van 12 regels duurt dus 12 × de ingestelde tijd. Woordkaarten
+     blijven exact op `turnPct` per KAART werken (§45.1). */
+  const scT=turnCard(), itT=scT?BYID[scT.dataset.sc]:null;
+  if(itT&&itT.type==='conv'){
+    const n=convRows(itT)||1;
+    if(TU.el>per*n*3){ turnRestartClock(); asDrawBar(); return; }
+    let k=(p>=100)?0:(Math.floor((TU.el-per*p/100)/per)+1);
+    if(k<0) k=0; if(k>n) k=n;
+    if(k>0 && turnIsHidden(scT)) convRevealTo(scT,k);
+    if(TU.el>=per*n){ turnAdvance(); return; }
+    asBarProgress(); return;
+  }
   /* v11.11.1 §46.2 — SCHERM UIT, DAN TERUG. De browser stopt met hertekenen zodra je de app
      niet meer ziet, maar de klok loopt door. Bij het terugkeren zag `turnTick()` een gat van
      tientallen seconden en haalde dat in één keer in: je sloeg een kaart over die je nooit
@@ -3707,7 +4058,10 @@ function turnTick(){
   if(TU.el>=per){ turnAdvance(); return; }
   asBarProgress();
 }
-function turnToggle(){
+/* v11.29 §72.1.1 — DE LIJSTSTAND IS ONBEREIKBAAR. De functie blijft volledig staan zodat
+   §45/§46 in één handeling terug te draaien zijn, maar niets roept haar nog aan: #btnTurn is
+   verborgen en applyLand() komt er niet meer langs (TURN staat altijd aan). */
+function turnToggleOLD(){
   TURN=!TURN;
   $('phone').classList.toggle('turn',TURN);
   $('btnTurn').classList.toggle('on',TURN);
@@ -3783,9 +4137,10 @@ function fullMove(to){
   const host=to?$('fullselin'):$('menublk');
   /* v11.23 §62 — het balkje hangt nu buiten #fgrid, dus verhuist de WRAPPER mee. */
   /* v11.28 §71.3 — de bronrij zit nu in haar eigen wrapper mét balkje; die verhuist mee. */
-  const a=$('fwrap')||$('fgrid'), b=$('swrap')||$('srcrow'), c=$('subrows');
-  if(!host||!a||!b||!c) return;
-  host.appendChild(a); host.appendChild(b); host.appendChild(c);
+  /* v11.29 §72.5 — de bronrij zit nu IN #fwrap, dus er verhuist nog één blok plus #subrows. */
+  const a=$('fwrap')||$('fgrid'), c=$('subrows');
+  if(!host||!a||!c) return;
+  host.appendChild(a); host.appendChild(c);
 }
 function fullPaint(){ const b=$('btnFull'); if(b) b.classList.toggle('on',FULL); }
 function fullOpen(){
@@ -3826,14 +4181,15 @@ function applyLand(){
     /* §51.1.1 — landscape = ALTIJD de beurtstand. §51.1.2 — en dat blijft zo na het
        terugdraaien; één kort toastje, zodat je niet zonder het te merken je lijststand kwijt
        bent (renderPin/landPaint zetten #btnTurn dan vanzelf blauw). */
-    if(on){ if(!TURN) turnToggle();
+    if(on){
       /* v11.20 §57.4 (D1.7) — JHS: «zeker dat het in landscape altijd dicht staat». Draaien
          naar landscape zet de kaart in focus uitdrukkelijk dicht, ook als ze al focus had:
          anders draai je met een al onthulde kaart de beurtstand binnen. */
       const sc0=(typeof turnCard==='function')?turnCard():null;
       if(sc0) turnSetHide(sc0,true);
     }
-    else if(TURN){ toastn('Beurtstand aan — ze blijft aan na het terugdraaien.'); }
+    /* v11.29 §72.1.1 — het toastje «beurtstand blijft aan» is weg: er is geen andere stand
+       meer om naar terug te vallen. */
   }
   landPaint(); landPaintBtns();
   if(TURN) turnFit();
@@ -3889,7 +4245,7 @@ function landUp(k,e,cancel){
   if(cancel) return;                   /* §51.4.7 — weggegleden vóór het loslaten = annuleren */
   if(sim) return;                      /* §51.4.4 — exact gelijktijdig = geen score */
   /* §52.4 — staat de knop bleek, dan onthult deze druk enkel; de volgende scoort. */
-  if(landPale()){ turnSetHide(turnCard(),false); landPaintBtns(); return; }
+  if(landPale()){ turnRevealStep(turnCard()); landPaintBtns(); return; }
   turnScore(k==='g');
 }
 function turnScore(ok){
@@ -4018,7 +4374,7 @@ function buildIndex(){ const ix=[];
        zoeksleutel, zodat «kjøleskapet» of «kaffe» het gesprekje ook echt vindt. */
     if(it.type==='conv') bmtxt+=' '+(it.lines||[]).map(function(l){
       const b=l.bm||{}; return [l.ph,b.nb,b.ph].filter(Boolean).join(' '); }).join(' ');
-    ix.push({m:it.type==='woord'?'woord':(it.type==='conv'?'gesprekje':'zin'),label:lab,
+    ix.push({m:it.type==='woord'?'woord':(it.type==='conv'?'gesprekje':'zin'),label:lab, id:it.id,   /* v11.29 §72.4 — nodig voor de link-knop */
       key:(strip(textNB(it))+' '+strip(textNL(it))+' '+it.id+' '+strip(bmtxt)).toLowerCase(),
       go:function(){ mode='voc'; SET.types=['woord','zin','conv']; SET.eps=[];   /* v11.16 §53.1 */ SET.themes=[]; SET.basis=false; SET.fsel=null; SET.nch=[]; SET.src=[]; SET.who=[]; subOpen.clear();
         filters={own:false,missing:false}; saveSet(); render();
@@ -4027,7 +4383,34 @@ function buildIndex(){ const ix=[];
     key:(g.title+' '+g.blocks.map(x=>x.sub+' '+strip(x.rule)).join(' ')).toLowerCase(),
     go:function(){ setMode('gram'); location.hash='#g_'+g.id; }}));
   return ix; }
+/* v11.29 §72.4 — ONTKOPPELEN gaat nooit zonder bevestiging (uitdrukkelijke vraag van JHS). */
+function linkLabel(id){ const it=BYID[id]; if(!it) return id;
+  return (it.type==='woord')?(strip(it.hnb)+' — '+strip(it.hnl))
+        :(it.type==='conv'?('💬 '+(it.title||'Gesprekje')):(strip(it.nb)+' — '+strip(it.nl))); }
+function openUnlink(a,b){
+  if(!a||!b) return;
+  openSheet('<div class="sgrip"></div><h3>Link weghalen?</h3><div class="hintbox">🔗 <div>'
+    +esc(linkLabel(a))+'<br>↔ '+esc(linkLabel(b))+'</div></div>'
+    +'<div class="actions"><button class="btn cancel" id="c">Behouden</button><button class="btn danger" id="d">Ontkoppel</button></div>');
+  $('c').onclick=closeSheet;
+  $('d').onclick=function(){ linkDel(a,b); closeSheet(); mode='voc'; render(); };
+}
+/* v11.29 §72.4 — HET ZOEKSCHERM. Is er een kaart in focus, dan blijft haar hoofdregel bovenaan
+   staan als ANKER; is er geen, dan kies je er zelf een met de 🔗-knop naast een resultaat.
+   Daarna linkt (of ontlinkt) diezelfde knop bij elk ander resultaat. Zo kunnen ook twee
+   zoekresultaten onderling gelinkt worden, precies zoals gevraagd. */
+let SANCH=null;
+function anchorHTML(){
+  if(!SANCH||!BYID[SANCH]) return '<div class="anchbar"><b>Geen anker</b>'
+    +'<span class="hintl">tik op 🔗 naast een resultaat om er een te kiezen</span></div>';
+  return '<div class="anchbar"><div><b>'+esc(linkLabel(SANCH))+'</b>'
+    +'<span class="hintl">anker · tik op 🔗 naast een resultaat om te (ont)koppelen</span></div>'
+    +'<button class="x" id="anchx">✕</button></div>';
+}
 function openSearch(){ INDEX=buildIndex(); mode='search';
+  /* het anker begint bij de kaart die in focus staat, als die er is */
+  const f=(typeof focusItem==='function')?focusItem():null;
+  SANCH=f?f.id:null;
   asSetMenu(true);                 /* v11.6 §41.15 — het zoekveld zit in het menublok */
   $('searchbar').classList.add('open'); $('searchinput').focus();
   $('stage').innerHTML='<div class="none">Typ om te zoeken in woorden, zinnen en grammatica.</div>'; renderPin(); }
@@ -4036,12 +4419,32 @@ function closeSearch(){ $('searchbar').classList.remove('open'); $('searchinput'
    treffers (een lange lijst); zodra het 3de teken de lijst kort maakte, stonden de treffers
    bóven het kijkvenster en leek het scherm leeg. Elke zoekactie springt nu terug naar boven. */
 function doSearch(q){ q=q.trim().toLowerCase();
-  if(!q){ $('stage').innerHTML='<div class="none">Typ om te zoeken…</div>'; $('stage').scrollTop=0; return; }
+  if(!q){ $('stage').innerHTML=anchorHTML()+'<div class="none">Typ om te zoeken…</div>'; $('stage').scrollTop=0; bindAnch(); return; }
   const hits=INDEX.filter(x=>x.key.indexOf(q)>=0).slice(0,60);
-  if(!hits.length){ $('stage').innerHTML='<div class="none">Niets gevonden voor "'+esc(q)+'".</div>'; $('stage').scrollTop=0; return; }
+  if(!hits.length){ $('stage').innerHTML=anchorHTML()+'<div class="none">Niets gevonden voor "'+esc(q)+'".</div>'; $('stage').scrollTop=0; bindAnch(); return; }
   $('stage').scrollTop=0;
-  $('stage').innerHTML='<div class="sres">'+hits.map((h,k)=>'<div class="hit" data-k="'+k+'"><div class="m">'+h.m+'</div><div class="t">'+h.label+'</div></div>').join('')+'</div>';
+  /* v11.29 §72.4 — bij ELK resultaat met een eigen kaart staat een 🔗-knop: paars = dit is het
+     anker · blauw = al gelinkt aan het anker · grijs = nog niet gelinkt. Grammatica-treffers
+     hebben geen kaart en dus ook geen knop. */
+  $('stage').innerHTML=anchorHTML()+'<div class="sres">'+hits.map(function(h,k){
+    const id=h.id||null;
+    let btn='';
+    if(id){ const cls=(SANCH===id)?' anch':(SANCH&&isLinked(SANCH,id)?' on':'');
+      btn='<button class="lb'+cls+'" data-lk="'+k+'" title="synoniem koppelen / ontkoppelen">🔗</button>'; }
+    return '<div class="hit" data-k="'+k+'"><div class="m">'+h.m+'</div><div class="t">'+h.label+'</div>'+btn+'</div>';
+  }).join('')+'</div>';
+  bindAnch();
+  document.querySelectorAll('.hit .lb').forEach(function(b){ b.onclick=function(e){
+    e.stopPropagation();
+    const h=hits[+b.dataset.lk], id=h&&h.id; if(!id) return;
+    if(!SANCH||!BYID[SANCH]){ SANCH=id; doSearch(q); return; }
+    if(SANCH===id){ SANCH=null; doSearch(q); return; }
+    if(isLinked(SANCH,id)) linkDel(SANCH,id); else linkAdd(SANCH,id);
+    doSearch(q);
+  }; });
   document.querySelectorAll('.hit').forEach(el=>el.onclick=function(){ const h=hits[+el.dataset.k]; closeSearch(); h.go(); }); }
+function bindAnch(){ const x=$('anchx'); if(x) x.onclick=function(){ SANCH=null;
+  doSearch($('searchinput').value); }; }
 $('searchinput').oninput=e=>doSearch(e.target.value);
 $('searchclr').onclick=()=>{ closeSearch(); setMode('voc'); };
 $('btnSearch').onclick=()=>{ if(mode==='search'){ closeSearch(); setMode('voc'); } else openSearch(); };
@@ -4077,17 +4480,20 @@ function barChart(data){
   const n=data.length, span=(R-L)/n, bw=Math.min(14,span*0.56);
   const maxNew=Math.max(1,...data.map(x=>x.nw));
   let bars='', pts=[];
-  const seg=function(cx,y0,h,fill){ return h<=0?'' :
-    '<rect x="'+(cx-bw/2).toFixed(1)+'" y="'+(y0-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2.5" fill="'+fill+'"/>'; };
+  /* v11.29 §72.5 — de vulling komt uit een KLASSE en niet meer uit een inline `fill`, want
+     de dark mode wil hier vier WITTINTEN terwijl --ok/--wrong elders (de scorebolletjes en de
+     veegtinten) uitdrukkelijk in kleur moeten blijven. Light mode is ongewijzigd. */
+  const seg=function(cx,y0,h,cls){ return h<=0?'' :
+    '<rect x="'+(cx-bw/2).toFixed(1)+'" y="'+(y0-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2.5" class="'+cls+'"/>'; };
   data.forEach(function(x,i){
     const cx=L+span*(i+0.5), tot=x.ok+x.bad, u=(base-top)/max;
     const hOk=x.ok*u, hBad=x.bad*u, hAok=x.aok*u, hAbad=x.abad*u;
     /* van onder naar boven: goed handmatig · goed autoscroll (licht) · fout handmatig · fout autoscroll (licht) */
     let y=base;
-    bars+=seg(cx,y,hOk-hAok,'var(--ok)');        y-=(hOk-hAok);
-    bars+=seg(cx,y,hAok,'var(--ok-lt)');         y-=hAok;
-    bars+=seg(cx,y,hBad-hAbad,'var(--wrong)');   y-=(hBad-hAbad);
-    bars+=seg(cx,y,hAbad,'var(--wrong-lt)');     y-=hAbad;
+    bars+=seg(cx,y,hOk-hAok,'cb1');              y-=(hOk-hAok);
+    bars+=seg(cx,y,hAok,'cb2');                  y-=hAok;
+    bars+=seg(cx,y,hBad-hAbad,'cb3');            y-=(hBad-hAbad);
+    bars+=seg(cx,y,hAbad,'cb4');                 y-=hAbad;
     if(tot) bars+='<text x="'+cx.toFixed(1)+'" y="'+(base-hOk-hBad-4).toFixed(1)+'" class="pl">'+Math.round(x.ok/tot*100)+'%</text>';
     pts.push([cx, base-(x.nw/maxNew)*(base-top)*0.55]);
   });
@@ -4106,7 +4512,7 @@ function addChart(data){
     lines+='<line x1="'+L+'" y1="'+y.toFixed(1)+'" x2="'+R+'" y2="'+y.toFixed(1)+'" class="gl"/><text x="20" y="'+(y+3).toFixed(1)+'" class="yl">'+v+'</text>'; }
   const n=data.length, span=(R-L)/n, bw=Math.min(12,span*0.5);
   const bars=data.map(function(x,i){ if(!x.add) return ''; const cx=L+span*(i+0.5), h=(x.add/max)*(base-top);
-    return '<rect x="'+(cx-bw/2).toFixed(1)+'" y="'+(base-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2" fill="var(--accent)"/>'; }).join('');
+    return '<rect x="'+(cx-bw/2).toFixed(1)+'" y="'+(base-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2" class="cb5"/>'; }).join('');
   const xl=data.map((x,i)=>(i%2===0||i===n-1)?'<text x="'+(L+span*(i+0.5)).toFixed(1)+'" y="91" class="xl">'+x.d+'</text>':'').join('');
   return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Zelf toegevoegde woorden per dag">'+lines+bars+xl+'</svg>';
 }
@@ -4119,8 +4525,10 @@ function renderStats(){
     +'<div class="tile green"><div class="v">'+learnedCount()+'<small>/'+ITEMS.length+'</small></div><div class="k">geleerd (groen)</div></div>'
     +'</div>'
     +'<div class="chartcard"><div class="ctitle">Goed vs fout per dag &amp; nieuw geleerd</div>'
-    +'<div class="clegend"><span><i style="background:var(--ok)"></i>goed</span><span><i style="background:var(--wrong)"></i>fout</span>'
-    +'<span><i style="background:var(--ok-lt)"></i><i style="background:var(--wrong-lt)"></i>autoscroll</span><span><i class="ln"></i>nieuw geleerd</span></div>'
+    /* v11.29 §72.5 — de legende leest nu dezelfde klassen als de staven zelf (cb1…cb4), zodat
+       ze in dark mode mee de vier wittinten aanneemt in plaats van groen/rood te blijven. */
+    +'<div class="clegend"><span><i class="lg1"></i>goed</span><span><i class="lg3"></i>fout</span>'
+    +'<span><i class="lg2"></i><i class="lg4"></i>autoscroll</span><span><i class="ln"></i>nieuw geleerd</span></div>'
     +barChart(data)+'</div>'
     +'<div class="chartcard"><div class="ctitle">Zelf toegevoegde woorden per dag</div>'+addChart(data)+'</div>';
   $('stage').innerHTML=html;
@@ -4166,7 +4574,7 @@ function openFilter(){
   $('fapply').onclick=()=>{ closeSheet(); render(); };
 }
 /* v11 §27.11 — exportversie 11; `who` zit in de items zelf, import van v10 en lager blijft werken */
-function openExport(){ const data=JSON.stringify({v:12,items:USER,scores:scores,fav:[...FAV],next:[...NEXT],songs:SONGS,songlist:SONGEXTRA,notes:NOTES,corr:CORR,fluo:FLUO,daily:DAILY,gnote:GNOTE});
+function openExport(){ const data=JSON.stringify({v:13,items:USER,scores:scores,fav:[...FAV],next:[...NEXT],songs:SONGS,songlist:SONGEXTRA,notes:NOTES,corr:CORR,fluo:FLUO,daily:DAILY,gnote:GNOTE,links:LINKS});   /* v11.29 §72.4 — v:13 = mét de synoniemlinks */
   openSheet('<div class="sgrip"></div><h3>Exporteer (back-up)</h3><div class="hintbox">💡 <div>Kopieer en bewaar dit. Geef het aan Claude en je toevoegingen én correcties komen mee in de officiële versie.</div></div>'
     +'<div class="field"><textarea id="exp" rows="7" readonly>'+esc(data)+'</textarea></div>'
     +'<div class="actions"><button class="btn cancel" id="c">Sluit</button><button class="btn save" id="cp">Kopieer</button></div>');
@@ -4188,9 +4596,13 @@ function openImport(){ openSheet('<div class="sgrip"></div><h3>Importeer</h3><di
     if(d.notes) Object.assign(NOTES,d.notes);
     if(d.corr) Object.assign(CORR,d.corr);
     if(d.fluo) Object.assign(FLUO,d.fluo);
+    /* v11.29 §72.4 — export v:13 draagt de synoniemlinks; ze worden SAMENGEVOEGD, niet vervangen. */
+    if(d.links){ for(const k in d.links){ const a=LINKS[k]||[], b=d.links[k]||[];
+      LINKS[k]=[...new Set([].concat(a,b))]; } }
     if(d.daily) Object.assign(DAILY,d.daily);
     if(d.gnote){ Object.assign(GNOTE,d.gnote); save('sos_gnote_v6',GNOTE); }
     save('sos_user_v6',USER); save('sos_scores_v6',scores); saveFav(); saveNext(); saveNotes(); saveCorr(); saveFluo(); saveDaily();
+    save('sos_links_v6',LINKS);   /* v11.29 §72.4 */
     buildPool(); closeSheet(); render();
   }catch(e){ $('do').textContent='Ongeldig ✕'; } }; }
 /* v11.17 §54 — «🗑️ Alle scores wissen» is VERWIJDERD op vraag van JHS (2026-08-17): één
@@ -4335,6 +4747,11 @@ function fit(el){ if(el&&el.style) el.style.fontSize=''; }
 /* v11.6 §41.25 — de tekstbalk en zijn greepje staan geparkeerd achter TXTBAR; zet die const
    bovenaan op true en de hele leesregel (incl. SET.astxtoff) komt in één keer terug. */
 if(!TXTBAR) $('phone').classList.add('notxt');
+/* v11.29 §72.1.1 — er is nog EEN speelstand. De klasse `turn` stond vroeger enkel na een tik
+   op #btnTurn; ze staat er nu vanaf het opstarten. */
+$('phone').classList.add('turn');
+/* v11.29 §72.4 — de zeven synoniemlinks van JHS, eenmalig (BYID bestaat hier wél). */
+seedLinks();
 /* v11.6 §41.15 — het menublok staat bij het opstarten open; het greepje onderaan volgt. */
 asSetMenu(true);
 /* v11.10 §44.9 — de bewaarde richting meteen op de knop en op .phone zetten */

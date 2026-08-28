@@ -373,5 +373,18 @@ window.CONV = [
      ],
    cmt:'In skjønner, skjedd en egentlig valt letters weg: je zegt sjeun-ner, sjed en ee-gent-li.'}),
 
+ CV({id:'jo_bli_kjent_med_jentene', jo:true, labels:['conv','johanne'],
+   title:'Hallo Emma en Lene', sub:'Elkaar leren kennen', titleNO:'Hei Emma og Lene', subNO:'Bli kjent',
+   lines:[
+      {sp:'[V]', nb:'Hei Lene, hei Emma! Kan eg gi mammaen dokkers en klem og et kyss?', nl:'Hey Lene, Emma, mag ik jullie mama een knuffel en een kus geven?', ph:'haei LEE-ne haei EM-ma kan eg jii MAM-ma-en DOK-kers en klem oh et sjus', bm:{nb:'Hei Lene, hei Emma! Kan jeg gi mammaen deres en klem og et kyss?', ph:'haei LEE-ne haei EM-ma kan jaei jii MAM-ma-en DEE-res en klem oh et sjus'}, tbc:true},
+      {sp:'[V]', nb:'Kan eg gi deg en klem også?', nl:'Mag ik jou ook een knuffel geven?', ph:'kan eg jii daei en klem OHS-soh', bm:{nb:'Kan jeg gi deg en klem også?', ph:'kan jaei jii daei en klem OHS-soh'}},
+      {sp:'[V]', nb:'Eg har nokke bittelite med til deg.', nl:'Ik heb iets heel kleins bij voor jou.', ph:'eg haar NOK-ke BIT-te-lii-te mae til daei', bm:{nb:'Jeg har noe bittelite med til deg.', ph:'jaei haar NOO-e BIT-te-lii-te mae til daei'}},
+      {sp:'[V]', nb:'Eg synes det er kjempekjekt å se deg.', nl:'Ik vind het héél leuk om je te zien.', ph:'eg SUU-nes de aer SJEM-pe-sjekt oh see daei', bm:{nb:'Jeg synes det er kjempekjekt å se deg.', ph:'jaei SUU-nes de aer SJEM-pe-sjekt oh see daei'}},
+      {sp:'[V]', nb:'Eg gledet meg veldig til å se dokker.', nl:'Ik keek er heel hard naar uit om jullie te zien.', ph:'eg GLEE-det maei VEL-di til oh see DOK-ker', bm:{nb:'Jeg gledet meg veldig til å se dere.', ph:'jaei GLEE-det maei VEL-di til oh see DEE-re'}, tbc:true},
+      {sp:'[V]', nb:'Beklager at eg ikkje snakker så godt norsk ennå, men eg skal lære det.', nl:'Sorry dat ik nog niet zo goed Noors spreek, maar ik ga het wel leren.', ph:'be-KLAA-ger at eg IK-kje SNAK-ker soh got nohrsk en-NOH men eg skal LAE-re de', bm:{nb:'Beklager at jeg ikke snakker så godt norsk ennå, men jeg skal lære det.', ph:'be-KLAA-ger at jaei IK-ke SNAK-ker soh got nohrsk en-NOH men jaei skal LAE-re de'}},
+      {sp:'[V]', nb:'Kjempekjekt å bli kjent med dokker!', nl:'Superfijn om jullie te leren kennen!', ph:'SJEM-pe-sjekt oh blii sjent mae DOK-ker', bm:{nb:'Kjempekjekt å bli kjent med dere!', ph:'SJEM-pe-sjekt oh blii sjent mae DEE-re'}},
+     ],
+   cmt:'«Kjekt» is het Bergense woord voor leuk; kj en ky klinken allebei als sj (sjekt, sjus). «Dokker» = jullie, «dokkers» = van jullie. VOOR JOHANNE (tbc): staat «mammaen dokkers» zo goed, of zegt men «mammaen dykkar»? En zegt men in Bergen «eg gledet meg» of «eg glea meg»?'}),
+
 ];
 })();
