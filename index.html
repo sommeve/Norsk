@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <meta name="application-version" content="v11.17">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.29 (§72) — service-worker cache: sos-v11-36 -->
+<!-- Side om side · v11.33 (§76) — service-worker cache: sos-v11-40 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -192,19 +192,29 @@
   .phone.turn.convfoc .stage{overflow-y:auto!important;touch-action:pan-y!important;}
   /* v11.29 §72.1.3 — de dunne pauzeknop tussen de twee grote knoppen (enkel portrait) */
   .thinpz{display:none;}
+  /* v11.32 §75.1 — JHS, 29/08: «de grote pauzeknop mag de ruimte tussen groen en rood
+     opvullen, en als hij ingedrukt is, wordt het een play knop». De knop is dus niet meer
+     dun: ze spant precies de opening tussen de twee grote knoppen (die 96 px breed zijn en
+     8 px van de rand staan → left/right = 8+96+8 = 112 px) en is even hoog.
+     TERUGROLBAAR: ja — de drie regels `left/right/width` terugzetten op de vaste 44 px. */
   .phone:not(.land):not(.novoc) .thinpz{display:flex;position:absolute;bottom:8px;z-index:6;
-        left:50%;transform:translateX(-50%);width:44px;height:120px;
+        left:112px;right:112px;height:120px;
         align-items:center;justify-content:center;border:0;border-radius:14px;
         background:var(--ctrl);color:var(--ink);font-weight:800;cursor:pointer;touch-action:none;
         user-select:none;-webkit-user-select:none;opacity:.55;
         box-shadow:0 4px 12px rgba(20,30,60,.16);transition:filter .06s,opacity .12s;}
-  .phone:not(.land):not(.novoc) .thinpz b{font-size:15px;line-height:1;letter-spacing:1px;}
+  .phone:not(.land):not(.novoc) .thinpz b{font-size:22px;line-height:1;letter-spacing:2px;}
+  /* v11.32 §75.1 — GEPAUZEERD = een play-knop. Lichtblauw, net als ▶ in pauze (`.pp.paused`),
+     zodat de twee bedieningen dezelfde taal spreken. */
+  .phone:not(.land):not(.novoc) .thinpz.go{background:var(--prog);color:#fff;opacity:.85;}
+  .phone:not(.land):not(.novoc) .thinpz.go b{font-size:24px;letter-spacing:0;}
   .phone:not(.land):not(.novoc) .thinpz.pale{opacity:.22;box-shadow:none;}
   .phone:not(.land):not(.novoc) .thinpz.down{filter:brightness(.82);}
   .phone.fin .thinpz{display:none!important;}
-  /* v11.29 §72.1.1 — #btnTurn heeft geen zin meer: er is nog één stand. De knop blijft in de
-     DOM staan (landPaint() en §51.1.3 lezen hem) maar is onzichtbaar. */
-  #btnTurn{display:none!important;}
+  /* v11.30 §73.1 — #btnTurn IS TERUG. v11.29 §72.1.1 verborg de knop met
+     `#btnTurn{display:none!important}`; die regel is geschrapt, want er zijn weer twee
+     standen om tussen te schakelen. TERUGROLBAAR: ja — de regel weer bijzetten.
+     De knop stond intussen gewoon in de DOM (landPaint() en §51.1.3 lezen hem). */
   /* v11.8 §43.3 — de cel verdwijnt met inhoud én achtergrond; het lege gekleurde vlak wordt
      door een ::after teruggezet, zodat je nog steeds ziet dát er een kolom staat. */
   .cell{position:relative;}
@@ -356,6 +366,10 @@
           font-size:13.5px;color:var(--ink);background:transparent;position:relative;}
   .lnk .c small{display:block;font-size:10.5px;color:var(--muted);}
   .lnk.second .lnkico{opacity:0;pointer-events:none;}
+  /* v11.31 §74.1 — de AFLEIDINGSRIJ. Zelfde vorm als de synoniemrij, maar STIPPELS in plaats
+     van streepjes, zodat je in één oogopslag ziet dat het geen synoniem is.
+     ⚠ Ook zij krijgt GÉÉN `data-row` — dezelfde fluo-valkuil als in §72.4. */
+  .lnk.afl .c{border-style:dotted;}
   .lnk .c.blur{color:transparent;}
   .lnk .c.blur small{color:transparent;}
   .lnk .c.blur *{visibility:hidden;}
@@ -814,6 +828,58 @@
      want de gewone stand is hier al doorzichtig. */
   .phone:not(.land):not(.novoc) .bigsw.pale{opacity:.3;box-shadow:none;}
 
+  /* ============ v11.30 §73.1 · GEEN KNOPPEN IN DE SCROLLSTAND ============
+     JHS, 29/08: «in scroll modus zijn er wel geen green/red/pauze knoppen». De klasse `scrl`
+     staat op #phone zolang de SCROLLSTAND SPEELT (AS.on && !TURN) — niet in de gewone lijst,
+     want daar zijn de twee knoppen een uitdrukkelijke wens van §65 (D1.3). Scoren gaat in de
+     scrollstand met een VEEG (links = juist, rechts = fout, §40.4) en pauzeren met een tik op
+     de kaarten (§29.7) of met de voortgangsbalk.
+     TERUGROLBAAR: ja — deze ene regel schrappen. */
+  .phone.scrl .bigsw, .phone.scrl .thinpz{display:none!important;}
+
+  /* ============ v11.32 §75.2 · GROTE LETTER ============
+     Eén kaart vult het hele speelveld en is in twee gelijke helften gesplitst: NL boven,
+     Noors onder. Alleen de twee HOOFDWOORDEN zijn groot; het lidwoord, de klankspelling en
+     de bokmål-regel blijven klein en niet vet (JHS, 29/08).
+     ⚠ In PORTRAIT houdt de kaart onderaan 128 px vrij voor de groene/rode/pauzeknop. Dat
+     kwam uit de mockup: zonder die ruimte liep het hoofdwoord half onder de knoppen, en op
+     de fiets is dat onbruikbaar. In landscape staan de knoppen náást het veld, dus daar niet.
+     TERUGROLBAAR: ja — dit hele blok, de klasse `big` en `bigCardHTML()` weghalen. */
+  .phone.big .starwrap{display:none;}
+  /* ⚠ De hoogteketen moet DOORLOPEN tot de kaart: #stage geeft #lst een hoogte, #lst geeft
+     ze aan elke .scrollcard. Zonder de regel op #lst valt een percentage-hoogte terug op
+     "auto" en wordt de kaart een dun strookje bovenaan — dat is precies wat de eerste
+     schermafdruk van deze bouw liet zien (les 1). */
+  .phone.big #lst{height:100%;}
+  .phone.big .scrollcard{margin:0;height:100%;}
+  .phone.big .swwrap{height:100%;}
+  .phone.big .card.bigcard{height:100%;display:flex;flex-direction:column;gap:6px;
+        padding:6px 6px 128px;position:relative;background:transparent;border:0;box-shadow:none;}
+  .phone.big.land .card.bigcard{padding:4px 4px 4px;}
+  .bhalf{flex:1 1 0;min-height:0;border-radius:12px;display:flex;flex-direction:column;
+        align-items:center;justify-content:center;text-align:center;padding:10px 14px;overflow:hidden;}
+  .bhalf.bnl{background:var(--nl-bg);} .bhalf.bnb{background:var(--nb-bg);}
+  .bhw{font-weight:800;line-height:1.06;font-size:33px;letter-spacing:-.5px;
+        overflow-wrap:anywhere;max-width:100%;}
+  .bhw.sm{font-size:23px;}
+  .phone.big.land .bhw{font-size:37px;} .phone.big.land .bhw.sm{font-size:26px;}
+  /* het lidwoord en de grammaticale noot: klein en NIET vet */
+  .blid{font-size:15px;font-weight:400;color:var(--muted);line-height:1.2;}
+  .bsub{margin-top:8px;font-size:14px;color:var(--muted);font-weight:600;}
+  .bsub .bm{background:var(--bmbg);color:var(--bmc);border-radius:4px;padding:1px 7px 2px;display:inline-block;}
+  /* dicht = de helft achter dezelfde waas als op de gewone kaart */
+  .bhalf.bblur>*{visibility:hidden;}
+  .bhalf.bblur{position:relative;}
+  .bhalf.bblur::after{content:'';position:absolute;inset:16% 10%;border-radius:8px;
+        background:repeating-linear-gradient(135deg,rgba(120,135,160,.16) 0 9px,rgba(120,135,160,.07) 9px 18px);}
+  /* wie aan het woord is, en waar je zit in het gesprekje */
+  .bsp{position:absolute;top:10px;left:14px;font-size:11px;font-weight:800;color:var(--accent);z-index:3;}
+  .brw{position:absolute;top:10px;right:14px;font-size:11px;font-weight:800;color:var(--muted);
+        background:rgba(255,255,255,.72);border-radius:20px;padding:2px 9px;z-index:3;}
+  .phone.big.land .bsp{left:14px;} .phone.big.land .brw{right:14px;}
+  /* de knop zelf */
+  #btnBig{font-family:Georgia,'Times New Roman',serif;font-size:19px;font-weight:700;}
+
   /* §51.2 — wat er verdwijnt in landscape. De bovenbalk, de tekstbalk (die hoort bij de
      autoscroll), de selectierij, de dunne lijn, de lege snelheidsrij en de twee greepjes.
      `.prow` (▶ · snelheid · ▤ · 🔀 · balk · teller) en `.statrow` blijven staan. */
@@ -949,6 +1015,12 @@
   .finish span{font-size:15px;font-weight:700;color:var(--muted);line-height:1.35;}
   .phone.land .finish b{font-size:22px;}
   .phone.land .finish span{font-size:13.5px;}
+  /* v11.33 §76.2 — de aftelling («opnieuw over 3 · 2 · 1»). Leeg = weg, anders zou de
+     `gap:10px` van .finish een gat laten staan wanneer er geen timer loopt. */
+  .finish i{font-style:normal;font-size:13.5px;font-weight:800;color:var(--accent);
+        opacity:.85;letter-spacing:.02em;}
+  .finish i:empty{display:none;}
+  .phone.land .finish i{font-size:12px;}
   /* ============ v11.29 §72.5 · DE DARK MODE — DE VORMREGELS ============
      Dit blok staat BEWUST helemaal onderaan de stijlbladzijde. De light-mode-regels
      (`.fb.c2`, `.sb.on`, `.phone:not(.land) .bigsw.ok` …) hebben dezelfde soortelijkheid als
@@ -965,6 +1037,14 @@
   body.dark .card.starred{background:#000;border:2.5px solid var(--w);border-left-width:5px;}
   /* fluo: enkel een dikkere WITTE celrand */
   body.dark .cell.fluo{background:transparent;border:2.5px solid var(--w);color:var(--w);}
+  /* v11.32 §75.2 — grote letter in dark mode: geen gekleurde vlakken, enkel een dun kader,
+     precies zoals de cellen van §72.5. */
+  body.dark .bhalf{background:transparent;border:1px solid var(--w3);}
+  body.dark .blid,body.dark .bsub{color:var(--w2);}
+  body.dark .bsub .bm{background:transparent;color:var(--w2);}
+  body.dark .brw{background:#000;border:1px solid var(--w3);color:var(--w2);}
+  body.dark .bsp{color:var(--w);}
+  body.dark .bhalf.bblur::after{background:repeating-linear-gradient(135deg,rgba(215,215,215,.13) 0 9px,rgba(215,215,215,.05) 9px 18px);}
   /* rode tekst (uitzonderingen) → wit met een klein wit bolletje rechts */
   body.dark .ex{color:var(--w);font-weight:700;}
   body.dark .ex::after{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;
@@ -1052,7 +1132,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.29</span>
+    <span class="vers" id="vers">v11.33</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -1089,7 +1169,7 @@
           <button class="spbtn" id="spbtn" title="snelheid" disabled>1,5</button>
           <div class="spmenu" id="spmenu"></div>
         </div>
-        <button class="shuf" id="btnTurn" title="beurtstand / lijst"><span class="tico"><i></i><i></i><i></i></span></button>
+        <button class="shuf big" id="btnBig" title="grote letter">A</button><button class="shuf" id="btnTurn" title="beurtstand / lijst"><span class="tico"><i></i><i></i><i></i></span></button>
         <!-- v11.11 §45.5 — getekend, zwart-wit (was 🔀) -->
         <button class="shuf" id="btnShuf" title="reshuffle"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.6h3.2c1.7 0 2.7 1 3.7 2.6l3.2 5.3c1 1.6 2 2.6 3.7 2.6H21"/><path d="M3 17.1h3.2c1.7 0 2.7-1 3.7-2.6l.7-1.2"/><path d="M13.2 9.9l.7-1.2c1-1.6 2-2.6 3.7-2.6H21"/><path d="M18.7 3.7L21 6.1l-2.3 2.4"/><path d="M18.7 14.7l2.3 2.4-2.3 2.4"/></svg></button>
         <!-- v11.6 §41.1 · v11.7 §42.8/§42.9 — één effen voortgangsvulling; de streepjes zijn
@@ -1320,7 +1400,16 @@ if([0,25,50,75,100].indexOf(+SET.turnPct)<0) SET.turnPct=50;
    render() en asRenderSpeedMenu() lezen `TURN` vóór dat punt in het bestand.
    TU = de klok van de lopende kaart (t0 = starttijd · el = verstreken ms, bevroren bij pauze ·
    shown = is de doelkolom van deze kaart al onthuld?). */
-let TURN=true;   /* v11.29 §72.1 — de scrollstand is onbereikbaar: er is nog EEN speelstand, de beurtstand. AS.on/AS.playing blijven de vlaggen voor «er wordt gespeeld». */
+/* v11.30 §73.1 — de SCROLLSTAND IS TERUG (JHS, 29/08). TURN=true is nog altijd de stand
+   waarin je binnenkomt, maar hij is niet meer vastgezet: #btnTurn schakelt weer om en de
+   keuze wordt bewaard in SET.turn, zodat je ze na het herladen niet opnieuw hoeft te maken.
+   AS.on/AS.playing blijven in ALLEBEI de standen de vlaggen voor «er wordt gespeeld». */
+let TURN=(SET.turn!==false);
+/* ============ v11.32 §75.2 · GROTE LETTER ============
+   JHS, 29/08: «ik wil de play mode ook op mijn fiets spelen». Eén knop naast ▶ neemt de kaart
+   weg en laat enkel de twee hoofdwoorden staan: NL boven, Noors onder, de ruimte 50/50.
+   De stand wordt bewaard, net als SET.turn sinds §73.1.2, en geldt in ALLEBEI de speelstanden. */
+let BIG=(SET.big===true);
 /* v11.15 §51 — `hold` erbij: zolang een van de twee grote landscape-knoppen ingedrukt is,
    staat de klok stil. De pauze wordt bij het loslaten weggewerkt als een VERSCHUIVING van
    `t0` (t0 = nu − el), niet als een gat — anders slaat de inhaalbeveiliging van §46.2 aan. */
@@ -1354,16 +1443,37 @@ const saveNotes=()=>{save('sos_notes_v6',NOTES); syncPushSoon();};
 const saveCorr=()=>{save('sos_corr_v6',CORR); syncPushSoon();};
 const saveFluo=()=>{save('sos_fluo_v6',FLUO); syncPushSoon();};
 const saveLinks=()=>{save('sos_links_v6',LINKS); syncPushSoon();};
-function linksOf(id){ return (LINKS[id]||[]).filter(function(x){ return x!==id && !!BYID[x]; }); }
-function isLinked(a,b){ return (LINKS[a]||[]).indexOf(b)>=0; }
-function linkAdd(a,b){ if(!a||!b||a===b) return false;
+/* ============ v11.31 §74.1 · TWEE SOORTEN LINK ============
+   JHS, 29/08: de A2-verwanten worden NIET gelinkt als synoniem, maar moeten wél als AFLEIDING
+   bij elkaar getoond worden. In plaats van een tweede opslag krijgt de BESTAANDE link een
+   soort mee: een item in `LINKS[a]` is voortaan ofwel `'id'` (SYNONIEM — exact de vorm van
+   §72.4, er verandert niets aan wat er al staat) ofwel `'id#afl'` (AFLEIDING).
+   ⚠ WAAROM DIT VEILIG IS NAAR BENEDEN: v11.30 leest `'n_ved#afl'` als een id, vindt het niet
+   in BYID en FILTERT het weg in `linksOf()`. Een teruggerolde app toont de afleidingsrijen dus
+   gewoon niet — ze crasht niet en ze gooit niets weg. Gemeten, niet aangenomen: `afl.js`
+   controleert dat expliciet.
+   ⚠ De sleutel blijft `sos_links_v6` en de export blijft v:13 — er wordt niets hernoemd. */
+function lkId(x){ const s=String(x), i=s.indexOf('#'); return i<0?s:s.slice(0,i); }
+function lkKind(x){ return String(x).slice(-4)==='#afl'?'afl':'syn'; }
+function lkMark(id,kind){ return kind==='afl'?(id+'#afl'):id; }
+/* geeft [{id,kind}] terug — de opgeruimde vorm waar de kaart en het zoekscherm mee werken */
+function linksOf(id){ return (LINKS[id]||[]).map(function(x){ return {id:lkId(x),kind:lkKind(x)}; })
+                        .filter(function(o){ return o.id!==id && !!BYID[o.id]; }); }
+function isLinked(a,b){ return (LINKS[a]||[]).some(function(x){ return lkId(x)===b; }); }
+function linkKindOf(a,b){ const r=(LINKS[a]||[]).filter(function(x){ return lkId(x)===b; });
+  return r.length?lkKind(r[0]):null; }
+/* v11.31 §74.1 — `kind` is optioneel en valt terug op 'syn', zodat elke bestaande aanroep
+   (het zoekscherm) precies doet wat ze altijd deed. Bestaat de link al, dan wordt enkel de
+   SOORT bijgewerkt — zo is omschakelen hetzelfde als opnieuw leggen. */
+function linkAdd(a,b,kind){ if(!a||!b||a===b) return false;
+  kind=(kind==='afl')?'afl':'syn';
   if(!LINKS[a]) LINKS[a]=[]; if(!LINKS[b]) LINKS[b]=[];
-  if(LINKS[a].indexOf(b)<0) LINKS[a].push(b);
-  if(LINKS[b].indexOf(a)<0) LINKS[b].push(a);
+  LINKS[a]=LINKS[a].filter(function(x){ return lkId(x)!==b; }); LINKS[a].push(lkMark(b,kind));
+  LINKS[b]=LINKS[b].filter(function(x){ return lkId(x)!==a; }); LINKS[b].push(lkMark(a,kind));
   saveLinks(); return true; }
 function linkDel(a,b){ if(!a||!b) return false;
-  if(LINKS[a]) LINKS[a]=LINKS[a].filter(function(x){ return x!==b; });
-  if(LINKS[b]) LINKS[b]=LINKS[b].filter(function(x){ return x!==a; });
+  if(LINKS[a]) LINKS[a]=LINKS[a].filter(function(x){ return lkId(x)!==b; });
+  if(LINKS[b]) LINKS[b]=LINKS[b].filter(function(x){ return lkId(x)!==a; });
   if(LINKS[a]&&!LINKS[a].length) delete LINKS[a];
   if(LINKS[b]&&!LINKS[b].length) delete LINKS[b];
   saveLinks(); return true; }
@@ -1532,8 +1642,14 @@ const DUPMERGE3 = {
   n_polen:["n_polsk"],
   n_tyrkia:["n_tyrkisk"]
 };
+/* v11.31 §74.3 — VIERDE RONDE: de ENE groep uit A2 die JHS op 29/08 op «M» heeft gezet
+   (`_cw_dump\20260829-A2-BESLISSING.md`). `n_paa_mandag2` verdwijnt in `n_mandag` — de
+   grondvorm blijft de kop, dezelfde regel als bij A1-16/A1-21. Zijn vormen («på tirsdag»,
+   «på lørdag»), zijn voorbeeldzin én de glossariumnoot staan sinds deze versie in
+   `forms[]` / `cmt` van `n_mandag`. */
+const DUPMERGE4 = { n_mandag:["n_paa_mandag2"] };
 const DUPOF = {};   /* verdwenen id -> id van de overlevende, alle rondes samen */
-[DUPMERGE,DUPMERGE2,DUPMERGE3].forEach(m=>Object.keys(m).forEach(k=>m[k].forEach(d=>DUPOF[d]=k)));
+[DUPMERGE,DUPMERGE2,DUPMERGE3,DUPMERGE4].forEach(m=>Object.keys(m).forEach(k=>m[k].forEach(d=>DUPOF[d]=k)));
 
 function migDubbels(MAP,FLAG,BAK){
   if(SET[FLAG]) return;
@@ -1578,10 +1694,13 @@ function migDubbels(MAP,FLAG,BAK){
     if(CORR[d]){  CORR[t]=CORR[t]  ? (CORR[t] +' · '+CORR[d])  : CORR[d];  delete CORR[d]; }
     if(FLUO[d]){  FLUO[t]=[...new Set([].concat(FLUO[t]||[],FLUO[d]))].sort((a,b)=>a-b); delete FLUO[d]; }
     /* v11.29 §72.4 — de synoniemlinks van een verdwenen id verhuizen mee naar de overlevende. */
-    if(LINKS[d]){ LINKS[d].forEach(function(o){
-        if(o!==t){ if(!LINKS[t]) LINKS[t]=[]; if(LINKS[t].indexOf(o)<0) LINKS[t].push(o);
-                   if(LINKS[o]&&LINKS[o].indexOf(t)<0) LINKS[o].push(t); }
-        if(LINKS[o]) LINKS[o]=LINKS[o].filter(function(x){ return x!==d; }); });
+    /* v11.31 §74.1 — op het KALE id werken: een item kan nu 'id' of 'id#afl' zijn. De SOORT
+       verhuist mee met de link. */
+    if(LINKS[d]){ LINKS[d].forEach(function(raw){ const o=lkId(raw), kd=lkKind(raw);
+        if(o!==t){ if(!LINKS[t]) LINKS[t]=[];
+                   if(!LINKS[t].some(function(x){ return lkId(x)===o; })) LINKS[t].push(lkMark(o,kd));
+                   if(LINKS[o]&&!LINKS[o].some(function(x){ return lkId(x)===t; })) LINKS[o].push(lkMark(t,kd)); }
+        if(LINKS[o]) LINKS[o]=LINKS[o].filter(function(x){ return lkId(x)!==d; }); });
       delete LINKS[d]; }
     /* een eigen (bewerkte) kaart met een verdwenen id gaat mee naar de prullenmand */
     const u=USER.findIndex(x=>x.id===d); if(u>=0) USER[u].deleted=true;
@@ -1601,6 +1720,7 @@ function migDubbels(MAP,FLAG,BAK){
 migDubbels(DUPMERGE , 'dupmig' , 'sos_scores_pre1112_v6');    /* v11.12   · 81 groepen */
 migDubbels(DUPMERGE2, 'dupmig2', 'sos_scores_pre11121_v6');   /* v11.12.1 · 13 groepen */
 migDubbels(DUPMERGE3, 'dupmig3', 'sos_scores_pre1129_v6');    /* v11.29   · 30 groepen (A1) */
+migDubbels(DUPMERGE4, 'dupmig4', 'sos_scores_pre1131_v6');    /* v11.31   ·  1 groep  (A2-40) */
 /* v11.29 §72.4 — DE ZEVEN SYNONIEMLINKS VAN JHS (lijst L van A1, beslist op 2026-08-23).
    Eenmalig, achter een vlag in de bestaande sleutel sos_set_v6: wie ze zelf weghaalt, krijgt ze
    niet opnieuw. Verwanten (A2) worden NIET gelinkt. */
@@ -1614,6 +1734,55 @@ function seedLinks(){ if(SET.linkseed) return;
     if(LINKS[pr[0]].indexOf(pr[1])<0) LINKS[pr[0]].push(pr[1]);
     if(LINKS[pr[1]].indexOf(pr[0])<0) LINKS[pr[1]].push(pr[0]); k++; } });
   save('sos_links_v6',LINKS); SET.linkseed=1; saveSet(); }
+
+/* ============ v11.31 §74.2 · DE A2-KEUZES VAN JHS (29/08) ============
+   Uit `_cw_dump\20260829-A2-BESLISSING.md`: van de 56 groepen heeft JHS er 20 gewijzigd —
+   18 × R (afleidingsrij), 1 × L (synoniem) en 1 × M (mergen, zie §74.3). De 36 andere blijven
+   APART en komen hier dus NIET in voor.
+   ⚠ STERVORM, geen kliek. Bij een groep van drie of vier kaarten (A2-48, A2-55) wordt alles
+   aan de EERSTE kaart gehangen — het grondwoord — en niet iedereen aan iedereen. Anders zou
+   `takk` drie rijen krijgen én `tusen` er ook drie, terwijl «tusen» en «takk skal du ha»
+   niets met elkaar te maken hebben.
+   ⚠ `n_meg` BESTAAT NIET MEER: A1-01 heeft die kaart in `jeg` laten opgaan (§72.3). De
+   zaaifunctie leidt zulke id's om via `DUPOF`; A2-05 wordt dus `jeg ↔ n_min`. Gemeten, niet
+   aangenomen — dat was het enige van de 22 id's dat verhuisd bleek.
+   Eenmalig, achter een eigen vlag in de bestaande sleutel sos_set_v6: haal je er een weg,
+   dan komt ze niet terug. */
+const AFLSEED=[
+  ['flytte','flytting'],                                   /* A2-01 */
+  ['n_deg','n_din'],                                       /* A2-04 */
+  ['n_meg','n_min'],                                       /* A2-05 — n_meg → jeg */
+  ['n_ham','n_hans'],                                      /* A2-06 */
+  ['n_henne','n_hennes'],                                  /* A2-07 */
+  ['n_dem','sm_dies'],                                     /* A2-10 */
+  ['n_enn','n_mer_enn'],                                   /* A2-11 */
+  ['n_etter','n_etterpaa'],                                /* A2-12 */
+  ['n_snill','n_vaer_saa_snill'],                          /* A2-30 */
+  ['n_rett','n_rett_fram'],                                /* A2-33 */
+  ['n_naa','n_naa_som'],                                   /* A2-38 */
+  ['n_ved','n_ved_siden_av'],                              /* A2-43 */
+  ['n_av','n_ved_siden_av'],                               /* A2-44 — n_ved_siden_av krijgt er dus TWEE */
+  ['takk','n_takk_skal_du_ha','n_tusen_takk','n_tusen'],   /* A2-48 — ster vanuit takk */
+  ['n_det_er_synd','n_synes_synd_paa'],                    /* A2-49 */
+  ['n_lang','n_lenge'],                                    /* A2-50 */
+  ['morgen','n_god_morgen','n_i_morgen2'],                 /* A2-55 — ster vanuit morgen */
+  ['kveld','n_god_kveld']                                  /* A2-56 */
+];
+/* A2-03 is de enige groep die JHS op «L» zette: derfor ↔ fordi is een echt synoniempaar. */
+const SYNSEED2=[['n_derfor','n_fordi']];                   /* A2-03 */
+function seedA2(){ if(SET.a2seed) return;
+  const fix=function(id){ return BYID[id]?id:(DUPOF[id]&&BYID[DUPOF[id]]?DUPOF[id]:null); };
+  const put=function(a,b,kind){
+    if(!a||!b||a===b) return 0;
+    if(!LINKS[a]) LINKS[a]=[]; if(!LINKS[b]) LINKS[b]=[];
+    /* al gelegd (bv. door §72.4) → met rust laten, de bestaande soort wint */
+    if(LINKS[a].some(function(x){ return lkId(x)===b; })) return 0;
+    LINKS[a].push(lkMark(b,kind)); LINKS[b].push(lkMark(a,kind)); return 1; };
+  let n=0;
+  AFLSEED.forEach(function(g){ const root=fix(g[0]); if(!root) return;
+    for(let i=1;i<g.length;i++) n+=put(root,fix(g[i]),'afl'); });
+  SYNSEED2.forEach(function(pr){ n+=put(fix(pr[0]),fix(pr[1]),'syn'); });
+  save('sos_links_v6',LINKS); SET.a2seed=1; saveSet(); return n; }
 
 /* ===================== SUPABASE SYNC ===================== */
 const SB_URL='https://uhpzabicbhvuxpdszxib.supabase.co';
@@ -1939,21 +2108,112 @@ function rowsOf(it){
   return rows;
 }
 function bmLine(t){ return (SET.showBM&&t)?'<span class="bm"><i>BM</i>'+t+'</span>':''; }
+/* ============ v11.32 §75.2 · HET HOOFDWOORD UIT EEN KOP HALEN ============
+   JHS, 29/08: «geen lidwoord in het NL bij zelfst. nmw · in het Noors wel, maar in kleinere
+   font, en niet vet».
+   Dat kan zonder één gegeven aan te raken, want de koppen dragen het onderscheid AL:
+     hnl: 'een <b>vrijetijdsactiviteit</b>'   hnb: 'en <b>fritidsaktivitet</b>'
+   Het lidwoord staat BUITEN de <b>, het hoofdwoord erbinnen. GEMETEN vóór het bouwen: alle
+   1.597 woordkaarten hebben <b> in hnl én hnb; 1.022 dragen iets vóór de <b> in hnb (en · et ·
+   å). Wat ná de </b> komt is een grammaticale noot ('onderw.', '♂').
+   · NL  → enkel wat BINNEN de <b> staat. Het lidwoord valt vanzelf weg.
+   · NB  → het deel ervóór en erna KLEIN en NIET VET, het hoofdwoord groot.
+   ⚠ De 28 koppen waar een lidwoord wél BINNEN de <b> staat («een beetje», «het waait») zijn
+     uitdrukkingen, geen zelfstandige naamwoorden — daar hoort het lidwoord er juist bij, en
+     die blijven dus vanzelf goed.
+   ⚠ Meerdere <b>-delen («<b>saai</b> · <b>vervelend</b>», 369 kaarten) worden samengevoegd
+     met een scheidingspunt. */
+function bigParts(html){
+  const s=String(html||'');
+  const m=[...s.matchAll(/<b>([\s\S]*?)<\/b>/g)];
+  if(!m.length) return {pre:'',main:s,post:''};
+  const i=s.indexOf('<b>'), j=s.lastIndexOf('</b>')+4;
+  return {pre:s.slice(0,i).trim(), main:m.map(x=>x[1]).join(' · '), post:s.slice(j).trim()};
+}
+/* v11.32 §75.2 — DE GROTE-LETTERKAART. Ze hergebruikt `rowsOf()`, zodat de richting, de
+   bokmål-regel en de klankspelling precies hetzelfde werken als op de gewone kaart.
+   · woord/zin → rij 0 (de hoofdregel);
+   · gesprekje → de rij die NU aan de beurt is: `convOpen()` telt sinds §72.2.11 hoeveel rijen
+     er onthuld zijn, dus rij `max(0, copen-1)` is de laatst onthulde. Staat alles nog dicht,
+     dan is dat rij 0. Zo loopt grote letter een gesprekje zin per zin mee.
+   ⚠ GEEN `data-row` op de twee helften — dezelfde fluo-valkuil als in §72.4 en §74.1.3.
+     Markeren kan in grote letter niet; wat je gemarkeerd hebt blijft staan en komt terug
+     zodra je de knop weer uitzet. */
+function bigCardHTML(it){
+  const blur = SET.showAns ? hidden.has(it.id) : !revealed.has(it.id);
+  const rev  = isRev();
+  const conv = (it.type==='conv');
+  /* ⚠ Een GESPREKJE gaat NIET via rowsOf(): die plakt de spreker («[V]») vóór de tekst,
+     en in grote letter kwam dat als «AGoeiemorgen!» op het scherm. Gemeten, niet gezien —
+     het testscript ving het. De regels worden hier rechtstreeks uit `it.lines` gelezen.
+     WELKE regel: `convOpen()` telt sinds §72.2.11 hoeveel rijen er onthuld zijn, dus
+     `copen-1` is de laatst onthulde. Staat alles nog dicht (copen 0), dan is dat rij 0 en
+     ligt de onderste helft achter de waas — dát is het raadmoment.
+     ⛔ BEPERKING, bewust en te bespreken met JHS: vanaf de tweede regel is er geen raadmoment
+     meer, want een tik verhoogt CROW en de nieuwe regel is dan meteen «laatst onthuld». Een
+     echte halve stap per regel vraagt een eigen teller; JHS heeft daar zelf een open vraag
+     over staan (loopt ▶ de regels vanzelf door?). */
+  let nl, nb, bm, ph, i=0, tot;
+  if(conv){
+    const lines=it.lines||[]; tot=lines.length;
+    const co=convOpen(it.id); i=Math.max(0,Math.min(tot-1,co-1));
+    const l=lines[i]||{}, B=(SET.showBM&&l.bm)?l.bm:null;
+    nl={pre:'',main:l.nl||'',post:''};
+    nb={pre:'',main:(B&&B.nb)||l.nb||'',post:''};
+    ph=(B&&B.ph)||l.ph||'';
+    bm='';
+  } else {
+    const rows=rowsOf(it); tot=rows.length;
+    const r=rows[0]||['','','',''];
+    nl=bigParts(r[0]); nb=bigParts(r[1]); bm=bmLine(r[3]);
+    ph=(it.phNB||it.ph||'');
+  }
+  /* een hele zin is langer dan een woord: dan start het op de kleine maat */
+  const lang=(conv||it.type!=='woord'||nb.main.length>18||nl.main.length>22);
+  /* bij een gesprekje hangt de waas aan de RIJ (§72.2.11), niet aan de kaart */
+  const dicht=conv?(blur&&convOpen(it.id)===0):blur;
+  const sub=function(t){ return t?'<div class="bsub">'+t+'</div>':''; };
+  /* `lid` staat op false voor de NL-helft: JHS wil daar GEEN lidwoord («geen lidwoord in het
+     NL bij zelfst. nmw»). Aan de Noorse kant blijft het staan, klein en niet vet. */
+  const half=function(cls,p,extra,hide,lid){
+    return '<div class="bhalf '+cls+(hide?' bblur':'')+'">'
+      +((lid&&p.pre)?'<span class="blid">'+p.pre+'</span>':'')
+      +'<div class="bhw'+(lang?' sm':'')+'">'+p.main+'</div>'
+      +((lid&&p.post)?'<span class="blid">'+p.post+'</span>':'')+extra+'</div>'; };
+  const hdr=conv?('<div class="bsp">'+esc((it.lines&&it.lines[i]&&it.lines[i].sp)||'')+'</div>'
+                 +'<div class="brw">'+(i+1)+' / '+tot+'</div>'):'';
+  /* de kolom die dicht staat, hangt aan de richting — net als op de gewone kaart */
+  return '<div class="card bigcard" data-id="'+it.id+'">'+hdr
+    +half('bnl', nl, '', rev&&dicht, false)
+    +half('bnb', nb, sub(ph)+ (bm?'<div class="bsub">'+bm+'</div>':''), !rev&&dicht, true)
+    +'</div>';
+}
 /* v11.29 §72.4 — DE SYNONIEMRIJ. Staat tussen de hoofdregel en de eerste vormenrij, met het
    link-symbooltje vooraan (enkel bij de eerste), dezelfde twee kolommen (NL links, NO rechts)
    en een STREEPJESrand in plaats van een volle. Onder het Noorse synoniem staat de
    klankspelling. De rij volgt de richting mee: raad je het Noors, dan gaat de rechterkolom óók
    dicht — anders geeft ze het antwoord weg. ⚠ GEEN `data-row` (zie de valkuil bij LINKS). */
 const LNKICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.6a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10.4a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/></svg>';
+/* v11.31 §74.1 — de AFLEIDING krijgt een eigen symbooltje: een stam die zich vertakt. Geen
+   ketting, want het zijn géén synoniemen — dat onderscheid is precies wat JHS wilde zien. */
+const AFLICO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V8a3 3 0 0 1 3-3h8"/><path d="M13 2.5 16.5 5 13 7.5"/><path d="M9 20v-4a3 3 0 0 1 3-3h7"/></svg>';
 function linkRowsHTML(it,rev,blur){
-  const ids=linksOf(it.id); if(!ids.length) return '';
-  return ids.map(function(pid,k){
-    const p=BYID[pid]; if(!p) return '';
+  const ls=linksOf(it.id); if(!ls.length) return '';
+  /* v11.31 §74.1 — synoniemen eerst, dan de afleidingen; binnen elke soort blijft de
+     volgorde staan zoals ze gelegd is. Zo staat het naaste bovenaan. */
+  const ord=ls.filter(function(o){ return o.kind!=='afl'; }).concat(ls.filter(function(o){ return o.kind==='afl'; }));
+  let seen={};
+  return ord.map(function(o){
+    const p=BYID[o.id]; if(!p) return '';
     const nl=(p.type==='woord')?(p.hnl||''):(p.nl||''), nb=(p.type==='woord')?(p.hnb||''):(p.nb||'');
     const ph=p.phNB||p.ph||'';
-    return '<div class="lnk'+(k?' second':'')+'" data-lnk="'+pid+'">'
-      +'<span class="lnkico" title="ontkoppelen">'+(k?'':LNKICO)+'</span>'
-      +'<span class="c'+((rev&&blur)?' blur':'')+'">'+nl+'<small>synoniem</small></span>'
+    /* het symbooltje staat enkel bij de EERSTE rij van elke soort (§72.4 deed dat voor de
+       hele groep; met twee soorten hoort elke soort haar eigen kopje te krijgen) */
+    const first=!seen[o.kind]; seen[o.kind]=1;
+    const afl=(o.kind==='afl');
+    return '<div class="lnk'+(afl?' afl':'')+(first?'':' second')+'" data-lnk="'+o.id+'" data-kind="'+o.kind+'">'
+      +'<span class="lnkico" title="ontkoppelen">'+(first?(afl?AFLICO:LNKICO):'')+'</span>'
+      +'<span class="c'+((rev&&blur)?' blur':'')+'">'+nl+'<small>'+(afl?'afleiding':'synoniem')+'</small></span>'
       +'<span class="c'+((!rev&&blur)?' blur':'')+'">'+nb+(ph?'<small>'+esc(ph)+'</small>':'')+'</span>'
       +'</div>';
   }).join('');
@@ -2012,9 +2272,12 @@ function cardHTML(it){
 }
 function itemHTML(it){
   const fav=FAV.has(it.id);
-  return '<div class="scrollcard" data-sc="'+it.id+'">'
-    +'<div class="starwrap"><span class="star'+(fav?' on':'')+'" data-fav="'+it.id+'">'+(fav?'★':'☆')+'</span></div>'
-    +'<div class="swwrap"><div class="swtint left"><b>✓</b></div><div class="swtint right"><b>✗</b></div>'+cardHTML(it)+'</div></div>';
+  /* v11.32 §75.2 — in grote letter valt de ster weg: op de fiets is er niets te mikken. De
+     swipe-wikkel blijft staan, want vegen moet blijven werken (§75.2.4). */
+  const star=BIG?'':'<div class="starwrap"><span class="star'+(fav?' on':'')+'" data-fav="'+it.id+'">'+(fav?'★':'☆')+'</span></div>';
+  return '<div class="scrollcard" data-sc="'+it.id+'">'+star
+    +'<div class="swwrap"><div class="swtint left"><b>✓</b></div><div class="swtint right"><b>✗</b></div>'
+    +(BIG?bigCardHTML(it):cardHTML(it))+'</div></div>';
 }
 
 /* v11.3.1 §34.6 — eenmalig: de opgeblazen historiek van «nieuw geleerd» op nul.
@@ -2833,7 +3096,10 @@ function flashBar(val){ const sb=$('scorebar'),cls=val?'ok':'bad'; sb.classList.
 function scoreItem(id,val,auto){
   if(auto && !val) asLogBad(id);        /* §29.4 — foto van de score vóór de auto-fout */
   applyScore(id,val,auto); flashBar(val); }
-function refreshCard(card,id){ const fresh=ITEMS.find(x=>x.id===id); if(fresh&&card.parentNode){ card.outerHTML=cardHTML(fresh); } }
+/* v11.32 §75.2 — ook het HERTEKENEN van één kaart moet de grote letter volgen; anders staat
+   juist de kaart in focus (die na elke score/onthulling opnieuw getekend wordt) als enige nog
+   in de gewone vorm. Dat was in de eerste bouw precies de fout die de schermafdruk toonde. */
+function refreshCard(card,id){ const fresh=ITEMS.find(x=>x.id===id); if(fresh&&card.parentNode){ card.outerHTML=(BIG?bigCardHTML(fresh):cardHTML(fresh)); } }
 
 let drag=null;
 let topTick=false;
@@ -3509,8 +3775,20 @@ function asPaintPlay(){
            :(AS.on?'verder spelen'
            :(blk?'spelen kan hier niet':'start'));
   }
-  /* v11.29 §72.1.3 — de dunne pauzeknop staat bleek zolang er niets te pauzeren valt. */
-  const pz=$('btnPz'); if(pz) pz.classList.toggle('pale',!(AS.on&&AS.playing));
+  /* v11.30 §73.1 — `scrl` = de SCROLLSTAND SPEELT. Eén plaats, want asPaintPlay() wordt na
+     elke standwissel aangeroepen (asStart, asExit, turnToggle, asPause, asResume, applyLand).
+     De CSS hangt de groene/rode/pauzeknop hieraan op. */
+  $('phone').classList.toggle('scrl',AS.on&&!TURN);
+  /* v11.32 §75.2 — de A-knop volgt de stand */
+  { const bb=$('btnBig'); if(bb) bb.classList.toggle('on',BIG); }
+  /* v11.32 §75.1 — de brede knop: ❚❚ zolang er gespeeld wordt, ▶ zodra er gepauzeerd is,
+     en bleek zolang er niets te bedienen valt (buiten de speelstand). */
+  const pz=$('btnPz');
+  if(pz){ const go=AS.on&&!AS.playing;
+    pz.classList.toggle('pale',!AS.on);
+    pz.classList.toggle('go',go);
+    pz.innerHTML='<b>'+(go?'▶':'❚❚')+'</b>';
+    pz.title=go?'verder spelen':'pauze'; }
   const sp=$('spbtn');
   /* v11.11 §45.2 — dezelfde knop stuurt de autoscroll én de beurtstand, dus hij is ook
      bruikbaar zodra de beurtstand aanstaat (§44.7 grijsde hem buiten de autoscroll uit). */
@@ -3712,15 +3990,31 @@ function asBarTap(){
   if(!AS.playing) asResume();
 }
 $('pp').onclick=asPlayTap;
-/* v11.29 §72.1.3 — de dunne pauzeknop tussen groen en rood. Ze pauzeert enkel; hervatten doe
-   je met ▶ of met de voortgangsbalk (§72.1.4). */
-$('btnPz').onclick=function(){ if(AS.on&&AS.playing) asPause(false); };
+/* v11.32 §75.1 — DE BREDE KNOP TUSSEN GROEN EN ROOD. Ze pauzeert wanneer er gespeeld wordt
+   en HERVAT wanneer er gepauzeerd is — dat is wat JHS op 29/08 vroeg. §72.1.3 liet ze enkel
+   pauzeren; ▶ en de voortgangsbalk blijven daarnaast gewoon werken.
+   ⚠ Buiten de speelstand doet ze niets: dan staat ze bleek (zie asPaintPlay). */
+$('btnPz').onclick=function(){
+  if(!AS.on) return;
+  if(AS.playing) asPause(false); else asResume();
+};
 $('pbar').onclick=asBarTap;
 /* v11.10 §44.8 — 🔀 en de beurtstand staan nu in de speelrij */
-/* v11.29 §72.1.1 — #btnTurn heeft geen zin meer (er is nog één stand); de knop is verborgen
-   en de handler is een lege huls, zodat er niets kan breken als ze toch bereikt wordt. */
-$('btnTurn').onclick=function(){};
-function turnToggle(){}
+/* v11.30 §73.1 — de knop schakelt weer echt om; de lege huls van v11.29 is weg. */
+$('btnTurn').onclick=function(){ turnToggle(); };
+/* v11.32 §75.2 — GROTE LETTER aan of uit. De stand wordt bewaard (SET.big) en geldt in
+   allebei de speelstanden. `render()` tekent de lijst opnieuw; in de beurtstand moet de
+   focus daarna terug, anders staat er geen kaart meer scherp.
+   TERUGROLBAAR: ja — deze functie, de knop en `BIG` weghalen. */
+function bigToggle(){
+  BIG=!BIG; SET.big=BIG; saveSet();
+  $('phone').classList.toggle('big',BIG);
+  $('btnBig').classList.toggle('on',BIG);
+  render();
+  if(TURN){ turnFocus(); turnFit(); } else if(AS.on){ asRefreshCards(); asSetFocus(); asNewSegment(); }
+  toastn(BIG?'Grote letter — enkel de hoofdwoorden.':'Gewone kaart.');
+}
+$('btnBig').onclick=function(){ bigToggle(); };
 /* ---- v11.10 §44.13 · v11.11 §45.1/§45.4 · DE BEURTSTAND ----
    Eén kaart, geen scrollen. v11.10 bouwde de VORM; v11.11 bouwt het GEDRAG:
    - §45.1 de stand loopt vanzelf door op dezelfde klok als de autoscroll (SPEEDS), en de
@@ -3835,6 +4129,9 @@ function turnFit(){
   [].slice.call(host.children).forEach(function(c){ if(c!==sc&&c.style.transform) c.style.transform=''; });
   if(!sc||!TURN){ if(sc) sc.style.transform=''; return; }
   sc.style.transform='';
+  /* v11.32 §75.2 — de grote-letterkaart vult per definitie het veld; schalen zou het
+     hoofdwoord juist weer klein maken. Dus: nooit. */
+  if(BIG) return;
   /* v11.15 §51.3 — in LANDSCAPE wordt er niet geschaald: de kaart staat bovenaan uitgelijnd
      en wordt onderaan afgeknipt («pech voor hoge kaarten», beslist door JHS). Zo blijven de
      eerste rijen en de klankregel altijd op dezelfde plaats staan. */
@@ -3961,7 +4258,14 @@ function turnGo(dir){
    (asTick). Vóór v11.18 schudden `turnRound()` en `asRound()` daar vanzelf opnieuw; die twee
    worden niet meer aangeroepen, maar blijven staan zodat §45.1/§34.3 terugrolbaar zijn. */
 var FIN=false;   /* var, niet let: render() staat hoger in het bestand en roept finClear() aan; met let zou dat een TDZ-fout geven bij het allereerste tekenen */
+/* v11.33 §76.2 — de teller die na 3 seconden vanzelf opnieuw begint. `var` om dezelfde reden
+   als FIN: finClear() wordt door render() aangeroepen vóór dit punt in het bestand. */
+var FINT=0;
+var FINSEC=3;    /* JHS, 29/08: VAST, niet instelbaar */
 function finClear(){
+  /* ⚠ buiten de FIN-test: elke volledige render() roept finClear() aan, en dan moet een
+     losgeslagen teller hoe dan ook stoppen. */
+  if(FINT){ clearInterval(FINT); FINT=0; }
   if(!FIN) return;
   FIN=false;
   const p=$('phone'); if(p) p.classList.remove('fin');
@@ -3980,7 +4284,7 @@ function finShow(){
   $('phone').classList.add('fin');
   const d=document.createElement('div');
   d.className='finish'; d.id='finish';
-  d.innerHTML='<b>Finished!</b><span>Click here to shuffle and repeat.</span>';
+  d.innerHTML='<b>Finished!</b><span>Click here to shuffle and repeat.</span><i id="fincd"></i>';
   d.addEventListener('click',function(e){ e.stopPropagation(); finTap(); });
   st.appendChild(d);
   st.scrollTop=0;
@@ -3989,16 +4293,52 @@ function finShow(){
   /* v11.28 §71.4 — §55.3 klapte het MENUBLOK open, maar §62 liet het RASTER dichtgeklapt
      achter (`SET.fhide`): JHS zag dus nog altijd geen categorieknoppen. Op het eindscherm
      gaat het raster nu echt open. */
-  if(SET.fhide){ SET.fhide=false; saveSet(); renderFgrid(); }
-  if(LAND){ if(typeof fullOpen==='function') fullOpen(); }
-  else { asSetMenu(true); setCompact(false); }
+  /* v11.33 §76.1 — HET LANDSCAPE-PROBLEEM. Hier stond `if(LAND) fullOpen();`, en dat
+     schermvullende paneel van §55.2 ligt ÓVER #stage — dus over dit eindscherm. Je zag het
+     eindscherm niet, enkel het categoriemenu, en `fullClose()` werd nooit vanzelf aangeroepen.
+     Erger: `SET.fhide=false` werd BEWAARD, zodat het raster daarna open bleef staan — het
+     «gefoefel» dat JHS beschrijft.
+     JHS, 29/08: §71.4 BLIJFT IN PORTRAIT en vervalt enkel in landscape. */
+  if(LAND){
+    if(typeof FULL!=='undefined' && FULL && typeof fullClose==='function') fullClose();
+  } else {
+    if(SET.fhide){ SET.fhide=false; saveSet(); renderFgrid(); }
+    asSetMenu(true); setCompact(false);
+  }
   asDrawBar(); landPaintBtns();
+  finArm3();
+}
+/* v11.33 §76.2 — «na 3 sec begint die terug». Enkel wanneer er ECHT gespeeld werd (AS.on):
+   blader je gewoon door de lijst tot het einde, dan hoort er niets vanzelf te gebeuren.
+   JHS koos: ook in de scrollstand, niet enkel in de beurtstand.
+   Eén setInterval van 1000 ms doet de aftelling én het aftellen naar nul — samen precies
+   FINSEC seconden. Afgebroken door finClear(): een tik op het vlak, een menukeuze (FINPICK),
+   elke volledige render(), een standwissel en het verlaten van de speelstand. */
+function finArm3(){
+  if(!AS.on) return;
+  let n=FINSEC;
+  const cd=$('fincd'); if(cd) cd.textContent='opnieuw over '+n;
+  FINT=setInterval(function(){
+    n--;
+    if(n<=0){ finTap(); return; }        /* finTap() begint met finClear() → teller weg */
+    const c=$('fincd'); if(c) c.textContent='opnieuw over '+n;
+  },1000);
 }
 /* «a tik erop = exact de schudknop», daarna de stand opnieuw opzetten zoals turnRound()/
    asRound() dat deden: ronde vooruit, tellers op nul, focus op de eerste kaart. */
 function finTap(){
   finClear();
+  /* v11.33 §76.3 — «evt met minder items owv goed geraden». asMakeHide() bevriest welke groene
+     woorden wegvallen (§34.2); asRound() deed dat vóór v11.18 bij élke ronde, finTap() niet.
+     Nu weer wél — in allebei de standen, met dezelfde uitzonderingen als asHideOn(): in de
+     kolom «gekend» en in ☀50 blijft alles staan. Moet VÓÓR de render, want buildDeck() leest
+     AS.hide. */
+  if(AS.on) asMakeHide();
   onCtl('shuf');                           /* zelfde als #btnShuf: nieuwe schudbeurt + render() */
+  /* v11.33 §76.4 — «als er niks meer is te playen, dan stopt het natuurlijk». Meten op deck
+     ná de schudbeurt (die rendert, en render() roept buildDeck() aan), niet op ITEMS: de
+     kolomkeuze en AS.hide bepalen wat er overblijft. JHS koos: terug naar de gewone lijst. */
+  if(AS.on && !deck.length){ toastn('Alles gedaan — niets meer te oefenen.'); asExit(); return; }
   AS.round++; AS.roundAt=performance.now();
   AS.cur=null; AS.idx=0; AS.nok=0; AS.nbad=0;
   LB.card=null; LB.snap=null;
@@ -4058,11 +4398,14 @@ function turnTick(){
   if(TU.el>=per){ turnAdvance(); return; }
   asBarProgress();
 }
-/* v11.29 §72.1.1 — DE LIJSTSTAND IS ONBEREIKBAAR. De functie blijft volledig staan zodat
-   §45/§46 in één handeling terug te draaien zijn, maar niets roept haar nog aan: #btnTurn is
-   verborgen en applyLand() komt er niet meer langs (TURN staat altijd aan). */
-function turnToggleOLD(){
+/* v11.30 §73.1 — WEER IN GEBRUIK. Dit is de functie die v11.29 §72.1.1 buiten spel zette
+   (ze heette toen `turnToggleOLD`); ze is ongewijzigd op twee regels na: de stand wordt
+   bewaard in SET.turn en `.scrl` wordt bijgewerkt via asPaintPlay().
+   TERUGROLBAAR: ja — de naam terug op `turnToggleOLD` zetten, `function turnToggle(){}`
+   ernaast leggen en de handler op #btnTurn weer leegmaken. */
+function turnToggle(){
   TURN=!TURN;
+  SET.turn=TURN; saveSet();            /* v11.30 §73.1 — de stand overleeft het herladen */
   $('phone').classList.toggle('turn',TURN);
   $('btnTurn').classList.toggle('on',TURN);
   if(TURN){
@@ -4188,8 +4531,11 @@ function applyLand(){
       const sc0=(typeof turnCard==='function')?turnCard():null;
       if(sc0) turnSetHide(sc0,true);
     }
-    /* v11.29 §72.1.1 — het toastje «beurtstand blijft aan» is weg: er is geen andere stand
-       meer om naar terug te vallen. */
+    /* v11.30 §73.1 — §51.1.1 IS TERUG: landscape kent geen scrollstand, dus draaien zet de
+       beurtstand aan. §51.1.2 — en dat blijft zo na het terugdraaien; het toastje van
+       turnToggle() zegt dat. v11.29 had dit weggehaald omdat er toen niets om te schakelen
+       viel. TERUGROLBAAR: ja — deze drie regels weer weg. */
+    if(on && !TURN) turnToggle();
   }
   landPaint(); landPaintBtns();
   if(TURN) turnFit();
@@ -4387,12 +4733,19 @@ function buildIndex(){ const ix=[];
 function linkLabel(id){ const it=BYID[id]; if(!it) return id;
   return (it.type==='woord')?(strip(it.hnb)+' — '+strip(it.hnl))
         :(it.type==='conv'?('💬 '+(it.title||'Gesprekje')):(strip(it.nb)+' — '+strip(it.nl))); }
+/* v11.31 §74.1 — het blad doet er één ding bij: de SOORT omzetten. Zo kan JHS zelf een
+   synoniem tot afleiding maken en omgekeerd, zonder dat het zoekscherm een tweede knop nodig
+   heeft (daar blijft 🔗 gewoon een synoniem leggen, precies zoals in §72.4). */
 function openUnlink(a,b){
   if(!a||!b) return;
-  openSheet('<div class="sgrip"></div><h3>Link weghalen?</h3><div class="hintbox">🔗 <div>'
-    +esc(linkLabel(a))+'<br>↔ '+esc(linkLabel(b))+'</div></div>'
-    +'<div class="actions"><button class="btn cancel" id="c">Behouden</button><button class="btn danger" id="d">Ontkoppel</button></div>');
+  const kd=linkKindOf(a,b)||'syn', afl=(kd==='afl');
+  openSheet('<div class="sgrip"></div><h3>'+(afl?'Afleiding':'Synoniem')+'</h3><div class="hintbox">'
+    +(afl?'🌱':'🔗')+' <div>'+esc(linkLabel(a))+'<br>↔ '+esc(linkLabel(b))+'</div></div>'
+    +'<div class="actions"><button class="btn cancel" id="c">Behouden</button>'
+    +'<button class="btn" id="k">'+(afl?'Maak er een synoniem van':'Maak er een afleiding van')+'</button>'
+    +'<button class="btn danger" id="d">Ontkoppel</button></div>');
   $('c').onclick=closeSheet;
+  $('k').onclick=function(){ linkAdd(a,b,afl?'syn':'afl'); closeSheet(); mode='voc'; render(); };
   $('d').onclick=function(){ linkDel(a,b); closeSheet(); mode='voc'; render(); };
 }
 /* v11.29 §72.4 — HET ZOEKSCHERM. Is er een kaart in focus, dan blijft haar hoofdregel bovenaan
@@ -4747,11 +5100,14 @@ function fit(el){ if(el&&el.style) el.style.fontSize=''; }
 /* v11.6 §41.25 — de tekstbalk en zijn greepje staan geparkeerd achter TXTBAR; zet die const
    bovenaan op true en de hele leesregel (incl. SET.astxtoff) komt in één keer terug. */
 if(!TXTBAR) $('phone').classList.add('notxt');
-/* v11.29 §72.1.1 — er is nog EEN speelstand. De klasse `turn` stond vroeger enkel na een tik
-   op #btnTurn; ze staat er nu vanaf het opstarten. */
-$('phone').classList.add('turn');
+/* v11.30 §73.1 — de klasse volgt weer de bewaarde stand (SET.turn); v11.29 zette ze hard aan. */
+$('phone').classList.toggle('turn',TURN);
+/* v11.32 §75.2 — en de grote letter volgt SET.big */
+$('phone').classList.toggle('big',BIG);
 /* v11.29 §72.4 — de zeven synoniemlinks van JHS, eenmalig (BYID bestaat hier wél). */
 seedLinks();
+/* v11.31 §74.2 — de 19 links uit A2 (18 afleidingen + 1 synoniem), eenmalig. */
+seedA2();
 /* v11.6 §41.15 — het menublok staat bij het opstarten open; het greepje onderaan volgt. */
 asSetMenu(true);
 /* v11.10 §44.9 — de bewaarde richting meteen op de knop en op .phone zetten */

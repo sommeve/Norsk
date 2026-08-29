@@ -1075,9 +1075,9 @@ NW({id:'n_av', nch:[4], ngp:197, tlbl:'voorz.',
  NW({id:'n_kjedelig', nch:[4], ngp:202, tlbl:'bnw.',
   phNB:'SJEE-de-li', phNL:'saai',
   hnb:'<b>kjedelig</b>', hnl:'<b>saai</b> · <b>vervelend</b>',
-  forms:[['kjedelig'+E+'t'+_,'saai '+N+'(onz.)'+_],['kjedelig'+E+'e'+_,'saaie '+N+'(mv./bep.)'+_],[N+'mer kjedelig'+_,'saaier'],['kjedelig'+E+'st'+_,'saaist']],
+  forms:[['kjedelig'+E+'t'+_,'saai '+N+'(onz.)'+_],['kjedelig'+E+'e'+_,'saaie '+N+'(mv./bep.)'+_],['kjedelig'+E+'ere'+_,'saaier'],['kjedelig'+E+'st'+_,'saaist']],
   snb:'Filmen var kjedelig.', snl:'De film was saai.',
-  cmt:'"kj" klinkt als sj en de slot-g is stom: SJEE-de-li. De vergelijkende trap bestaat in twee vormen: "kjedeligere" (gewoner) en "mer kjedelig" — te bevestigen welke JHS wil. Ook: "Filmen var kjedeligere enn boken." = De film was saaier dan het boek.',
+  cmt:'"kj" klinkt als sj en de slot-g is stom: SJEE-de-li. De omschrijvende vorm "mer kjedelig" bestaat ook, maar "kjedeligere" is de gewone vorm. Ook: "Filmen var kjedeligere enn boken." = De film was saaier dan het boek.',
    /* v11.12 §47 — samengevoegd met sm_l_kjedelig */
    labels:['nils','somme'], bm:{s:'Denne filmen er kjedelig.'}
   }),
@@ -1794,10 +1794,12 @@ NW({id:'n_bevege_seg', nch:[6], ngp:198, tlbl:'ww.',
  NW({id:'n_mandag', nch:[6], ngp:204, tlbl:'zn.',
   phNB:'MAN-da', phNL:'MAAN-dag',
   hnb:'en <b>mandag</b>', hnl:'<b>maandag</b>',
-  forms:[['mandag'+E+'en'+_,'de maandag'],['mandag'+E+'er'+_,'maandagen'],['mandag'+E+'ene'+_,'de maandagen']],
+  /* v11.31 §74.3 — A2-40 (JHS, 29/08: MERGEN): n_paa_mandag2 is hierin opgegaan.
+     De grondvorm blijft de kop, net als bij A1-16/A1-21. */
+  forms:[['mandag'+E+'en'+_,'de maandag'],['mandag'+E+'er'+_,'maandagen'],['mandag'+E+'ene'+_,'de maandagen'],[N+'på mandag'+_,'maandag '+N+'(aanstaande of afgelopen)'+_]],
   bm:{s:'Jeg jobber på mandag.'},
   snb:'Eg jobber på mandag.', snl:'Ik werk op maandag.',
-  cmt:'De slot-g hoor je nauwelijks: MAN-da.',
+  cmt:'De slot-g hoor je nauwelijks: MAN-da. «på mandag» = maandag (aanstaande of afgelopen); zo ook «på tirsdag» = dinsdag en «på lørdag» = zaterdag. Ook: "Ka gjør du på mandag?" = Wat doe je maandag? Staat twee keer in het glossarium (blz. 204 en 206).',
    /* v11.12.1 §48 — samengevoegd met mandag */
    labels:['nils','next','tijd'], hnb:'en <b>mandag</b> '+G+'♂'+_
   }),
