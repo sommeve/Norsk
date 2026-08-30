@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <meta name="application-version" content="v11.17">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.38 (§81) — service-worker cache: sos-v11-45 -->
+<!-- Side om side · v11.39 (§82) — service-worker cache: sos-v11-46 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -373,8 +373,28 @@
        align-items:stretch;margin:2px 0 1px;}
   .lnk .lnkico{display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;}
   .lnk .lnkico svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+  /* ===== v11.39 §82.1 · DEZELFDE ACHTERGROND ALS EEN GEWONE CEL =====
+     JHS, 30/08: «de gelinkte/synoniemen: het linkse en rechtse cell moeten dezelfde
+     achtergrondkleur hebben als de standaard links/rechtse celkleuren (tenzij de rechtse
+     natuurlijk highlighted is) · hun tekst mag wel wat lichtergrijs».
+     De twee vakjes stonden op `background:transparent` en dreven daardoor los boven de kaart.
+     Ze dragen nu `col-nl` / `col-nb`, precies zoals elke gewone cel — één regel per kant, want
+     de kale `.lnk .c` hierboven blijft als vangnet staan en zou anders winnen (les 4: gelijk
+     staat = later wint, dus deze twee regels staan ERNA).
+     ⚠ In de DONKERE modus zijn `--nl-bg` en `--nb-bg` allebei `transparent`; daar verandert er
+     dus niets, en dat hoort ook: donker werkt met randen, niet met vlakken.
+     De TEKST gaat van `--ink` naar `--nlink` — één stap lichter grijs, in allebei de thema's
+     al afgeregeld sinds §78.3/§80.1, dus geen nieuwe kleur om te onderhouden.
+     ⚠ «tenzij de rechtse highlighted is»: een `.lnk`-rij draagt bewust GEEN `data-row` (§72.4),
+     dus ze kan vandaag niet fluo gezet worden. De regel staat er toch, zodat fluo wint als die
+     rijen ooit wél markeerbaar worden.
+     TERUGROLBAAR: ja — de drie regels hieronder weghalen. */
   .lnk .c{padding:5px 9px;border-radius:4px;border:1px dashed var(--ring);
           font-size:13.5px;color:var(--ink);background:transparent;position:relative;}
+  .lnk .c.col-nl{background:var(--nl-bg);}
+  .lnk .c.col-nb{background:var(--nb-bg);}
+  .lnk .c{color:var(--nlink);}
+  .lnk .c.fluo{background:var(--fluo);color:#111;box-shadow:0 0 0 1px var(--fluobd) inset;}
   .lnk .c small{display:block;font-size:10.5px;color:var(--muted);}
   .lnk.second .lnkico{opacity:0;pointer-events:none;}
   /* v11.31 §74.1 — de AFLEIDINGSRIJ. Zelfde vorm als de synoniemrij, maar STIPPELS in plaats
@@ -1228,7 +1248,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.38</span>
+    <span class="vers" id="vers">v11.39</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -2620,8 +2640,9 @@ function linkRowsHTML(it,rev,blur){
     const afl=(o.kind==='afl');
     return '<div class="lnk'+(afl?' afl':'')+(first?'':' second')+'" data-lnk="'+o.id+'" data-kind="'+o.kind+'">'
       +'<span class="lnkico" title="ontkoppelen">'+(first?(afl?AFLICO:LNKICO):'')+'</span>'
-      +'<span class="c'+((rev&&blur)?' blur':'')+'">'+nl+'<small>'+(afl?'afleiding':'synoniem')+'</small></span>'
-      +'<span class="c'+((!rev&&blur)?' blur':'')+'">'+nb+(ph?'<small class="phtx">'+esc(ph)+'</small>':'')+'</span>'   /* v11.37 §80.3 */
+      /* v11.39 §82.1 — `col-nl` / `col-nb` erbij: dezelfde achtergrond als een gewone cel. */
+      +'<span class="c col-nl'+((rev&&blur)?' blur':'')+'">'+nl+'<small>'+(afl?'afleiding':'synoniem')+'</small></span>'
+      +'<span class="c col-nb'+((!rev&&blur)?' blur':'')+'">'+nb+(ph?'<small class="phtx">'+esc(ph)+'</small>':'')+'</span>'   /* v11.37 §80.3 */
       +'</div>';
   }).join('');
 }
@@ -2986,11 +3007,29 @@ function buildDeck(){
      AS.hide is een BEVROREN lijst, gemaakt bij het opstarten van de autoscroll en bij elke
      nieuwe ronde: een woord dat tijdens het scrollen groen wordt, verdwijnt dus niet onder
      je neus. Buiten de autoscroll is AS.hide leeg → de lijst is weer volledig. */
-  if(typeof AS!=='undefined' && AS.on && AS.hide && AS.hide.size){
-    const kept=list.filter(x=>!AS.hide.has(x.id));
-    if(kept.length) list=kept;                 /* nooit een leeg scherm achterlaten */
-  }
+  list=asKeep(list);
   deck=list;
+}
+/* ===== v11.39 §82.2 · ÉÉN PLAATS VOOR DE §34.2-ZEEF =====
+   JHS, 30/08: «de telling klopt niet: star categorie heeft 100 / 17 / 0, maar als ik erop klik
+   ga ik niet door 100, 17, 0 items; soortgelijk probleem bij actief».
+   Nagemeten en bevestigd — maar NIET in de stilstaande lijst: daar klopt élk van de 21
+   kolom×rij-vakjes tot op de eenheid. Het loopt mis zodra je ▶ drukt: §34.2 haalt de
+   groen-gescoorde woorden uit de lijst, en het cijfer op de knop wist daar niets van.
+   Gemeten met een gezaaide score-set: actief 546 → 369 (177 weg, exact de kolom «ken»),
+   star 129 → 117, ken 177 → 177 (daar valt er niets weg).
+   De zeef stond binnen `buildDeck()`; ze staat nu in een eigen functie, zodat `renderFgrid()`
+   er precies dezelfde kan gebruiken. Eén plaats, dus ze kunnen niet meer uit elkaar lopen.
+   ⚠ De noodklep blijft: valt ALLES weg, dan blijft de volledige lijst staan — nooit een leeg
+   scherm. Het cijfer volgt dan dus ook de volledige lijst, en dat klopt.
+   ⚠ De ☀/✱-dagknoppen gaan hier NIET door: `buildDeck()` keert bij een `SET.pick` al terug
+   vóór deze regel. Dat is bestaand gedrag en blijft zo.
+   TERUGROLBAAR: ja — deze functie weghalen, het oude blok terug in `buildDeck()` en in
+   `renderFgrid()` `asKeep(...)` schrappen. */
+function asKeep(list){
+  if(typeof AS==='undefined' || !AS.on || !AS.hide || !AS.hide.size) return list;
+  const kept=list.filter(x=>!AS.hide.has(x.id));
+  return kept.length ? kept : list;
 }
 
 /* ===================== RENDER ===================== */
@@ -3248,7 +3287,8 @@ function renderFgrid(){
   rows.forEach(function(r){
     const sub=base.filter(function(x){ return x.type===r[0]; });
     h+=fRow(cols.map(function(c){
-      const nn=sub.filter(c.f).length;
+      /* v11.39 §82.2 — dezelfde zeef als `buildDeck()`, zodat het cijfer belooft wat je krijgt */
+      const nn=asKeep(sub.filter(c.f)).length;
       const on=!!(SET.fsel&&SET.fsel.s===c.k&&SET.fsel.t.indexOf(r[0])>=0);
       return '<button class="fb c'+c.c+(on?' sel':'')+'" data-ft="'+r[0]+'" data-fs="'+c.k+'" title="'+r[1]+' · '+c.lb+'">'+nn+'</button>';
     }),'<span class="rlb">'+r[1]+'</span>');
@@ -3425,7 +3465,7 @@ $('btnAdd').onclick=()=>openEditor(null);
    `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
    Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
    dat zo. */
-const APPVER='v11.38';   /* v11.38 §81 — stond sinds v11.29 op v11.29 en werd nergens gebruikt (dode code, gemeld in de handover van 30/08). Nu tenminste niet meer MISLEIDEND; wie hem ooit gebruikt, krijgt de juiste waarde. */
+const APPVER='v11.39';   /* v11.38 §81 — stond sinds v11.29 op v11.29 en werd nergens gebruikt (dode code, gemeld in de handover van 30/08). Nu tenminste niet meer MISLEIDEND; wie hem ooit gebruikt, krijgt de juiste waarde. */
 let FRESHBUSY=false;
 async function hardRefresh(){
   if(FRESHBUSY) return; FRESHBUSY=true;
@@ -4291,6 +4331,11 @@ function asPaintPlay(){
      elke standwissel aangeroepen (asStart, asExit, turnToggle, asPause, asResume, applyLand).
      De CSS hangt de groene/rode/pauzeknop hieraan op. */
   $('phone').classList.toggle('scrl',AS.on&&!TURN);
+  /* v11.39 §82.2 — de cijfers in de filterbalk volgen de speelstand. `asPaintPlay()` wordt na
+     élke standwissel aangeroepen (asStart · asExit · asPause · asResume · turnToggle ·
+     applyLand), dus dit is de enige plaats waar het moet staan.
+     ⚠ Geen kringloop: `renderFgrid()` roept enkel `renderStrip()` aan, nooit `renderPin()`. */
+  if(typeof renderFgrid==='function' && !SET.fhide) renderFgrid();
   /* v11.32 §75.2 — de A-knop volgt de stand */
   { const bb=$('btnBig'); if(bb) bb.classList.toggle('on',BIG); }
   /* v11.32 §75.1 — de brede knop: ❚❚ zolang er gespeeld wordt, ▶ zodra er gepauzeerd is,
