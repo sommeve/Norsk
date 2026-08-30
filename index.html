@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <meta name="application-version" content="v11.17">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.37 (§80) — service-worker cache: sos-v11-44 -->
+<!-- Side om side · v11.38 (§81) — service-worker cache: sos-v11-45 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -216,7 +216,10 @@
      zodat de twee bedieningen dezelfde taal spreken. */
   .phone:not(.land):not(.novoc) .thinpz.go{background:var(--prog);color:#fff;opacity:.85;}
   .phone:not(.land):not(.novoc) .thinpz.go b{font-size:24px;letter-spacing:0;}
-  .phone:not(.land):not(.novoc) .thinpz.pale{opacity:.22;box-shadow:none;}
+  /* v11.38 §81.4 — de brede knop toont sinds §81.4 ▶ in de beginstand en START dan ook echt
+     (les 9: een knop die niets doet ziet eruit als een kapotte knop). Op .22 las hij als
+     uitgeschakeld; .40 zegt «kan, maar er loopt nog niets». */
+  .phone:not(.land):not(.novoc) .thinpz.pale{opacity:.40;box-shadow:none;}
   .phone:not(.land):not(.novoc) .thinpz.down{filter:brightness(.82);}
   .phone.fin .thinpz{display:none!important;}
   /* v11.30 §73.1 — #btnTurn IS TERUG. v11.29 §72.1.1 verborg de knop met
@@ -843,7 +846,18 @@
      scrollstand met een VEEG (links = juist, rechts = fout, §40.4) en pauzeren met een tik op
      de kaarten (§29.7) of met de voortgangsbalk.
      TERUGROLBAAR: ja — deze ene regel schrappen. */
-  .phone.scrl .bigsw, .phone.scrl .thinpz{display:none!important;}
+  /* ===== v11.38 §81.5 · §73.1 IS TERUGGEDRAAID =====
+     JHS, 30/08: «in die modus kan ik blijkbaar geen cel meer highlighten, want bij het starten
+     van manuele scroll: als ik klik op een cel, begint/stopt het te auto scrollen, dat wil ik
+     niet. Mss is het goed om bij auto scroll ook gewoon de grote 3 knoppen te laten zien (en
+     menu dicht te klappen tot ik het terug openklap) en alleen die middelste pauzeknop te
+     gebruiken als play/pauze, dus niet meer gewoon ergens random klikken.»
+     De regel van §73.1 verborg groen/pauze/rood zodra de scrollstand speelde; ze staat hier
+     bewust UITGESCHAKELD in plaats van geschrapt, zodat §73.1 in één handeling terug kan.
+     Pauzeren gaat voortaan enkel via de brede middenknop, ▶ of de voortgangsbalk — een tik op
+     een cel markeert weer fluo (zie de tak `if(AS.on)` in de tikbehandelaar).
+     TERUGROLBAAR: ja — het commentaarteken hieronder weghalen. */
+  /* .phone.scrl .bigsw, .phone.scrl .thinpz{display:none!important;} */
 
   /* ============ v11.32 §75.2 · GROTE LETTER ============
      Eén kaart vult het hele speelveld en is in twee gelijke helften gesplitst: NL boven,
@@ -889,6 +903,14 @@
   .phone.big.land .bhw{font-size:37px;} .phone.big.land .bhw.sm{font-size:26px;}
   /* het lidwoord en de grammaticale noot: klein en NIET vet */
   .blid{font-size:15px;font-weight:400;color:var(--muted);line-height:1.2;}
+  /* v11.38 §81.2 — JHS, 30/08: «lidwoord op 1 lijn met hoofdwoord (dus allebei bovenaan), maar
+     font van lidwoord blijft klein». Het lidwoord was een EIGEN flex-kind bóven `.bhw` en kostte
+     dus een hele regel; het staat nu BINNEN `.bhw` als inline span. Zelfde kleine, niet-vette
+     letter, maar op dezelfde regel als het hoofdwoord.
+     ⚠ `line-height:inherit` is nodig: met de 1.2 van `.blid` zou de kleine span de regelhoogte
+     van het GROTE woord (1.06) oprekken en de twee helften uit elkaar duwen.
+     TERUGROLBAAR: ja — deze regel weg en in `half()` de span weer vóór `.bhw` zetten. */
+  .bhw .blid{display:inline;line-height:inherit;vertical-align:baseline;}
   .bsub{margin-top:8px;font-size:14px;color:var(--muted);font-weight:600;}
   .bsub .bm{background:var(--bmbg);color:var(--bmc);border-radius:4px;padding:1px 7px 2px;display:inline-block;}
   /* v11.35 §78.4 — GEZIEN OP EEN SCHERMAFDRUK (les 1): de bokmål-klank van een gespreksregel
@@ -901,13 +923,30 @@
   /* dicht = de helft achter dezelfde waas als op de gewone kaart */
   .bhalf.bblur>*{visibility:hidden;}
   .bhalf.bblur{position:relative;}
+  /* v11.38 §81.1 — JHS, 30/08: «geen arcering doen». De schuine strepen zijn weg; er blijft
+     één EGAAL, licht vlak staan zodat je nog ziet DAT er iets te onthullen is. De dichtheid
+     (.11) is het gemiddelde van de twee oude strepen (.16 en .07), dus even donker als vroeger.
+     TERUGROLBAAR: ja — deze ene `background`-regel terug op de repeating-linear-gradient. */
   .bhalf.bblur::after{content:'';position:absolute;inset:16% 10%;border-radius:8px;
-        background:repeating-linear-gradient(135deg,rgba(120,135,160,.16) 0 9px,rgba(120,135,160,.07) 9px 18px);}
-  /* wie aan het woord is, en waar je zit in het gesprekje */
-  .bsp{position:absolute;top:10px;left:14px;font-size:11px;font-weight:800;color:var(--accent);z-index:3;}
-  .brw{position:absolute;top:10px;right:14px;font-size:11px;font-weight:800;color:var(--muted);
-        background:rgba(255,255,255,.72);border-radius:20px;padding:2px 9px;z-index:3;}
-  .phone.big.land .bsp{left:14px;} .phone.big.land .brw{right:14px;}
+        background:rgba(120,135,160,.11);}
+  /* ===== v11.38 §81.3 · DE VASTE KOPREGEL VAN DE GROTE KAART =====
+     JHS, 30/08: «maak een vaste extra lijn bovenaan voor dat soort info, bv. welke gesprek
+     (enkel Noors is voldoende als gesprekstitel)».
+     Tot v11.37 ZWEEFDEN de spreker (`.bsp`) en de rijteller (`.brw`) absoluut over de kaart,
+     stond de gesprekstitel er helemaal niet bij, en kon je dus niet zien uit welk gesprekje een
+     regel kwam. Nu is het een ECHTE regel in de kolom, vóór de twee helften: links de spreker,
+     in het midden de NOORSE gesprekstitel, rechts «3 / 11».
+     ⚠ De regel staat er ALTIJD, ook bij een gewone woordkaart (dan leeg). Dat is de «vaste»
+     lijn die JHS vroeg: de twee gekleurde helften beginnen op elke kaart op dezelfde hoogte en
+     springen niet wanneer je van een woord naar een gespreksregel gaat.
+     TERUGROLBAAR: ja — dit blok en `bigHdr()`/`gspPos()` weg, de twee oude absolute regels terug. */
+  .bhdr{flex:0 0 auto;height:17px;display:flex;align-items:center;gap:8px;padding:0 8px;
+        font-size:11px;font-weight:800;line-height:17px;overflow:hidden;}
+  .bhdr .bsp{flex:0 0 auto;color:var(--accent);}
+  .bhdr .btl{flex:1 1 auto;min-width:0;color:var(--muted);font-weight:700;text-align:center;
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bhdr .brw{flex:0 0 auto;color:var(--muted);}
+  .phone.big.land .bhdr{height:15px;line-height:15px;}
   /* de knop zelf */
   #btnBig{font-family:Georgia,'Times New Roman',serif;font-size:19px;font-weight:700;}
 
@@ -1189,7 +1228,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.37</span>
+    <span class="vers" id="vers">v11.38</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -2117,6 +2156,12 @@ function missing(it){ return !hasNB(it)||!hasNL(it); }
 function textNB(it){ return it.type==='woord' ? strip(it.hnb)||it.id : (it.nb||''); }
 function textNL(it){ return it.type==='woord' ? strip(it.hnl) : (it.nl||''); }
 function labelsOf(it){ return it.labels||[]; }
+/* v11.38 §81.3 — het titelstrookje van een gespreksregel op de GEWONE kaart. */
+function gspTitleHTML(it){
+  const g=(typeof gspPos==='function')?gspPos(it):null;
+  return '<div class="ctitle ctl">\uD83D\uDCAC '+esc(it.titleNO||it.title||'Gesprekje')
+    +(g?'<span class="csub">'+g.n+' / '+g.tot+'</span>':'')+'</div>';
+}
 function noteOf(it){ return (it.id in NOTES) ? NOTES[it.id] : (it.cmt||it.pc||''); }
 function corrOf(it){ return CORR[it.id]||''; }
 
@@ -2439,6 +2484,43 @@ function bigParts(html){
    ⚠ GEEN `data-row` op de twee helften — dezelfde fluo-valkuil als in §72.4 en §74.1.3.
      Markeren kan in grote letter niet; wat je gemarkeerd hebt blijft staan en komt terug
      zodra je de knop weer uitzet. */
+/* ===== v11.38 §81.3 · DE VASTE KOPREGEL VAN DE GROTE KAART =====
+   Drie vakjes: de spreker · de NOORSE gesprekstitel · «regel / totaal». Bij een woordkaart
+   blijven ze alle drie leeg, maar de REGEL blijft staan — daarom geeft deze functie nooit een
+   lege string terug. De titel is bewust ALLEEN het Noors (JHS, 30/08: «enkel Noors is
+   voldoende als gespreks titel»).
+   Werkt voor de twee vormen waarin een gesprek op een grote kaart komt:
+     · `type:'conv'` — de hele gesprekskaart; `i` en `tot` komen van de beller;
+     · `type:'gsp'`  — één losse regel (§77); de plaats wordt uit `gspPos()` gelezen. */
+function bigHdr(it,i,tot){
+  let sp='', tl='', rw='';
+  if(it.type==='conv'){
+    const l=(it.lines||[])[i]||{};
+    sp=esc(l.sp||''); tl=esc(it.titleNO||it.title||'');
+    if(tot) rw=(i+1)+' / '+tot;
+  } else if(it.type==='gsp'){
+    const g=gspPos(it);
+    sp=esc(it.sp||''); tl=esc(it.titleNO||it.title||'');
+    if(g) rw=g.n+' / '+g.tot;
+  }
+  return '<div class="bhdr"><span class="bsp">'+sp+'</span>'
+        +'<span class="btl">'+tl+'</span><span class="brw">'+rw+'</span></div>';
+}
+/* v11.38 §81.3 — WAAR STAAT DEZE GESPREKSREGEL IN HAAR GESPREKJE?
+   ⚠ `gi` is de plaats in `lines` INCLUSIEF de scheidingsrijen van §70.3 («Alternativ»), dus
+   «4 van de 12» zou in werkelijkheid «3 van de 11» zijn. Daarom wordt er per gesprekje één keer
+   geteld over de ECHTE regels — de gsp-items zelf — en die telling onthouden. Gemeten op 30/08:
+   19 gesprekjes · 187 rijen · 16 scheidingsrijen · 171 items. */
+const GSPPOS={};
+function gspPos(it){
+  if(!it||!it.grp) return null;
+  if(!GSPPOS[it.grp]){
+    const gis=ITEMS.filter(x=>x.type==='gsp'&&x.grp===it.grp).map(x=>x.gi).sort((a,b)=>a-b);
+    GSPPOS[it.grp]={gis:gis,tot:gis.length};
+  }
+  const g=GSPPOS[it.grp], k=g.gis.indexOf(it.gi);
+  return (k<0||!g.tot)?null:{n:k+1,tot:g.tot};
+}
 function bigCardHTML(it){
   const blur = SET.showAns ? hidden.has(it.id) : !revealed.has(it.id);
   const rev  = isRev();
@@ -2496,14 +2578,17 @@ function bigCardHTML(it){
        5 geslacht.
      Tot v11.34 stond het geslacht (`post`) meteen ONDER het hoofdwoord, dus vóór de
      klankspelling en het bokmål. `post` staat nu achteraan. */
+  /* v11.38 §81.2 — HET LIDWOORD STAAT NU BINNEN `.bhw`, op dezelfde regel als het hoofdwoord.
+     Het GESLACHT (`p.post`) blijft een eigen regel onderaan: dat is stap 5 van de volgorde die
+     JHS in §78.4 gaf (lidwoord · hoofdwoord · fonetisch · bokmål · geslacht). */
   const half=function(cls,p,extra,hide,lid,klein){
     return '<div class="bhalf '+cls+(hide?' bblur':'')+'">'
-      +((lid&&p.pre)?'<span class="blid">'+p.pre+'</span>':'')
-      +'<div class="bhw'+(klein?' sm':'')+'">'+p.main+'</div>'
+      +'<div class="bhw'+(klein?' sm':'')+'">'
+        +((lid&&p.pre)?'<span class="blid">'+p.pre+'</span> ':'')+p.main+'</div>'
       +extra
       +((lid&&p.post)?'<span class="blid">'+p.post+'</span>':'')+'</div>'; };
-  const hdr=conv?('<div class="bsp">'+esc((it.lines&&it.lines[i]&&it.lines[i].sp)||'')+'</div>'
-                 +'<div class="brw">'+(i+1)+' / '+tot+'</div>'):'';
+  /* v11.38 §81.3 — de kopregel staat er op ELKE grote kaart, ook op een woordkaart (dan leeg) */
+  const hdr=bigHdr(it, conv?i:0, conv?tot:0);
   /* de kolom die dicht staat, hangt aan de richting — net als op de gewone kaart */
   return '<div class="card bigcard" data-id="'+it.id+'">'+hdr
     +half('bnl', nl, '', rev&&dicht, false, langNL)
@@ -2582,7 +2667,14 @@ function cardHTML(it){
       /* v11.34 §77.3 — op een GESPREKSREGEL valt het potlood weg, om exact dezelfde reden als
          bij het gesprekje in §53.1: de editor van §11 kent enkel «woord» en «zin», en de bron
          van een gespreksregel is `data/conv.js`, niet de eigen opslag. */
-      : '<div class="chalf">'+(it.type==='gsp'?'':'<span class="pen" data-edit="'+it.id+'">✏️</span>')
+      /* v11.38 §81.3 — JHS, 30/08: «maak ook duidelijk ALTIJD tot welke conversatie ze
+         behoren». Op de gewone kaart stond de gesprekstitel enkel in de `.cmt`-noot onderaan
+         («💡 💬 Goeiemorgen …»), in het NEDERLANDS, en die noot verdwijnt in landscape
+         (`.cmt{display:none}`). Een gespreksregel krijgt nu dezelfde titelplaats als het
+         gesprekje zelf — de linkerhelft van de kop, klasse `.ctitle.ctl` — met de NOORSE titel
+         en het regelnummer. Geen nieuwe CSS: het is exact de plaats die `conv` al gebruikt.
+         TERUGROLBAAR: ja — deze ene uitdrukking terug op de lege string. */
+      : '<div class="chalf">'+(it.type==='gsp'?gspTitleHTML(it):'<span class="pen" data-edit="'+it.id+'">✏️</span>')
         +'<div class="pho'+((blur&&!rev)?' blur':'')+'">'+ph+'</div></div>')
     +'</div>';
   /* v11.29 §72.2.11 — bij een GESPREKJE gaat de waas per rij weg (CROW), bij al de rest in
@@ -2815,6 +2907,30 @@ function newOpen(){
    die laat alles behalve ☀15 (`pick==='new'`) door, dus de autoscroll mag hierop lopen,
    net zoals op ☀50. Het is herhaling van materiaal dat je al gezien hebt. */
 function pickIds(){ return SET.pick==='train'?trainOpen():(SET.pick==='new'?newOpen():(SET.pick==='rot'?rotOpen():[])); }
+/* ===== v11.38 §81.7 · DE ☀/✱-KNOPPEN VOLGEN DE BRONKEUZE =====
+   JHS, 30/08: «als ik op subcategorie "Jan" klik en tegelijk op de "*KEN" knop, dan overrulet
+   de "*KEN" knop blijkbaar; ik snap ook niet waarom de "*KEN" knop qua aantal even hoog blijft
+   onaf. of de "Jan" knop is ingeduwd of niet».
+   Allebei terecht, en het was één en dezelfde oorzaak: `buildDeck()` nam bij een `SET.pick`
+   de dagset en filterde daarmee **ITEMS** — de volledige verzameling — dus volledig buiten de
+   bronkeuze om. En de cijfers op de knoppen werden op diezelfde volledige verzameling geteld.
+   ⚠ WAT NIET VERANDERT: de dagsets zelf (`SET.train` · `SET.rot` · `SET.newday`) worden nog
+   altijd één keer per dag bevroren en blijven ongemoeid. Een dagset hoort een dagset te blijven;
+   de bronkeuze wordt er pas OVERHEEN gelegd, op het ogenblik van gebruik. Zo blijft ☀50
+   dezelfde vijftig woorden van vandaag, en toont én geeft hij er met «Jan» aan enkel die van Jan.
+   ⚠ WAT OOK NIET VERANDERT: staat er GEEN versmallende keuze aan, dan is `narrowed()` false en
+   telt de ☀-knop exact zoals §64 het vastlegde («alleen de dagteller», `newLeft()`). Pas als je
+   écht versmalt, toont hij het echte, kleinere getal — anders zou de knop beloven wat hij niet
+   geeft. Voor ✱zwak en ☀ken is het sowieso een lijstlengte en verandert er in de brede stand niets.
+   TERUGROLBAAR: ja — `pickOpen()` weer `pickIds()` laten teruggeven, in `buildDeck()` opnieuw
+   ITEMS filteren, en in `renderFilters()` de drie tellers terug op hun oude uitdrukking. */
+function narrowed(){ return baseList().length < ITEMS.length; }
+function pickKeep(ids){
+  if(!narrowed()) return ids;
+  const ok=new Set(baseList().map(x=>x.id));
+  return ids.filter(id=>ok.has(id));
+}
+function pickOpen(){ return pickKeep(pickIds()); }
 function setPick(v){ SET.pick=(SET.pick===v)?null:v; if(SET.pick) SET.fsel=null; saveSet();
   /* v11.7 §42.9 — een nieuwe selectie is een nieuwe beurt: de tellers in de balk beginnen opnieuw. */
   if(typeof asResetCount==='function') asResetCount();
@@ -2835,15 +2951,37 @@ function applyFilters(list){
 function baseList(){ return applyFilters(ITEMS.filter(contentPass)); }
 function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;} return h/4294967296; }
 function orderKey(it){ if(!(it.id in order)) order[it.id]=Math.sin((hashStr(it.id)+shuffleSeed)*99991)*.5+.5; return order[it.id]; }
+/* ===== v11.38 §81.6 · DE GESPREKSREGELS BLIJVEN BIJ ELKAAR ÉN OP VOLGORDE =====
+   JHS, 30/08: «de zinnen van de gesprekken komen blijkbaar niet in volgorde zoals in de
+   gesprekjes; dat is verwarrend». Klopt, en het was geen fout maar de schudbeurt: `orderKey()`
+   is een hash op de id, en voor die hash is regel 7 van `cv_morgen` een kaart als elke andere.
+   De 171 gespreksregels lagen dus over de hele lijst verspreid, in willekeurige volgorde.
+   De sleutel van een gespreksREGEL is voortaan die van haar GESPREKJE (`grp`); binnen dat
+   gesprekje sorteert `gi`. Gevolg:
+     · het gesprekje schuift als één BLOK mee in de schudbeurt (de plaats blijft willekeurig);
+     · de regels staan er in hun eigen volgorde in (1, 2, 3 …);
+     · de gesprekskaart zelf (`type:'conv'`, id == grp) deelt dezelfde sleutel en heeft geen
+       `gi`, dus die krijgt rang −1 en komt netjes vóór haar eigen regels te staan;
+     · woordkaarten en zinnen blijven volledig willekeurig, precies zoals vroeger.
+   ⚠ `orderKey({id:it.grp})` schrijft de sleutel van het GESPREKJE in `order` — dat is dezelfde
+   sleutel die de conv-kaart zelf ook zou krijgen, dus er komt geen vreemde id bij.
+   TERUGROLBAAR: ja — `deckSort(list)` weer `list.sort((a,b)=>orderKey(a)-orderKey(b))` maken. */
+function deckKey(it){ return (it.type==='gsp'&&it.grp)?orderKey({id:it.grp}):orderKey(it); }
+function deckRank(it){ return (it.type==='gsp'&&typeof it.gi==='number')?it.gi:-1; }
+function deckSort(list){ return list.sort(function(a,b){
+  const d=deckKey(a)-deckKey(b); if(d) return d;
+  return deckRank(a)-deckRank(b); }); }
 function buildDeck(){
   /* v11.3 — train en «nieuw vandaag» staan los van de bron- en filterkeuze */
-  if(SET.pick){ const st=new Set(pickIds());
-    deck=ITEMS.filter(x=>st.has(x.id)).sort((a,b)=>orderKey(a)-orderKey(b)); return; }
+  /* v11.38 §81.7 — baseList() in plaats van ITEMS: de bronkeuze telt mee.
+     v11.38 §81.6 — deckSort() in plaats van de kale orderKey-sortering. */
+  if(SET.pick){ const st=new Set(pickOpen());
+    deck=deckSort(baseList().filter(x=>st.has(x.id))); return; }
   let list=baseList();
   if(SET.fsel){ const fn=FFN(SET.fsel.s), ts=SET.fsel.t;    /* §40.3 — wrd en zin kunnen samen aanstaan */
     list=list.filter(x=>ts.indexOf(x.type)>=0&&fn(x)); }
   else list=list.filter(x=>SET.types.indexOf(x.type)>=0);
-  list.sort((a,b)=>orderKey(a)-orderKey(b));   /* altijd willekeurig; 🔀 = nieuwe schudbeurt */
+  deckSort(list);   /* v11.38 §81.6 — willekeurig, maar een gesprekje blijft één blok op volgorde */
   /* v11.4 §34.2 — binnen de autoscroll vallen de woorden met een groene bol uit de lijst.
      AS.hide is een BEVROREN lijst, gemaakt bij het opstarten van de autoscroll en bij elke
      nieuwe ronde: een woord dat tijdens het scrollen groen wordt, verdwijnt dus niet onder
@@ -3095,8 +3233,9 @@ function renderFgrid(){
      teller. JHS vond die schuine streep verwarrend en koos op 2026-08-22 uitdrukkelijk voor
      alleen de teller. Gevolg, bewust aanvaard: staan er minder verse next-items klaar dan de
      teller aangeeft, dan geeft de knop er minder dan er op staat. */
-  const nOpen=newLeft();
-  const tOpen=trainOpen().length, rOpen=rotOpen().length;
+  /* v11.38 §81.7 — de drie cijfers volgen de bronkeuze zodra er écht versmald is. */
+  const nOpen=narrowed()?pickKeep(newOpen()).length:newLeft();
+  const tOpen=pickKeep(trainOpen()).length, rOpen=pickKeep(rotOpen()).length;
   h+=fRow(cols.map(function(c){
     if(c.k==='next') return '<button class="fb c6 day'+(SET.pick==='new'?' sel':'')+'" data-pick="new" title="de nieuwe woorden van vandaag — eerst uit next, daarna uit Later"'
       +((nOpen===0&&SET.pick!=='new')?' disabled':'')+'>☀ '+nOpen+'</button>';
@@ -3286,7 +3425,7 @@ $('btnAdd').onclick=()=>openEditor(null);
    `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
    Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
    dat zo. */
-const APPVER='v11.29';
+const APPVER='v11.38';   /* v11.38 §81 — stond sinds v11.29 op v11.29 en werd nergens gebruikt (dode code, gemeld in de handover van 30/08). Nu tenminste niet meer MISLEIDEND; wie hem ooit gebruikt, krijgt de juiste waarde. */
 let FRESHBUSY=false;
 async function hardRefresh(){
   if(FRESHBUSY) return; FRESHBUSY=true;
@@ -3654,7 +3793,28 @@ $('stage').addEventListener('pointerup',e=>{
     }
     return;
   }
-  if(AS.on){ if(!held) asToggle(); return; }
+  /* ===== v11.38 §81.5 · EEN TIK IN DE SCROLLSTAND PAUZEERT NIET MEER, MAAR MARKEERT =====
+     Hier stond `if(AS.on){ if(!held) asToggle(); return; }` — élke tik op de kaartenzone
+     schakelde de autoscroll aan of uit (§29.7). Daardoor kon JHS in die stand geen cel meer
+     fluo zetten: de tik werd door de pauze opgeslokt.
+     Voortaan: pauzeren doe je met de brede middenknop, met ▶ of met de voortgangsbalk; een tik
+     op een cel doet in de scrollstand hetzelfde als in de lijst — fluo aan of uit.
+     ⚠ Enkel op de ANTWOORDkolom (`.cell.hidecol`) en enkel als ze NIET meer achter de waas
+     zit; wat je nog niet ziet, kan je niet markeren. Dezelfde grens als in de beurtstand.
+     ⚠ In GROTE letter staan er geen `.cell`-vakjes maar `.bhalf`-helften — daar valt er dus
+     niets te markeren, precies zoals in de gewone lijst. Een tik doet daar niets meer.
+     TERUGROLBAAR: ja — dit blok terug op de ene oude regel. */
+  if(AS.on){
+    if(held) return;
+    const cel=d.tgt&&d.tgt.closest&&d.tgt.closest('.cell.hidecol');
+    if(!cel||cel.classList.contains('blur')) return;
+    const cd=cel.closest('.card'); if(!cd) return;
+    const cid=cd.dataset.id, ci=+cel.dataset.row, carr=new Set(FLUO[cid]||[]);
+    carr.has(ci)?carr.delete(ci):carr.add(ci);
+    FLUO[cid]=[...carr]; if(!FLUO[cid].length) delete FLUO[cid];
+    saveFluo(); cel.classList.toggle('fluo');
+    return;
+  }
   subOpen.clear();
   const blur=SET.showAns?hidden.has(d.id):!revealed.has(d.id);
   if(blur){ if(SET.showAns) hidden.delete(d.id); else revealed.add(d.id); refreshCard(d.card,d.id);
@@ -4135,12 +4295,21 @@ function asPaintPlay(){
   { const bb=$('btnBig'); if(bb) bb.classList.toggle('on',BIG); }
   /* v11.32 §75.1 — de brede knop: ❚❚ zolang er gespeeld wordt, ▶ zodra er gepauzeerd is,
      en bleek zolang er niets te bedienen valt (buiten de speelstand). */
+  /* v11.38 §81.4 — JHS, 30/08: «die staat op pauze ook bij initiële status, dus moet dan
+     eigenlijk play zijn». Klopt: `go` was `AS.on && !AS.playing`, dus buiten de speelstand
+     (AS.on == false) viel hij op false terug en toonde de knop ❚❚ terwijl er niets liep.
+     HET TEKEN VOLGT DE DAAD, net als de kleine knop sinds §78.1: ❚❚ enkel terwijl er ECHT
+     gespeeld wordt, ▶ in alle andere gevallen.
+     De blauwe `go`-stand blijft voorbehouden aan een ECHTE pauze, zodat «gepauzeerd» en «nog
+     niet begonnen» zichtbaar verschillend blijven — één stap, geen twee.
+     ⚠ Een knop die ▶ toont moet ook starten (les 9); zie de onclick verderop.
+     TERUGROLBAAR: ja — `playing` weer `go` maken en de onclick terugzetten. */
   const pz=$('btnPz');
-  if(pz){ const go=AS.on&&!AS.playing;
+  if(pz){ const playing=AS.on&&AS.playing, go=AS.on&&!AS.playing;
     pz.classList.toggle('pale',!AS.on);
     pz.classList.toggle('go',go);
-    pz.innerHTML='<b>'+(go?'▶':'❚❚')+'</b>';
-    pz.title=go?'verder spelen':'pauze'; }
+    pz.innerHTML='<b>'+(playing?'❚❚':'▶')+'</b>';
+    pz.title=playing?'pauze':(AS.on?'verder spelen':'start'); }
   const sp=$('spbtn');
   /* v11.11 §45.2 — dezelfde knop stuurt de autoscroll én de beurtstand, dus hij is ook
      bruikbaar zodra de beurtstand aanstaat (§44.7 grijsde hem buiten de autoscroll uit). */
@@ -4349,7 +4518,9 @@ $('pp').onclick=asPlayTap;
    pauzeren; ▶ en de voortgangsbalk blijven daarnaast gewoon werken.
    ⚠ Buiten de speelstand doet ze niets: dan staat ze bleek (zie asPaintPlay). */
 $('btnPz').onclick=function(){
-  if(!AS.on) return;
+  /* v11.38 §81.4 — buiten de speelstand deed deze knop niets terwijl hij er wél stond: dat is
+     precies les 9. Nu toont hij daar ▶ en START hij ook, exact zoals ▶ en de voortgangsbalk. */
+  if(!AS.on){ if(asBlocked()) return; asStart(); asResume(); return; }
   if(AS.playing) asPause(false); else asResume();
 };
 $('pbar').onclick=asBarTap;
