@@ -14,11 +14,11 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <meta name="application-version" content="v11.17">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.33 (§76) — service-worker cache: sos-v11-40 -->
+<!-- Side om side · v11.35 (§78) — service-worker cache: sos-v11-42 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
-    --nb-bg:#d9e9fb; --nl-bg:#f7edcf; --ink:#1b2334; --muted:#6b7a90; --hair:#dce3ef; --ring:#98a6bd;
+    --nb-bg:#d9e9fb; --nl-bg:#f7edcf; --ink:#1b2334; --nlink:#3d4658;   /* v11.35 §78.3 — het NL-woord op de grote kaart: donkergrijs, niet puur zwart */ --muted:#6b7a90; --hair:#dce3ef; --ring:#98a6bd;
     --en:#1565c0; --ex:#d61f2b; --g:#7a3fb0; --sep:#c7d0e0;
     --ok:#2e9e5b; --half:#e08b2b; --wrong:#d94b46; --accent:#2f6fd6; --purple:#6b4fd6;
     --ok-lt:#a6dcbc; --wrong-lt:#f0b0ad;   /* v11.2 §29.5 — autoscroll-swipes in de grafiek */
@@ -44,7 +44,7 @@
   .dark{
     --w:#d7d7d7; --w2:#9d9d9d; --w3:#5d5d5d;
     --pg:#000; --surface:#000;
-    --nb-bg:transparent; --nl-bg:transparent; --ink:#d7d7d7; --muted:#9d9d9d;
+    --nb-bg:transparent; --nl-bg:transparent; --ink:#d7d7d7; --nlink:#c2c2c2;   /* v11.35 §78.3 */ --muted:#9d9d9d;
     --hair:#5d5d5d; --ring:#5d5d5d; --sep:#5d5d5d;
     --en:#d7d7d7; --ex:#d7d7d7; --g:#d7d7d7;
     /* de scores blijven in kleur — uitdrukkelijke keuze van JHS */
@@ -171,6 +171,14 @@
   .cdiv{display:block;font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;
         color:var(--accent);padding:3px 0 1px;}
   .cdivrow .cell{background:transparent!important;border-color:transparent!important;}
+  /* v11.34 §77.2 — het toestandsstreepje van ÉÉN gespreksrij. `inset` box-shadow, dus geen
+     enkele verschuiving van de tekst: §45 (de positietest) blijft precies gelden.
+     ⚠ Soortelijkheid (les 4): deze regels staan NÁ .cell.fluo? Nee — fluo staat verderop en
+     wint dus bij gelijke soortelijkheid. Dat is gewild: een fluo-rij toont fluo. */
+  .cell.gr-known{box-shadow:inset 3px 0 0 var(--ok);}
+  .cell.gr-weak{box-shadow:inset 3px 0 0 var(--wrong);}
+  .cell.gr-next{box-shadow:inset 3px 0 0 var(--half);}
+  .cell.gr-new{box-shadow:inset 3px 0 0 transparent;}
   .ctitle{text-align:right;font-size:13px;font-weight:700;color:var(--muted);
         margin-top:1px;padding-right:2px;line-height:1.2;min-height:20px;}
   /* v11.28 §71.1 — DE KOP VAN EEN GESPREKSKAART STAAT VOORTAAN IN TWEE HELFTEN.
@@ -859,14 +867,34 @@
   .bhalf{flex:1 1 0;min-height:0;border-radius:12px;display:flex;flex-direction:column;
         align-items:center;justify-content:center;text-align:center;padding:10px 14px;overflow:hidden;}
   .bhalf.bnl{background:var(--nl-bg);} .bhalf.bnb{background:var(--nb-bg);}
+  /* v11.35 §78.3 — DE TWEE BLOKKEN NAAR ELKAAR TOE. JHS, 30/08: «de NL/Noorse woorden staan
+     te ver van elkaar owv mijn 50/50 verdeling van het scherm».
+     Het scherm blijft in twee gekleurde vlakken, maar het NL-vlak is niet langer een vaste
+     helft: het krimpt tot wat het nodig heeft (met een vaste bodem van TWEE regels) en het
+     Noorse vlak neemt de rest. Het NL-woord staat onderaan zijn vlak, het Noorse bovenaan
+     het zijne — zo raken ze elkaar in het midden in plaats van in twee verre middens te
+     hangen. `max-height:50%` is letterlijk «de NL blok mag nooit groter zijn dan de Noorse».
+     TERUGROLBAAR: ja — deze vier regels en de `bnlbox`-regel weghalen; dan staat de 50/50 van
+     §75.2 er weer. */
+  .phone.big .bhalf.bnl{flex:0 1 auto;max-height:50%;justify-content:flex-end;}
+  .phone.big .bhalf.bnb{flex:1 1 auto;justify-content:flex-start;padding-top:14px;}
   .bhw{font-weight:800;line-height:1.06;font-size:33px;letter-spacing:-.5px;
         overflow-wrap:anywhere;max-width:100%;}
   .bhw.sm{font-size:23px;}
+  /* v11.35 §78.3 — het NL-woord: donkergrijs, en ALTIJD twee regels hoog. Staat er maar één
+     regel, dan blijft de tweede leeg (uitdrukkelijk gevraagd). Een lang woord mag daardoor
+     over twee regels breken in plaats van de letter te verkleinen — zie `langNL()`. */
+  .bhalf.bnl .bhw{color:var(--nlink);min-height:2.12em;}
+  .bhalf.bnl .bhw.sm{min-height:2.12em;}
   .phone.big.land .bhw{font-size:37px;} .phone.big.land .bhw.sm{font-size:26px;}
   /* het lidwoord en de grammaticale noot: klein en NIET vet */
   .blid{font-size:15px;font-weight:400;color:var(--muted);line-height:1.2;}
   .bsub{margin-top:8px;font-size:14px;color:var(--muted);font-weight:600;}
   .bsub .bm{background:var(--bmbg);color:var(--bmc);border-radius:4px;padding:1px 7px 2px;display:inline-block;}
+  /* v11.35 §78.4 — GEZIEN OP EEN SCHERMAFDRUK (les 1): de bokmål-klank van een gespreksregel
+     plakte tegen de bokmål-zin aan («Jeg er sulten.jaei aer SUL-ten»). Op de gewone kaart staat
+     `.cph` op een eigen regel (`.cell.conv .cph`); binnen de grote kaart valt die regel weg. */
+  .bsub .bm .cph{display:block;font-weight:400;opacity:.85;margin-top:1px;}
   /* dicht = de helft achter dezelfde waas als op de gewone kaart */
   .bhalf.bblur>*{visibility:hidden;}
   .bhalf.bblur{position:relative;}
@@ -987,7 +1015,10 @@
 
   /* v11.20 §57.5 (D1.10) — FON uit = alle klankspelling weg, in de kop (`.pho`), per
      gesprekjesregel (`.cph`) en de bokmål-klank (`.bmp`, uitdrukkelijk bevestigd door JHS). */
-  .phone.nofon .pho,.phone.nofon .cph,.phone.nofon .bmp{display:none!important;}
+  /* v11.35 §78.5 — `.bph` erbij: de klankspelling op de GROTE kaart stond in een gewone
+     `.bsub` en bleef dus staan als FON uit stond. JHS zag daardoor «de FON knop doet niks».
+     Op de gewone kaart werkte hij wél — het was enkel de grote kaart. */
+  .phone.nofon .pho,.phone.nofon .cph,.phone.nofon .bmp,.phone.nofon .bph{display:none!important;}
   /* v11.28 §71.3 — de marge hoort op de WRAPPER, niet op het raster: anders rekt het
      balkje ernaast 6 px verder uit dan de rij waar het bij hoort. */
   .fullsel #fwrap,.fullsel #swrap{margin-bottom:6px;}
@@ -1132,7 +1163,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.33</span>
+    <span class="vers" id="vers">v11.35</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -1421,6 +1452,40 @@ const TU={t0:0,el:0,shown:false,hold:false};
 let CROW={};
 function convRows(it){ return (it&&it.type==='conv')?((it.lines||[]).length):0; }
 function convOpen(id){ return CROW[id]||0; }
+/* ============ v11.34 §77 · DE GSP-SPLITSING (weg A) ============
+   Elke echte gespreksregel is sinds v11.34 een eigen item (`data/conv.js`, blok GSP):
+   `id:'cv_morgen#3'`, `type:'gsp'`, `grp:'cv_morgen'`, `gi:3`. Het gesprekje blijft de KAART
+   (§72.2) maar draagt geen score meer. Daaruit volgen precies vier regels:
+     1. de groen/rode knop en de veeg scoren DE OPEN RIJ  → `gspTarget()`, één plaats:
+        `scoreItem()`. Alles wat scoort loopt daardoorheen (veeg, knop, autoscroll).
+     2. een score op een gesprekskaart schuift naar de VOLGENDE RIJ zolang er rijen dicht
+        staan; pas op de laatste rij ga je naar de volgende kaart → `gspStep()`.
+     3. in de LIJST zie je de gesprekskaart; kies je een KOLOM (Later/next/actief/zwak/ken/
+        star) of de ☀-lijsten, dan zie je de losse regels als eigen kaartjes. Dat volgt
+        vanzelf uit `buildDeck()`: `SET.types` draagt 'conv', `SET.fsel.t` draagt 'gsp'.
+     4. §76.3 («minder items») kent een gesprekje als GEKEND wanneer al zijn regels groen
+        staan → `convKnown()`.
+   ⚠ Een rij met `div` (de scheiding «Alternatief», §70.3) is GEEN item. `gspTarget()` zakt
+     daarom terug naar de dichtstbijzijnde echte regel. */
+function gspRow(gid,i){ return BYID[gid+'#'+i]||null; }
+function gspRowsOf(id){ const it=BYID[id]; if(!it||it.type!=='conv') return [];
+  const out=[]; (it.lines||[]).forEach(function(l,i){ const g=gspRow(id,i); if(g) out.push(g); });
+  return out; }
+/* de rij die OPENLIGT: CROW[id] telt hoeveel rijen onthuld zijn, dus de laatste is CROW-1.
+   Staat er nog niets open, dan is dat de eerste echte regel. */
+function gspTarget(id){
+  const it=BYID[id]; if(!it||it.type!=='conv') return id;
+  const L=it.lines||[]; if(!L.length) return id;
+  let i=Math.max(0,convOpen(id)-1);
+  if(i>L.length-1) i=L.length-1;
+  let j=i; while(j>=0 && !gspRow(id,j)) j--;           /* terug tot een echte regel */
+  if(j<0){ j=i; while(j<L.length && !gspRow(id,j)) j++; }
+  const g=(j>=0&&j<L.length)?gspRow(id,j):null;
+  return g?g.id:id;
+}
+function convKnown(it){ const rows=gspRowsOf(it.id); if(!rows.length) return false;
+  for(let i=0;i<rows.length;i++) if(stateOf(rows[i])!=='known') return false;
+  return true; }
 /* v11.15 §51.1 — staat het toestel dwars? Wordt door applyLand() gezet vanuit matchMedia.
    Staat hier bovenaan om dezelfde reden als TURN: turnFit() en render() lezen hem eerder. */
 let LAND=false;
@@ -1453,7 +1518,11 @@ const saveLinks=()=>{save('sos_links_v6',LINKS); syncPushSoon();};
    gewoon niet — ze crasht niet en ze gooit niets weg. Gemeten, niet aangenomen: `afl.js`
    controleert dat expliciet.
    ⚠ De sleutel blijft `sos_links_v6` en de export blijft v:13 — er wordt niets hernoemd. */
-function lkId(x){ const s=String(x), i=s.indexOf('#'); return i<0?s:s.slice(0,i); }
+/* v11.34 §77.1 — een ITEM-id kan sinds de gsp-splitsing zelf een '#' dragen (`cv_morgen#3`).
+   `lkId` knipte vroeger op de EERSTE '#' en maakte daar `cv_morgen` van. Nu wordt enkel het
+   achtervoegsel `#afl` afgeknipt — precies wat §74.1 bedoelde. Bestaande waarden ('id' of
+   'id#afl') komen er onveranderd uit. */
+function lkId(x){ const s=String(x); return s.slice(-4)==='#afl'?s.slice(0,-4):s; }
 function lkKind(x){ return String(x).slice(-4)==='#afl'?'afl':'syn'; }
 function lkMark(id,kind){ return kind==='afl'?(id+'#afl'):id; }
 /* geeft [{id,kind}] terug — de opgeruimde vorm waar de kaart en het zoekscherm mee werken */
@@ -1784,6 +1853,164 @@ function seedA2(){ if(SET.a2seed) return;
   SYNSEED2.forEach(function(pr){ n+=put(fix(pr[0]),fix(pr[1]),'syn'); });
   save('sos_links_v6',LINKS); SET.a2seed=1; saveSet(); return n; }
 
+
+/* ============ v11.35 §78 · DE 120 SYNONIEMGROEPEN UIT C EN D (30/08) ============
+   Uit `_cw_dump\20260829-CD-BESLUITEN.json`: 237 groepen ter nazicht, 120 met besluit LINKEN
+   (C: alle 70 — JHS bevestigde op 30/08 dat een leeg keuzevak «akkoord» betekent · D: de 50
+   die hij met «L» aanduidde). De 117 andere blijven APART en staan hier dus NIET in.
+   ⚠ STERVORM, geen kliek — precies zoals §74.2. Bij een groep van drie of vier hangt alles
+     aan het EERSTE lid uit de docx; anders zou «riktig» ook aan «bra» hangen terwijl de
+     groep om «god» draait.
+   ⚠ SOORT: alle 120 zijn SYNONIEMEN ('syn'), niet 'afl' — C en D gingen enkel over
+     «is dit hetzelfde woord of niet», niet over afleidingen.
+   ⚠ DE ID-BRUG. De json draagt met opzet geen interne id's (les 5). De brug is machinaal
+     gelegd vanuit `20260823-DUBBELGANGERS-v2.docx` (de bron van waarheid, niet de txt) tegen
+     de 1.597 woordkaarten uit de app zelf. 257 leden, ALLE 257 opgelost, nul open:
+     173 × exacte Noorse kop + NL · 78 × Noorse vorm + NL · 3 × via DUPOF (een sindsdien
+     opgegane kaart, o.a. «kjedeligere» → `n_kjedelig`) · 2 × op de Bergense vorm ·
+     1 × MET DE HAND: D-04 «en» — «lidwoord» tegenover «telw.» is machinaal niet te scheiden,
+     dus `n_lidwoord` is er handmatig aan gehangen. HARDHEID: hoog, op die ene na (les 2).
+   ⚠ 120 groepen geven 134 verschillende paren; drie paren komen tweemaal voor
+     (god↔n_bra, n_fikse↔n_ordne, n_kjedelig↔sm_slokket). `put()` legt ze één keer.
+   ⚠ Geen enkel paar botst met §72.4 (LINKSEED) of §74.2 (AFLSEED/SYNSEED2) — nagerekend.
+   Eenmalig, achter een eigen vlag in de bestaande sleutel sos_set_v6: haal je een link weg,
+   dan komt ze niet terug.
+   TERUGROLBAAR: ja — deze twee blokken en de aanroep weghalen. De opslagvorm verandert niet
+   (`sos_links_v6`, dezelfde 'id'-vorm als §72.4), dus een oudere index.html leest ze gewoon. */
+const CDSEED=[
+  ['n_glad','n_fornoyd'],                   /* C-01 — glad · fornøyd */
+  ['n_trist','sm_molefonken'],              /* C-02 — trist · molefonken */
+  ['n_arbeide','n_jobbe'],                  /* C-03 — arbeide · jobbe */
+  ['taxi','n_drosje'],                      /* C-04 — taxi · drosje */
+  ['n_selvfolgelig','n_selvsagt','n_saa_klart'], /* C-05 — selvfølgelig · selvsagt · så klart */
+  ['n_tusen_takk','n_mange_takk'],          /* C-06 — tusen takk · mange takk */
+  ['n_arbeid','n_jobb'],                    /* C-07 — arbeid · jobb */
+  ['barn','unge'],                          /* C-08 — barn · unge */
+  ['bryst','pupp'],                         /* C-09 — bryst · pupp */
+  ['fin','n_pen'],                          /* C-10 — fin · pen */
+  ['forsta','skjønne'],                     /* C-11 — forstå · skjønne */
+  ['frykt','n_skrekk'],                     /* C-12 — frykt · skrekk */
+  ['god','n_bra'],                          /* C-13 — god · bra */
+  ['hyggelig','n_koselig'],                 /* C-14 — hyggelig · koselig */
+  ['n_bedrift','n_firma'],                  /* C-15 — bedrift · firma */
+  ['n_beskjed','sm_h_melding'],             /* C-16 — beskjed · melding */
+  ['n_boks','n_eske'],                      /* C-17 — boks · eske */
+  ['n_bygg','n_bygning'],                   /* C-18 — bygg · bygning */
+  ['n_cirka','n_omtrent'],                  /* C-19 — cirka · omtrent */
+  ['n_dame','n_kvinne'],                    /* C-20 — dame · kvinne */
+  ['n_deretter','n_etterpaa'],              /* C-21 — deretter · etterpå */
+  ['n_dersom','n_hvis'],                    /* C-22 — dersom · hvis */
+  ['n_dum','n_taapelig'],                   /* C-23 — dum · tåpelig */
+  ['n_egentlig','n_faktisk'],               /* C-24 — egentlig · faktisk */
+  ['n_ennaa','n_fortsatt','n_fremdeles'],   /* C-25 — ennå · fortsatt · fremdeles */
+  ['n_fikse','n_ordne'],                    /* C-26 — fikse · ordne */
+  ['n_flott','n_kjempefin'],                /* C-27 — flott · kjempefin */
+  ['n_fordi','n_siden'],                    /* C-28 — fordi · siden */
+  ['n_fort','n_rask'],                      /* C-29 — fort · rask */
+  ['n_frisk','n_sunn'],                     /* C-30 — frisk · sunn */
+  ['n_fullstendig','n_helt'],               /* C-31 — fullstendig · helt */
+  ['n_generelt','n_stort_sett'],            /* C-32 — generelt · stort sett */
+  ['n_gjemme','n_skjule'],                  /* C-33 — gjemme · skjule */
+  ['n_idrett','n_sport'],                   /* C-34 — idrett · sport */
+  ['n_internett','n_nettet'],               /* C-35 — Internett · nett */
+  ['kjenne','n_fole'],                      /* C-36 — kjenne · føle */
+  ['n_langsomt','n_sakte'],                 /* C-37 — langsomt · sakte */
+  ['n_mene','synes'],                       /* C-38 — mene · synes */
+  ['n_plass','sted'],                       /* C-39 — plass · sted */
+  ['n_redd','n_skremt'],                    /* C-40 — redd · skremt */
+  ['n_rolig','n_stille'],                   /* C-41 — rolig · stille */
+  ['n_saann','n_slik'],                     /* C-42 — sånn · slik */
+  ['n_selv_om','n_til_tross_for_at'],       /* C-43 — selv om · til tross for at */
+  ['n_sikker','n_trygg'],                   /* C-44 — sikker · trygg */
+  ['n_skift','n_vakt'],                     /* C-45 — skift · vakt */
+  ['n_smerte','n_vondt'],                   /* C-46 — smerte · vondt */
+  ['n_stoppe','slutte'],                    /* C-47 — stoppe · slutte */
+  ['n_super','sm_h_perfekt'],               /* C-48 — super · perfekt */
+  ['n_svaert','n_veldig'],                  /* C-49 — svært · veldig */
+  ['n_ta_tid','n_vare'],                    /* C-50 — ta tid · vare */
+  ['n_ville','onske'],                      /* C-51 — ville · ønske */
+  ['sm_l_gave','sm_l_presang'],             /* C-52 — gave · presang */
+  ['n_lukke','n_stenge'],                   /* C-53 — lukke · stenge */
+  ['deilig','god'],                         /* C-54 — deilig · god */
+  ['goy','morsom'],                         /* C-55 — gøy · morsom */
+  ['n_akkurat','nettopp'],                  /* C-56 — akkurat · nettopp */
+  ['n_i_rute','n_presis'],                  /* C-57 — i rute · presis */
+  ['n_virkelig','skikkelig'],               /* C-58 — virkelig · skikkelig */
+  ['n_hele_tida','n_stadig'],               /* C-59 — hele tiden · stadig */
+  ['n_torr','sm_opplett'],                  /* C-60 — tørr · opplett */
+  ['n_tro','tenke'],                        /* C-61 — tro · tenke */
+  ['n_direkte','n_rett','n_med_en_gang'],   /* C-62 — direkte · rett · med en gang */
+  ['n_hei','sm_hallaien'],                  /* C-63 — hei · hallaien */
+  ['n_kjedelig','sm_slokket'],              /* C-64 — kjedelig · sløkket */
+  ['n_ordne','n_fikse','sm_sjaine'],        /* C-65 — ordne · fikse · sjaine */
+  ['n_lommebok','sm_pottemone'],            /* C-66 — lommebok · pottemone */
+  ['n_underbukse','sm_undikk'],             /* C-67 — underbukse · undikk */
+  ['n_hvilken','sm_kallas'],                /* C-68 — hvilken · kallas / kas */
+  ['n_utrolig','sm_hellsike'],              /* C-69 — utrolig · hellsike */
+  ['n_ha_det','n_ha_det_bra','sm_h_ses'],   /* C-70 — ha det · ha det bra · ses */
+  ['n_lidwoord','tall_1'],                  /* D-04 — en · en / ett */
+  ['n_rett','n_rett_k13'],                  /* D-05 — rett · rett */
+  ['n_kjedelig','sm_slokket'],              /* D-29 — kjedeligere · sløkket */
+  ['n_biologisk','n_okologisk'],            /* D-33 — biologisk · økologisk */
+  ['n_bake','n_steke'],                     /* D-34 — bake · steke */
+  ['n_leke','n_spille'],                    /* D-35 — leke · spille */
+  ['n_oppskrift','n_resept'],               /* D-37 — oppskrift · resept */
+  ['n_diett','n_kosthold'],                 /* D-39 — diett · kosthold */
+  ['n_faerre','liten'],                     /* D-40 — færre · mindre */
+  ['n_mer','liten'],                        /* D-41 — mer · mindre */
+  ['farmor','n_bestemor'],                  /* D-46 — farmor · bestemor */
+  ['n_pusse','n_vaske'],                    /* D-49 — pusse · vaske */
+  ['n_skjaere','spikke'],                   /* D-50 — skjære · spikke */
+  ['n_finne','n_mene','synes'],             /* D-52 — finne · mene · synes */
+  ['kikke','se'],                           /* D-53 — kikke · se */
+  ['darlig','n_ond'],                       /* D-55 — dårlig · ond */
+  ['n_fast','n_kraftig'],                   /* D-58 — fast · kraftig */
+  ['n_hoy','n_lang','n_lenge'],             /* D-59 — høy · lang · lenge */
+  ['n_tung','n_vanskelig'],                 /* D-60 — tung · vanskelig */
+  ['ekte','n_virkelig'],                    /* D-62 — ekte · virkelig */
+  ['n_absolutt','n_sikker'],                /* D-63 — absolutt · sikker */
+  ['n_akkurat','n_noyaktig'],               /* D-64 — akkurat · nøyaktig */
+  ['hel','n_svaert','n_veldig'],            /* D-66 — hel · svært · veldig */
+  ['n_ille','n_vond','til'],                /* D-68 — ille · vond · til */
+  ['alene','n_bare'],                       /* D-69 — alene · bare */
+  ['ferdig','n_saann'],                     /* D-71 — ferdig · sånn */
+  ['n_bra','n_greit_nok'],                  /* D-72 — bra · greit nok */
+  ['n_bare','n_men'],                       /* D-73 — bare · men */
+  ['n_nok','n_vel'],                        /* D-74 — nok · vel */
+  ['n_likevel','n_uansett','n_vel'],        /* D-75 — likevel · uansett · vel */
+  ['n_likevel','n_til_tross_for_at'],       /* D-76 — likevel · til tross for at */
+  ['n_allerede','n_alt'],                   /* D-77 — allerede · alt */
+  ['n_ja','n_jo'],                          /* D-86 — ja · jo */
+  ['n_jo','n_nei'],                         /* D-87 — jo · nei */
+  ['n_heller_ikkje','n_ogsaa'],             /* D-93 — heller ikkje · også */
+  ['n_enda','n_ennaa'],                     /* D-94 — enda · ennå */
+  ['n_blant','n_under'],                    /* D-96 — blant · under */
+  ['n_av','n_fra','n_ut'],                  /* D-99 — av · fra · ut */
+  ['i','n_inn_i','n_om'],                   /* D-100 — i · inn … i · om */
+  ['n_om','n_over'],                        /* D-101 — om · over */
+  ['n_over','sm_h_forbi'],                  /* D-102 — over · forbi */
+  ['n_for','n_for_k10','n_foran','n_utenfor'], /* D-103 — for · før · foran · utenfor */
+  ['n_at','n_det','n_som'],                 /* D-105 — at · det · som */
+  ['n_det','n_dette'],                      /* D-106 — det · dette */
+  ['n_ellers','n_videre'],                  /* D-124 — ellers · videre */
+  ['n_vaer_saa_god2','n_vaer_saa_snill'],   /* D-131 — vær så god · vær så snill */
+  ['n_med_en_gang','n_saa_fort_som_mulig'], /* D-133 — med en gang · så fort som mulig */
+  ['n_i_dag','n_i_gaar','n_i_morgen2'],     /* D-135 — i dag · i går · i morgen */
+  ['n_snill','sm_h_sot'],                   /* D-144 — snill · søt */
+  ['god','n_bra','n_riktig'],               /* D-157 — god · bra · riktig */
+];
+function seedCD(){ if(SET.cdseed) return 0;
+  const fix=function(id){ return BYID[id]?id:(DUPOF[id]&&BYID[DUPOF[id]]?DUPOF[id]:null); };
+  const put=function(a,b){
+    if(!a||!b||a===b) return 0;
+    if(!LINKS[a]) LINKS[a]=[]; if(!LINKS[b]) LINKS[b]=[];
+    if(LINKS[a].some(function(x){ return lkId(x)===b; })) return 0;   /* al gelegd → met rust laten */
+    LINKS[a].push(lkMark(b,'syn')); LINKS[b].push(lkMark(a,'syn')); return 1; };
+  let n=0;
+  CDSEED.forEach(function(g){ const root=fix(g[0]); if(!root) return;
+    for(let i=1;i<g.length;i++) n+=put(root,fix(g[i])); });
+  save('sos_links_v6',LINKS); SET.cdseed=1; saveSet(); return n; }
+
 /* ===================== SUPABASE SYNC ===================== */
 const SB_URL='https://uhpzabicbhvuxpdszxib.supabase.co';
 const SB_KEY='sb_publishable_wq_Xjq-7qVhmRrnbAsmpGg_rapM_oCb';
@@ -1846,7 +2073,7 @@ let ITEMS=[], SOSALL=[];
 function buildPool(){
   const eps=[].concat(window.EP01||[],window.EP02||[],window.EP03||[]);
   SOSALL=eps;
-  ITEMS=[...WORDS,...SENTENCES,...eps,...(window.NILS||[]),...(window.SOMME||[]),...(window.CONV||[]),...(window.HOME||[]),...(window.TID||[]),...USER].filter(x=>!x.deleted&&!DUPOF[x.id]);   /* v11.12 §47 — DUPOF houdt de dubbels blijvend buiten de poel · v11.16 §53.1 — CONV = de gesprekjes */
+  ITEMS=[...WORDS,...SENTENCES,...eps,...(window.NILS||[]),...(window.SOMME||[]),...(window.CONV||[]),...(window.GSP||[]),...(window.HOME||[]),...(window.TID||[]),...USER].filter(x=>!x.deleted&&!DUPOF[x.id]);   /* v11.12 §47 — DUPOF houdt de dubbels blijvend buiten de poel · v11.16 §53.1 — CONV = de gesprekjes */
   /* v11.24 §63 — een id→item kaart. `needsMet()` zoekt per zin meerdere woorden op; met
      `ITEMS.find()` was dat 1.991 × per woord × per zin bij élke opbouw van de dagset. */
   BYID={}; for(let i=0;i<ITEMS.length;i++) BYID[ITEMS[i].id]=ITEMS[i];
@@ -1912,6 +2139,44 @@ function seedWrong(id){ const k=skey(id); if(scores[k]&&scores[k].hist&&scores[k
   ['cv_morgen','cv_sulten'].forEach(function(id){
     delete scores[id+'|NL']; delete scores[id+'|NB']; NEXT.add(id); });
   save('sos_scores_v6',scores); save('sos_next_v6',[...NEXT]); save('sos_seed_old2',1); })();
+/* ============ v11.34 §77.4 · DE 19 CONV-SCORES VERHUIZEN MEE ============
+   Weg A maakt van elke gespreksregel een eigen item; het gesprekje zelf is niet meer
+   scoorbaar. De score die op het GESPREKJE stond, gaat daarom naar ELKE regel ervan — in
+   beide richtingen, met de volledige historiek. Dat is bewust ruimhartig: JHS heeft die
+   gesprekjes wel degelijk gezien, en een rij die hij niet kende zakt vanzelf terug zodra hij
+   ze één keer rood veegt.
+   Zelfde recept als `migDubbels()` (§72.3): eerst een VOLLEDIGE kopie in een eigen sleutel,
+   dan pas verplaatsen, en één vlag zodat het nooit twee keer gebeurt.
+   · een regel die al een eigen score heeft, wordt NOOIT overschreven;
+   · de score op het gesprekje verdwijnt daarna — anders blijft de kaart in «actief» hangen;
+   · `next` (de eigen lijst van JHS) en de ster verhuizen mee naar de regels; de ster blijft
+     óók op de kaart staan, want die is nog altijd te bewaren;
+   · fluo verhuist per rij: FLUO['cv_x'] = [3] wordt óók FLUO['cv_x#3'] = [0].
+   ⚠ TERUGROLBAAR: ja. De kopie staat in `sos_bak_mig77`. Een teruggerolde v11.33 vindt de
+     conv-score niet meer terug en zet het gesprekje op «Later» — de app werkt, de gegevens
+     zijn niet weg. */
+(function mig77(){
+  if(SET.mig77) return;
+  save('sos_bak_mig77',{v:'mig77', ts:Date.now(),
+    scores:scores, next:[...NEXT], fav:[...FAV], fluo:FLUO});
+  const G={}; (window.GSP||[]).forEach(function(g){ (G[g.grp]||(G[g.grp]=[])).push(g); });
+  Object.keys(G).forEach(function(cid){
+    const rows=G[cid];
+    ['NL','NB'].forEach(function(dir){
+      const s=scores[cid+'|'+dir]; if(!s) return;
+      rows.forEach(function(g){ const k=g.id+'|'+dir;
+        if(!scores[k]) scores[k]=JSON.parse(JSON.stringify(s)); });
+      delete scores[cid+'|'+dir];
+    });
+    if(NEXT.has(cid)){ rows.forEach(function(g){ NEXT.add(g.id); }); NEXT.delete(cid); }
+    if(FAV.has(cid))  rows.forEach(function(g){ FAV.add(g.id); });
+    const fl=FLUO[cid]; if(fl&&fl.length) fl.forEach(function(i){
+      const g=cid+'#'+i; if((window.GSP||[]).some(function(x){return x.id===g;}) && !FLUO[g]) FLUO[g]=[0]; });
+  });
+  save('sos_scores_v6',scores); save('sos_next_v6',[...NEXT]);
+  save('sos_fav_v6',[...FAV]); save('sos_fluo_v6',FLUO);
+  SET.mig77=1; saveSet();
+})();
 /* v11.2 §29.6 — label «next» (next to learn): woorden die je als volgende wil leren.
    Ze staan bij ZWAK zonder dat ze een kunstmatige foutswipe krijgen (dat was de oude seedWrong-truc).
    Zodra er een echte score is, telt gewoon die score. */
@@ -2123,12 +2388,21 @@ function bmLine(t){ return (SET.showBM&&t)?'<span class="bm"><i>BM</i>'+t+'</spa
      die blijven dus vanzelf goed.
    ⚠ Meerdere <b>-delen («<b>saai</b> · <b>vervelend</b>», 369 kaarten) worden samengevoegd
      met een scheidingspunt. */
+/* v11.35 §78.4 — GEVONDEN BIJ HET METEN, niet bij het kijken. `pre` en `post` waren RUWE
+   sneden uit de HTML: bij «å <span class="ex"><b>være</b></span>» werd `pre` het stuk
+   «å <span class="ex">» — een NIET-GESLOTEN span. De browser wikkelde daarna de hele Noorse
+   helft in dat spantje en `post` bleef leeg. Zichtbaar deed het weinig, maar het maakte de
+   volgorde van §78.4 onmeetbaar én de opmaak onvoorspelbaar.
+   `pre` en `post` zijn een lidwoord en een grammaticale noot — daar hoort sowieso geen opmaak
+   in, dus de merktekens gaan er nu uit. `main` (wat BINNEN de <b> staat) blijft ongemoeid.
+   TERUGROLBAAR: ja — de twee `kaal()`-aanroepen weghalen. */
 function bigParts(html){
   const s=String(html||'');
+  const kaal=function(t){ return String(t||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim(); };
   const m=[...s.matchAll(/<b>([\s\S]*?)<\/b>/g)];
   if(!m.length) return {pre:'',main:s,post:''};
   const i=s.indexOf('<b>'), j=s.lastIndexOf('</b>')+4;
-  return {pre:s.slice(0,i).trim(), main:m.map(x=>x[1]).join(' · '), post:s.slice(j).trim()};
+  return {pre:kaal(s.slice(0,i)), main:m.map(x=>x[1]).join(' · '), post:kaal(s.slice(j))};
 }
 /* v11.32 §75.2 — DE GROTE-LETTERKAART. Ze hergebruikt `rowsOf()`, zodat de richting, de
    bokmål-regel en de klankspelling precies hetzelfde werken als op de gewone kaart.
@@ -2157,11 +2431,17 @@ function bigCardHTML(it){
   if(conv){
     const lines=it.lines||[]; tot=lines.length;
     const co=convOpen(it.id); i=Math.max(0,Math.min(tot-1,co-1));
-    const l=lines[i]||{}, B=(SET.showBM&&l.bm)?l.bm:null;
+    const l=lines[i]||{};
     nl={pre:'',main:l.nl||'',post:''};
-    nb={pre:'',main:(B&&B.nb)||l.nb||'',post:''};
-    ph=(B&&B.ph)||l.ph||'';
-    bm='';
+    /* v11.35 §78.4 — DE BOKMÅL-REGEL BIJ EEN GESPREKJE. Tot v11.34 VERVING het bokmål de
+       Bergense regel zodra BM aanstond; op de gewone kaart komt ze er als een EIGEN regel
+       bij (`convRow()` geeft haar in kolom 3, `bmLine()` zet ze eronder). Dat verschil is
+       precies wat JHS als «de BM knop doet niks» zag: de regel wisselde van vorm in plaats
+       van erbij te komen. Nu is het op allebei de kaarten dezelfde regel. */
+    const B=l.bm||{};
+    nb={pre:'',main:l.nb||'',post:''};
+    ph=l.ph||'';
+    bm=bmLine(B.nb?(B.nb+(B.ph?'<span class="cph">'+B.ph+'</span>':'')):'');
   } else {
     const rows=rowsOf(it); tot=rows.length;
     const r=rows[0]||['','','',''];
@@ -2169,23 +2449,39 @@ function bigCardHTML(it){
     ph=(it.phNB||it.ph||'');
   }
   /* een hele zin is langer dan een woord: dan start het op de kleine maat */
-  const lang=(conv||it.type!=='woord'||nb.main.length>18||nl.main.length>22);
+  const lang=(conv||it.type!=='woord'||nb.main.length>18);
+  /* v11.35 §78.3 — DE NL-KANT HEEFT HAAR EIGEN MAAT. Tot v11.34 verkleinde één `lang` allebei
+     de helften zodra het NL langer was dan 22 tekens — «verdorie · niet te geloven» maakte de
+     letter dus klein terwijl er gewoon een tweede regel beschikbaar is. Het NL-vak is nu twee
+     regels hoog, dus het mag pas verkleinen als het ook op twee regels niet past. 44 = 2 × de
+     oude drempel; «opletten · oppassen» (19) blijft groot en op één regel, «verdorie · niet te
+     geloven» (26) blijft groot en breekt over twee. Bij een zin of een gesprekje blijft de
+     kleine maat gelden, want daar zijn twee regels sowieso te weinig. */
+  const langNL=(conv||it.type!=='woord'||nl.main.length>44);
   /* bij een gesprekje hangt de waas aan de RIJ (§72.2.11), niet aan de kaart */
   const dicht=conv?(blur&&convOpen(it.id)===0):blur;
-  const sub=function(t){ return t?'<div class="bsub">'+t+'</div>':''; };
+  /* v11.35 §78.5 — de klankspelling draagt `bph`, zodat de FON-knop haar via `.nofon` ook op
+     de grote kaart uitzet. Zonder die klasse deed FON hier niets. */
+  const sub=function(t,cls){ return t?'<div class="bsub'+(cls?' '+cls:'')+'">'+t+'</div>':''; };
   /* `lid` staat op false voor de NL-helft: JHS wil daar GEEN lidwoord («geen lidwoord in het
-     NL bij zelfst. nmw»). Aan de Noorse kant blijft het staan, klein en niet vet. */
-  const half=function(cls,p,extra,hide,lid){
+     NL bij zelfst. nmw»). Aan de Noorse kant blijft het staan, klein en niet vet.
+     v11.35 §78.4 — DE VOLGORDE AAN DE NOORSE KANT, letterlijk zoals JHS ze op 30/08 gaf:
+       1 lidwoord (klein) · 2 hoofdwoord · 3 fonetisch (als FON aan) · 4 bokmål (als BM aan) ·
+       5 geslacht.
+     Tot v11.34 stond het geslacht (`post`) meteen ONDER het hoofdwoord, dus vóór de
+     klankspelling en het bokmål. `post` staat nu achteraan. */
+  const half=function(cls,p,extra,hide,lid,klein){
     return '<div class="bhalf '+cls+(hide?' bblur':'')+'">'
       +((lid&&p.pre)?'<span class="blid">'+p.pre+'</span>':'')
-      +'<div class="bhw'+(lang?' sm':'')+'">'+p.main+'</div>'
-      +((lid&&p.post)?'<span class="blid">'+p.post+'</span>':'')+extra+'</div>'; };
+      +'<div class="bhw'+(klein?' sm':'')+'">'+p.main+'</div>'
+      +extra
+      +((lid&&p.post)?'<span class="blid">'+p.post+'</span>':'')+'</div>'; };
   const hdr=conv?('<div class="bsp">'+esc((it.lines&&it.lines[i]&&it.lines[i].sp)||'')+'</div>'
                  +'<div class="brw">'+(i+1)+' / '+tot+'</div>'):'';
   /* de kolom die dicht staat, hangt aan de richting — net als op de gewone kaart */
   return '<div class="card bigcard" data-id="'+it.id+'">'+hdr
-    +half('bnl', nl, '', rev&&dicht, false)
-    +half('bnb', nb, sub(ph)+ (bm?'<div class="bsub">'+bm+'</div>':''), !rev&&dicht, true)
+    +half('bnl', nl, '', rev&&dicht, false, langNL)
+    +half('bnb', nb, sub(ph,'bph')+ (bm?'<div class="bsub">'+bm+'</div>':''), !rev&&dicht, true, lang)
     +'</div>';
 }
 /* v11.29 §72.4 — DE SYNONIEMRIJ. Staat tussen de hoofdregel en de eerste vormenrij, met het
@@ -2218,6 +2514,9 @@ function linkRowsHTML(it,rev,blur){
       +'</div>';
   }).join('');
 }
+/* v11.34 §77.2 — de kleurklasse van één gespreksrij. Leeg voor een scheidingsrij (§70.3). */
+function gspRowCls(gid,i){ const g=gspRow(gid,i); if(!g) return '';
+  return ' grow gr-'+stateOf(g); }
 function cardHTML(it){
   const blur = SET.showAns ? hidden.has(it.id) : !revealed.has(it.id);
   const fav=FAV.has(it.id);
@@ -2239,15 +2538,21 @@ function cardHTML(it){
   const conv=(it.type==='conv');
   /* v11.28 §71.1 — bij een gesprekje draagt de LINKERhelft de Nederlandse titel; het
      scoreblok blijft er staan (onzichtbaar, zie CSS) zodat de tik erop blijft werken. */
+  /* v11.34 §77.2 — op een gesprekskaart staat in de kop de score van de rij die OPENLIGT:
+     precies wat de groen/rode knop zal scoren. Eén waarheid, geen tweede uitleg. */
+  const sid=conv?gspTarget(it.id):it.id;
   const hdr='<div class="chdr">'
     +'<div class="chalf scoreblk'+(conv?' convsc':'')+'">'+(rev?'<span class="dirmark">←</span>':'')
-      +aggDot(it.id)+'<span class="hist">'+dots((getScore(it.id)||{}).hist)+'</span>'
+      +aggDot(sid)+'<span class="hist">'+dots((getScore(sid)||{}).hist)+'</span>'
       +(conv?'<div class="ctitle ctl">💬 '+esc(it.title||'Gesprekje')
         +(it.sub?'<span class="csub">'+esc(it.sub)+'</span>':'')+'</div>':'')+'</div>'
     +(conv
       ? '<div class="chalf"><div class="ctitle">'+esc(it.titleNO||'')
         +(it.subNO?'<span class="csub">'+esc(it.subNO)+'</span>':'')+'</div></div>'
-      : '<div class="chalf"><span class="pen" data-edit="'+it.id+'">✏️</span>'
+      /* v11.34 §77.3 — op een GESPREKSREGEL valt het potlood weg, om exact dezelfde reden als
+         bij het gesprekje in §53.1: de editor van §11 kent enkel «woord» en «zin», en de bron
+         van een gespreksregel is `data/conv.js`, niet de eigen opslag. */
+      : '<div class="chalf">'+(it.type==='gsp'?'':'<span class="pen" data-edit="'+it.id+'">✏️</span>')
         +'<div class="pho'+((blur&&!rev)?' blur':'')+'">'+ph+'</div></div>')
     +'</div>';
   /* v11.29 §72.2.11 — bij een GESPREKJE gaat de waas per rij weg (CROW), bij al de rest in
@@ -2259,7 +2564,11 @@ function cardHTML(it){
   const cells=rowsOf(it).map(function(r,i){
     const hl=rev?' hidecol':'', hb=rev?'':' hidecol';
     const bl=conv?(blur&&i>=copen):blur;
-    return '<div class="cell col-nl '+r[2]+hl+((rev&&bl)?' blur':'')+((rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[0]+'</div>'
+    /* v11.34 §77.2 — een streepje links op elke gespreksrij, in de kleur van HAAR toestand.
+       Met `box-shadow: inset` (CSS), dus zonder één pixel verschuiving: de positietest van
+       §45 blijft gelden. */
+    const gr=conv?gspRowCls(it.id,i):'';
+    return '<div class="cell col-nl '+r[2]+gr+hl+((rev&&bl)?' blur':'')+((rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[0]+'</div>'
      +'<div class="cell col-nb '+r[2]+hb+((!rev&&bl)?' blur':'')+((!rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[1]+bmLine(r[3])+'</div>'
      +((i===0&&!conv)?lnkrows:''); }).join('');
   const note=corrOf(it)?('✏️ '+corrOf(it)):noteOf(it);
@@ -2735,7 +3044,7 @@ function fLabIdx(){ return SET.fhide ? 0 : 2; }   /* rijlabel: open ná «Later�
 function fRow(cells,lab){ var out=cells.slice(); out.splice(fLabIdx(),0,lab); return out.join(''); }
 function renderFgrid(){
   const base=baseList();
-  const rows=[['woord','wrd'],['zin','zin'],['conv','gsp']];   /* v11.3 §31.6 · v11.16 §53.1 */
+  const rows=[['woord','wrd'],['zin','zin'],['gsp','gsp']];   /* v11.3 §31.6 · v11.16 §53.1 · v11.34 §77.3 — de rij «gsp» telt de GESPREKSREGELS, niet meer de 19 gesprekjes */
   const cols=fcolsVis();
   const g=$('fgrid'); if(!g) return;
   g.classList.toggle('hid',!!SET.fhide);
@@ -2795,7 +3104,7 @@ function renderStrip(){
     if(c.k==='known') return '<b class="tr'+(SET.pick==='train'?' sel':'')+'"></b>';
     return '<span></span>';
   }),'<span class="rlb">☀</span>');
-  [['wrd','woord'],['zin','zin'],['gsp','conv']].forEach(function(r){   /* v11.16 §53.1 */
+  [['wrd','woord'],['zin','zin'],['gsp','gsp']].forEach(function(r){   /* v11.16 §53.1 · v11.34 §77.3 */
     h+=fRow(cols.map(function(c){ return '<i class="c'+c.c+(on(c.k,r[1])?' sel':'')+'"></i>'; }),
             '<span class="rlb">'+r[0]+'</span>');
   });
@@ -3094,6 +3403,10 @@ const THRESH=48;
 function flashBar(val){ const sb=$('scorebar'),cls=val?'ok':'bad'; sb.classList.remove('ok','bad'); void sb.offsetWidth;
   sb.classList.add(cls); setTimeout(()=>sb.classList.remove(cls),380); }
 function scoreItem(id,val,auto){
+  /* v11.34 §77.2 — één punt. Is het een gesprekskaart, dan gaat de score naar de rij die
+     openligt, niet naar het gesprekje. De veeg (§40.4), de knop (§51.5) en de autoscroll
+     (§29.5) lopen allemaal hierdoor, dus er is geen tweede plaats om te vergeten. */
+  id=gspTarget(id);
   if(auto && !val) asLogBad(id);        /* §29.4 — foto van de score vóór de auto-fout */
   applyScore(id,val,auto); flashBar(val); }
 /* v11.32 §75.2 — ook het HERTEKENEN van één kaart moet de grote letter volgen; anders staat
@@ -3395,7 +3708,7 @@ function asHideOn(){
 }
 function asMakeHide(){
   AS.hide = asHideOn()
-    ? new Set(ITEMS.filter(x=>stateOf(x)==='known').map(x=>x.id))
+    ? new Set(ITEMS.filter(function(x){ return x.type==='conv'?convKnown(x):stateOf(x)==='known'; }).map(x=>x.id))
     : null;
 }
 /* ---- v11.4 §34.4 · de eerste kaart komt van achter de onderbalk ---- */
@@ -3765,13 +4078,18 @@ function asStart(){
 function asPaintPlay(){
   const p=$('pp');
   if(p){
-    p.textContent='▶';
+    /* v11.35 §78.1 — HET TEKEN VOLGT DE DAAD. JHS, 30/08: «de kleine play knop heeft altijd
+       play icoon, maar zou ook pauze icoon moeten worden op de juiste momenten als de actie
+       pauze is als ik erop zou klikken.» Sinds §72.1.2 stopt ▶ niet meer; vanaf nu PAUZEERT
+       hij wel (zie asPlayTap) — en dus toont hij ❚❚ zolang er gespeeld wordt.
+       ⚠ Stoppen blijft de reshuffle (§72.1.5); dat verandert hier niet. */
+    p.textContent=(AS.on&&AS.playing)?'❚❚':'▶';
     p.classList.toggle('on',AS.on&&AS.playing);
     p.classList.toggle('paused',AS.on&&!AS.playing);
     /* v11.7 §42.3 — in IN DB, TO DO en ☀15 dooft ▶ en doet hij niets */
     const blk=asBlocked();
     p.classList.toggle('off',blk&&!AS.on);
-    p.title=AS.playing?'speelt — pauzeer met de dunne knop of een tik op de kaart'
+    p.title=AS.playing?'pauze'
            :(AS.on?'verder spelen'
            :(blk?'spelen kan hier niet':'start'));
   }
@@ -3972,7 +4290,9 @@ function asPlayTap(){
   /* v11.29 §72.1.2 — ▶ STOPT NIET MEER. Hier stond `if(AS.on&&AS.playing){asExit();}`, en dat
      is precies waarom JHS «het begint weer van voren af aan» zag. ▶ = start / hervat, meer niet.
      Stoppen doet de reshuffle (§72.1.5); pauzeren de dunne knop of een tik op de kaart. */
-  if(AS.on && AS.playing) return;
+  /* v11.35 §78.1 — een tik terwijl het speelt PAUZEERT nu (§72.1.2 liet hem niets doen).
+     Dat is wat de knop sinds §78.1 ook toont. Stoppen blijft de reshuffle. */
+  if(AS.on && AS.playing){ asPause(false); return; }
   if(AS.on){ asResume(); return; }
   if(asBlocked()) return;
   asStart(); asResume();
@@ -4348,6 +4668,14 @@ function finTap(){
     turnSetHide(turnCard(),AS.on?turnPct()>0:true);
     turnRestartClock();
   } else if(AS.on){ asSetFocus(); asNewSegment(); }
+  /* v11.35 §78.2 — «de auto restart after 3 sec zet zich wel gereed, maar start niet
+     automatisch te playen». Klopt: finShow() zette `AS.playing` op false (asPause) en niets
+     zette hem terug. De ronde stond dus klaar maar stond stil.
+     asResume() doet in de beurtstand de klok opnieuw beginnen en in de scrollstand het
+     segment; het moet ná turnRestartClock()/asNewSegment(), anders zet die de klok weer stil.
+     ⚠ Enkel wanneer er ECHT gespeeld werd (AS.on) — bladeren tot het einde start niets.
+     TERUGROLBAAR: ja — deze twee regels weghalen. */
+  if(AS.on && !AS.playing) asResume();
   asDrawBar();
 }
 /* v11.28 §71.4 — JHS: «als er dan een knop wordt geklikt, is dat sowieso een reshuffle».
@@ -4594,6 +4922,15 @@ function landUp(k,e,cancel){
   if(landPale()){ turnRevealStep(turnCard()); landPaintBtns(); return; }
   turnScore(k==='g');
 }
+/* v11.34 §77.2 — de volgende rij openleggen. Geeft false zodra alles openligt; dan gedraagt
+   de kaart zich weer als elke andere en gaan we naar de volgende kaart. */
+function gspStep(sc){
+  const id=sc&&sc.dataset?sc.dataset.sc:null, it=id?BYID[id]:null;
+  if(!it||it.type!=='conv') return false;
+  const n=convRows(it); if(!n) return false;
+  const k=convOpen(id); if(k>=n) return false;
+  return convRevealTo(sc,k+1);
+}
 function turnScore(ok){
   const sc=turnCard(); if(!sc) return;
   const id=sc.dataset.sc; if(!id) return;
@@ -4604,7 +4941,10 @@ function turnScore(ok){
     if(ok) AS.nok++; else AS.nbad++;
     asTint(sc,ok?1:0,ok?0:1);
     setTimeout(function(){ asTint(sc,0,0); },380);
-    focusNext();                       /* v11.25 §65.2 — ook in de gewone lijst doorschuiven */
+    /* v11.34 §77.2 — bij een gesprekskaart schuift een score naar de VOLGENDE RIJ zolang er
+       nog rijen dicht staan. Zonder deze regel zou de kaart na de eerste rij al wegspringen
+       en waren de andere regels onbereikbaar met de knop. */
+    if(!gspStep(sc)) focusNext();      /* v11.25 §65.2 — ook in de gewone lijst doorschuiven */
     asDrawBar(); renderPin();
     return;
   }
@@ -4613,7 +4953,7 @@ function turnScore(ok){
      ↩✗-stapel én de groen/rode teller van de balk), niet dubbel geboekt.
      §51.4.5 — de kaart blijft daarna gewoon haar volle duur staan; scoren verzet de klok niet. */
   if(LB.card===sc&&LB.snap) turnScoreUndo();
-  const k=skey(id);
+  const k=skey(gspTarget(id));   /* v11.34 §77.2 — de undo hoort bij de rij die gescoord is */
   LB.card=sc;
   LB.snap={k:k, prev:scores[k]?JSON.parse(JSON.stringify(scores[k])):null,
            day:JSON.parse(JSON.stringify(DAILY[todayKey()]||{ok:0,bad:0,new:0,add:0})),
@@ -4712,7 +5052,7 @@ function asFieldTap(){
 let INDEX=[];
 function buildIndex(){ const ix=[];
   ITEMS.forEach(function(it){ const lab=it.type==='woord'?(strip(it.hnl)+' — '+strip(it.hnb))
-      :(it.type==='conv'?('💬 '+(it.title||'Gesprekje')):(it.nl+' — '+it.nb));   /* v11.16 §53.1 — een gesprekje toont zijn titel, niet zes zinnen na elkaar */
+      :(it.type==='conv'?('💬 '+(it.title||'Gesprekje')):(it.type==='gsp'?('💬 '+it.nl+' — '+it.nb):(it.nl+' — '+it.nb)));   /* v11.16 §53.1 — een gesprekje toont zijn titel, niet zes zinnen na elkaar · v11.34 §77.3 */
     const B=it.bm||{};   /* v8: bokmål blijft doorzoekbaar */
     let bmtxt=[B.h,B.s,B.nb,B.ph].concat(B.f?Object.keys(B.f).map(k=>B.f[k]):[])
       .concat((it.forms||[]).map(f=>f[2]||'')).filter(Boolean).join(' ');
@@ -4720,9 +5060,13 @@ function buildIndex(){ const ix=[];
        zoeksleutel, zodat «kjøleskapet» of «kaffe» het gesprekje ook echt vindt. */
     if(it.type==='conv') bmtxt+=' '+(it.lines||[]).map(function(l){
       const b=l.bm||{}; return [l.ph,b.nb,b.ph].filter(Boolean).join(' '); }).join(' ');
-    ix.push({m:it.type==='woord'?'woord':(it.type==='conv'?'gesprekje':'zin'),label:lab, id:it.id,   /* v11.29 §72.4 — nodig voor de link-knop */
+    /* v11.34 §77.3 — een GESPREKSREGEL staat niet in de gewone lijst (daar staat de kaart van
+       het gesprekje). Om er toch naartoe te kunnen springen zet `go()` de kolom «in db · gsp»
+       aan: dan staan de losse regels er als eigen kaartjes en vindt `revealCard()` de hare. */
+    const isg=(it.type==='gsp');
+    ix.push({m:it.type==='woord'?'woord':(it.type==='conv'?'gesprekje':(isg?'gespreksregel':'zin')),label:lab, id:it.id,   /* v11.29 §72.4 — nodig voor de link-knop */
       key:(strip(textNB(it))+' '+strip(textNL(it))+' '+it.id+' '+strip(bmtxt)).toLowerCase(),
-      go:function(){ mode='voc'; SET.types=['woord','zin','conv']; SET.eps=[];   /* v11.16 §53.1 */ SET.themes=[]; SET.basis=false; SET.fsel=null; SET.nch=[]; SET.src=[]; SET.who=[]; subOpen.clear();
+      go:function(){ mode='voc'; SET.types=['woord','zin','conv']; SET.eps=[];   /* v11.16 §53.1 */ SET.themes=[]; SET.basis=false; SET.fsel=isg?{s:'db',t:['gsp']}:null; SET.nch=[]; SET.src=[]; SET.who=[]; subOpen.clear();
         filters={own:false,missing:false}; saveSet(); render();
         revealCard(it.id); }}); });        /* §28.5 — bijladen tot de kaart bestaat, dan scrollen */
   GRAMMAR.forEach(g=>ix.push({m:'grammatica',label:g.title,
@@ -5108,6 +5452,7 @@ $('phone').classList.toggle('big',BIG);
 seedLinks();
 /* v11.31 §74.2 — de 19 links uit A2 (18 afleidingen + 1 synoniem), eenmalig. */
 seedA2();
+seedCD();   /* v11.35 §78 */
 /* v11.6 §41.15 — het menublok staat bij het opstarten open; het greepje onderaan volgt. */
 asSetMenu(true);
 /* v11.10 §44.9 — de bewaarde richting meteen op de knop en op .phone zetten */

@@ -387,4 +387,39 @@ window.CONV = [
    cmt:'«Kjekt» is het Bergense woord voor leuk; kj en ky klinken allebei als sj (sjekt, sjus). «Dokker» = jullie, «dokkers» = van jullie. VOOR JOHANNE (tbc): staat «mammaen dokkers» zo goed, of zegt men «mammaen dykkar»? En zegt men in Bergen «eg gledet meg» of «eg glea meg»?'}),
 
 ];
+
+/* ============================================================
+   v11.34 §77 · DE GSP-SPLITSING (weg A)
+   ------------------------------------------------------------
+   Elke ECHTE gespreksregel wordt een eigen, scoorbaar item:
+     id:'cv_morgen#3' · type:'gsp' · grp:'cv_morgen' · gi:3
+   `gi` is de plaats in `lines`, dus exact hetzelfde nummer als
+   `data-row` op de kaart, als CROW en als FLUO. Zo blijven die
+   drie zonder omrekening op elkaar passen.
+   ⚠ Een regel met `div` (de scheiding «Alternatief», §70.3) is
+   GEEN dialoogregel en wordt dus GEEN item. Gemeten op 29/08:
+   19 gesprekjes · 187 rijen · 16 scheidingsrijen · 171 items.
+   Het gesprekje zelf (`type:'conv'`) blijft bestaan als KAART,
+   maar draagt geen score meer.
+   ============================================================ */
+window.GSP = (function(){
+  const out=[];
+  (window.CONV||[]).forEach(function(c){
+    (c.lines||[]).forEach(function(l,i){
+      if(!l || l.div) return;
+      out.push({
+        id:c.id+'#'+i, type:'gsp', grp:c.id, gi:i,
+        sp:l.sp||'', nb:l.nb||'', nl:l.nl||'', ph:l.ph||'',
+        bm:l.bm||null, tbc:!!l.tbc,
+        title:c.title||'', titleNO:c.titleNO||'',
+        kern:false, labels:(c.labels||[]).slice(),
+        episodes:(c.episodes||[]).slice(),
+        src:c.src||'somme', who:c.who||'conv',
+        cmt:'\uD83D\uDCAC '+(c.title||'Gesprekje')
+      });
+    });
+  });
+  return out;
+})();
+
 })();
