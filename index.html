@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <meta name="application-version" content="v11.17">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.39 (§82) — service-worker cache: sos-v11-46 -->
+<!-- Side om side · v11.40 (§83) — service-worker cache: sos-v11-47 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -727,6 +727,13 @@
   .spgrid button{height:30px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);
           border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;padding:0;}
   .spgrid button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  /* v11.40 §83.6 — de twee tijdreeksen naast elkaar; het menu wordt daarvoor breder. */
+  .spmenu{width:250px;}
+  .sptwo{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .spcol{min-width:0;}
+  .spgrid.sp2{grid-template-columns:repeat(3,1fr);gap:3px;}
+  .spgrid.sp2 button{height:26px;font-size:11.5px;}
+  .spmenu .splb.spttl{margin-bottom:5px;}
   .spsep{height:1px;background:var(--hair);margin:8px 0 6px;}
   .pcgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;}
   .pcgrid button{height:28px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);
@@ -1235,6 +1242,62 @@
   body.dark .anchbar,.dark .hit .lb{background:#000;color:var(--w);}
   body.dark .hit .lb.on,.dark .hit .lb.anch{background:var(--w);color:#000;border-color:var(--w);}
   body.dark .lnk .c{border:1px dashed var(--w3);}
+
+  /* ===================== v11.40 §83 · DE GESPREKKEN ===================== */
+  /* §83.1 — de 💬-knop. Stand 1 en 2 zijn allebei `on`; stand 2 draagt daarbovenop
+     `g2` en krijgt een streepje onderaan, zodat je de twee aanstaande standen uit elkaar
+     houdt zonder een tweede icoon. */
+  #btnConv{font-size:15px;line-height:1;position:relative;}
+  #btnConv.g2::after{content:'';position:absolute;left:50%;transform:translateX(-50%);
+    bottom:3px;width:11px;height:2px;border-radius:1px;background:currentColor;}
+  /* §83.2 — de semi-statische gesprekskop, ONDER de bovenbalk (die blijft ongemoeid). */
+  .gbar{display:none;align-items:center;gap:6px;padding:3px 8px 4px;cursor:pointer;
+    border-bottom:1px solid var(--line);background:var(--bg);}
+  .gbar.on{display:flex;}
+  .gbar .gsrc{font-size:10px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;
+    color:var(--muted);flex:0 0 auto;padding:1px 5px;border:1px solid var(--line);border-radius:4px;}
+  .gbar .gtl{font-size:13px;font-weight:800;color:var(--ink);flex:1 1 auto;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .gbar .gcar{font-size:10px;color:var(--muted);flex:0 0 auto;}
+  /* het keuzelijstje van alle gesprekken */
+  /* ⚠ `--card` en `--line` bestaan NIET in deze app — de eerste schermafdruk toonde een
+     doorschijnend lijstje over de kaarten heen. Dit menu gebruikt exact dezelfde variabelen
+     als het snelheidsmenu (`--surface` / `--hair`), dat wél goed staat. En `fixed` in plaats
+     van `absolute`: de bovenkant wordt met getBoundingClientRect gemeten, en dat zijn
+     vensterco\u00f6rdinaten — bij `absolute` hangen ze af van de eerste ouder met een positie. */
+  .gmenu{display:none;position:fixed;left:8px;right:8px;z-index:60;overflow:auto;
+    background:var(--surface);border:1px solid var(--hair);border-radius:10px;
+    box-shadow:0 10px 26px rgba(20,30,60,.30);padding:5px;}
+  .gmenu.open{display:block;}
+  .gmenu button{display:block;width:100%;text-align:left;background:none;border:0;
+    padding:7px 8px;border-radius:6px;font:inherit;font-size:13px;font-weight:700;
+    color:var(--ink);cursor:pointer;border-bottom:1px solid var(--hair);}
+  .gmenu button:last-child{border-bottom:0;}
+  .gmenu button .gm2{display:block;font-size:11px;font-weight:400;color:var(--muted);}
+  .gmenu button.on{background:var(--accent);color:#fff;}
+  .gmenu button.on .gm2{color:rgba(255,255,255,.85);}
+  /* §83.7 — de dikke scheidingsbalk tussen twee gesprekken, ALLEEN in stand 2. */
+  .gsep{margin:10px 4px 4px;padding:5px 9px;border-radius:6px;background:var(--accent);
+    color:#fff;font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;box-shadow:0 2px 6px rgba(20,30,60,.18);}
+  .gsep small{font-weight:400;opacity:.85;}
+  /* ⚠ IN DONKER GEEN VLAK. Op de eerste schermafdruk stond de balk wit-op-lichtgrijs en was
+     de titel nauwelijks te lezen: `--accent` is in het donkere thema een LICHTE kleur. Het
+     donkere thema werkt met randen in plaats van vlakken (dezelfde vaststelling als bij
+     §82.1) — dus hier ook. De donkere kleuren staan op de KLASSE `.dark` op <body>. */
+  body.dark .gsep{background:transparent;border:1px solid var(--w3);color:var(--w);
+    box-shadow:none;}
+  body.dark .gsep small{color:var(--w2);opacity:1;}
+  /* §83.8 — EEN GESPREKSKAART DIE AL IN FOCUS STOND, BLIJFT OPEN.
+     §43.3 verbergt de antwoordkolom op alles behalve de kaart in focus — een kale
+     CSS-regel op `:not(.focus)`, zonder geheugen. JHS wil dat een gespreksregel die je al
+     gezien hebt, open blijft terwijl je verder scrolt. De klasse `seen` zet §43.3 terug,
+     maar UITSLUITEND op `.gcard` (conv en gsp); woorden en zinnen blijven zoals ze waren.
+     ⚠ Deze regels moeten NA §43.3 staan (les 4: gelijk gewicht = later wint) — ze zijn
+     bovendien één klasse zwaarder, dus ze winnen langs beide kanten. */
+  .phone.play .stage .scrollcard.gcard.seen .cell.hidecol{visibility:visible;}
+  .phone.play .stage .scrollcard.gcard.seen .cell.hidecol::after{content:none;}
+  .phone.play:not(.rev) .stage .scrollcard.gcard.seen .pho{visibility:visible;}
 </style>
 </head>
 <body>
@@ -1248,9 +1311,15 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.39</span>
+    <span class="vers" id="vers">v11.40</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
+
+  <!-- v11.40 §83.2/§83.3 — de semi-statische gesprekskop: bron links, Noorse titel ernaast.
+       Een tik opent het keuzelijstje van alle gesprekken (§83.2). Ze staat ONDER de
+       bovenbalk en verdringt die dus niet (uitdrukkelijke keuze van JHS, 30/08). -->
+  <div class="gbar" id="gbar" title="tik = kies een gesprek"><span class="gsrc" id="gbsrc"></span><span class="gtl" id="gbtl"></span><span class="gcar">▾</span></div>
+  <div class="gmenu" id="gmenu"></div>
 
   <!-- v11.15 §51.3 — het speelveld: in portrait enkel #stage (ongewijzigd), in landscape
        links de groene en rechts de rode knop, met de kaart ertussen. De knoppen staan BUITEN
@@ -1285,7 +1354,7 @@
           <button class="spbtn" id="spbtn" title="snelheid" disabled>1,5</button>
           <div class="spmenu" id="spmenu"></div>
         </div>
-        <button class="shuf big" id="btnBig" title="grote letter">A</button><button class="shuf" id="btnTurn" title="beurtstand / lijst"><span class="tico"><i></i><i></i><i></i></span></button>
+        <button class="shuf big" id="btnBig" title="grote letter">A</button><!-- v11.40 §83.1 — de gesprekkenknop: uit → gesprek per gesprek → regel per regel → uit --><button class="shuf gcv" id="btnConv" title="gesprekken uit">💬</button><button class="shuf" id="btnTurn" title="beurtstand / lijst"><span class="tico"><i></i><i></i><i></i></span></button>
         <!-- v11.11 §45.5 — getekend, zwart-wit (was 🔀) -->
         <button class="shuf" id="btnShuf" title="reshuffle"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.6h3.2c1.7 0 2.7 1 3.7 2.6l3.2 5.3c1 1.6 2 2.6 3.7 2.6H21"/><path d="M3 17.1h3.2c1.7 0 2.7-1 3.7-2.6l.7-1.2"/><path d="M13.2 9.9l.7-1.2c1-1.6 2-2.6 3.7-2.6H21"/><path d="M18.7 3.7L21 6.1l-2.3 2.4"/><path d="M18.7 14.7l2.3 2.4-2.3 2.4"/></svg></button>
         <!-- v11.6 §41.1 · v11.7 §42.8/§42.9 — één effen voortgangsvulling; de streepjes zijn
@@ -1471,7 +1540,19 @@ if(!Array.isArray(SET.types)||!SET.types.length) SET.types=['woord','zin'];
    (het is een indexOf-filter), dus dit blijft langs beide kanten onschadelijk. Er wordt hier
    NIET weggeschreven: `saveSet` bestaat op dit punt nog niet (TDZ, dezelfde valkuil als bij
    `LAND` in §51.1). De regel is idempotent en draait gewoon opnieuw bij de volgende start. */
-if(SET.types.indexOf('conv')<0) SET.types.push('conv');
+/* v11.40 §83.1 — DEZE REGEL STAAT UIT, NIET GESCHRAPT (zelfde aanpak als §73.1 in §81.5).
+   Ze duwde 'conv' bij ELKE start in SET.types, waardoor de 19 gesprekskaarten altijd in het
+   deck zaten — gemeten op 30/08: deck = 1634 woord + 431 zin + 19 conv = 2084. De handover
+   dacht dat je eerst moest zoeken; dat klopte niet. Sinds §83 is `SET.types` het gebied van
+   de 💬-knop: uit = ['woord','zin'] · gesprek per gesprek = ['conv'] · regel per regel = ['gsp'].
+   TERUGROLBAAR: ja — de oude regel weer aanzetten en de opschoning hieronder schrappen. */
+/* if(SET.types.indexOf('conv')<0) SET.types.push('conv'); */
+/* v11.40 §83.1 — EENMALIGE OPSCHONING, idempotent: wie nog de gemengde stand van hierboven
+   heeft opgeslagen ('woord'+'zin'+'conv' samen), valt terug op stand 0. Er wordt niets
+   hernoemd of gewist — enkel een waarde weggehaald die geen geldige stand meer is. Rolt de
+   build terug, dan zet de regel hierboven 'conv' er gewoon weer bij. */
+if(SET.types.indexOf('conv')>=0 && SET.types.indexOf('woord')>=0)
+  SET.types=SET.types.filter(function(t){ return t!=='conv'; });
 if(!Array.isArray(SET.themes)) SET.themes=[];
 if(!Array.isArray(SET.src)) SET.src=[];
 if(!Array.isArray(SET.who)) SET.who=[];                       /* v11 §27.4 — Johanne / Emma & Lene */
@@ -1512,6 +1593,21 @@ if(!(SET.asSpeed>=0 && SET.asSpeed<9)) SET.asSpeed=5;
    sos_set_v6 (geen sleutel bijgemaakt, geen sleutel hernoemd). Standen 0/25/50/75/100 %,
    standaard 50 %. Het geldt ENKEL in de beurtstand; de autoscroll blijft exact v11.8. */
 if([0,25,50,75,100].indexOf(+SET.turnPct)<0) SET.turnPct=50;
+/* ===== v11.40 §83.6 · TWEE TIJDEN: EEN PER WOORD EN EEN PER ZIN =====
+   JHS, 30/08: «nu is het sec/kaart, dat wordt sec/kaart per woord en sec/kaart per zin (dit
+   geldt vanaf nu voor alle zinnen en gesprekken); de sec schaal blijft wel dezelfde; zet ze
+   naast elkaar; de % blijft zelfde voor allemaal».
+   `SET.asSpeed` blijft wat het was — de index in SPEEDS voor de WOORDkaarten. Erbij komt
+   `SET.asSpeedZ`, dezelfde schaal, voor zin · conv · gsp. Nieuw VELD in de BESTAANDE sleutel
+   `sos_set_v6`, precies zoals `turnPct` in §45.3.
+   ⚠ DE OVERGANG: wie de app al gebruikt, heeft één gekozen tijd. Die wordt de tijd voor
+   ALLEBEI, zodat er niets verandert tot je zelf schuift. Zonder deze regel zou iedereen na
+   de update ongevraagd op de standaardwaarde staan voor de helft van zijn kaarten.
+   TERUGROLBAAR: ja — een oudere build kent `asSpeedZ` niet, leest het veld niet en gooit het
+   ook niet weg (`Object.assign` laat onbekende velden staan). Terugrollen = de bestanden
+   terugzetten; je tijd voor woorden staat er dan nog precies zoals ze was. */
+if(typeof SET.asSpeedZ!=='number' || SET.asSpeedZ<0 || SET.asSpeedZ>8 || SET.asSpeedZ!==Math.round(SET.asSpeedZ))
+  SET.asSpeedZ=SET.asSpeed;
 /* v11.11 §45.1 — de beurtstand staat hier al aangemaakt, niet pas bij haar eigen blok verderop:
    render() en asRenderSpeedMenu() lezen `TURN` vóór dat punt in het bestand.
    TU = de klok van de lopende kaart (t0 = starttijd · el = verstreken ms, bevroren bij pauze ·
@@ -2176,11 +2272,24 @@ function missing(it){ return !hasNB(it)||!hasNL(it); }
 function textNB(it){ return it.type==='woord' ? strip(it.hnb)||it.id : (it.nb||''); }
 function textNL(it){ return it.type==='woord' ? strip(it.hnl) : (it.nl||''); }
 function labelsOf(it){ return it.labels||[]; }
-/* v11.38 §81.3 — het titelstrookje van een gespreksregel op de GEWONE kaart. */
+/* v11.38 §81.3 — het titelstrookje van een gespreksregel op de GEWONE kaart.
+   v11.40 §83.5 — JHS, 30/08: «op de plaats waar nu de titel staat, komt de volgnummer te
+   staan (bv. 7/9)». De titel staat sinds §83.2 één keer bovenaan in de semi-statische kop; ze
+   hier herhalen is precies wat hij niet meer wil. Blijft over: het volgnummer.
+   ⚠ Bij een GESPREKSKAART (type 'conv') bestaat «regel n van m» niet — de hele kaart is het
+   gesprek. Daar staat het nummer van het GESPREK zelf: «3 / 19». Dat is mijn invulling van
+   «volgnummer» voor die kaartsoort; zeg het als je er iets anders wil.
+   TERUGROLBAAR: ja — de titelregel hieronder terug in de plaats van het nummer. */
 function gspTitleHTML(it){
   const g=(typeof gspPos==='function')?gspPos(it):null;
-  return '<div class="ctitle ctl">\uD83D\uDCAC '+esc(it.titleNO||it.title||'Gesprekje')
-    +(g?'<span class="csub">'+g.n+' / '+g.tot+'</span>':'')+'</div>';
+  return '<div class="ctitle ctl gnum">'+(g?g.n+' / '+g.tot:'')+'</div>';
+}
+/* §83.5 — het volgnummer van een GESPREKSKAART binnen alle gesprekken, op volgorde van id. */
+let GCONVN=null;
+function convNo(id){
+  if(!GCONVN){ GCONVN={}; const l=ITEMS.filter(function(x){ return x.type==='conv'; });
+    l.forEach(function(x,i){ GCONVN[x.id]={n:i+1,tot:l.length}; }); }
+  return GCONVN[id]||null;
 }
 function noteOf(it){ return (it.id in NOTES) ? NOTES[it.id] : (it.cmt||it.pc||''); }
 function corrOf(it){ return CORR[it.id]||''; }
@@ -2523,6 +2632,13 @@ function bigHdr(it,i,tot){
     sp=esc(it.sp||''); tl=esc(it.titleNO||it.title||'');
     if(g) rw=g.n+' / '+g.tot;
   }
+  /* v11.40 §83.5 — JHS, 30/08: «de titel van het gesprek wordt maar 1 keer herhaald». Sinds
+     §83.2 staat ze in de semi-statische kop bovenaan, die óók in grote letter zichtbaar is.
+     De MIDDELSTE cel van deze kopregel blijft dus leeg; spreker en «n / totaal» blijven.
+     ⚠ Les 12: de regel zelf blijft altijd staan, ook nu ze in het midden leeg is — anders
+     springt de kaarthoogte tussen een woord en een gespreksregel.
+     TERUGROLBAAR: ja — deze ene regel weghalen. */
+  tl='';
   return '<div class="bhdr"><span class="bsp">'+sp+'</span>'
         +'<span class="btl">'+tl+'</span><span class="brw">'+rw+'</span></div>';
 }
@@ -2680,11 +2796,12 @@ function cardHTML(it){
   const hdr='<div class="chdr">'
     +'<div class="chalf scoreblk'+(conv?' convsc':'')+'">'+(rev?'<span class="dirmark">←</span>':'')
       +aggDot(sid)+'<span class="hist">'+dots((getScore(sid)||{}).hist)+'</span>'
-      +(conv?'<div class="ctitle ctl">💬 '+esc(it.title||'Gesprekje')
-        +(it.sub?'<span class="csub">'+esc(it.sub)+'</span>':'')+'</div>':'')+'</div>'
+      /* v11.40 §83.5 — de titel stond hier TWEE keer (NL links, Noors rechts). Ze staat nu
+         één keer, bovenaan in de semi-statische kop (§83.2); hier komt het volgnummer.
+         TERUGROLBAAR: ja — de twee titeluitdrukkingen terugzetten. */
+      +(conv?'<div class="ctitle ctl gnum">'+(function(c){ return c?(c.n+' / '+c.tot):''; })(convNo(it.id))+'</div>':'')+'</div>'
     +(conv
-      ? '<div class="chalf"><div class="ctitle">'+esc(it.titleNO||'')
-        +(it.subNO?'<span class="csub">'+esc(it.subNO)+'</span>':'')+'</div></div>'
+      ? '<div class="chalf"></div>'
       /* v11.34 §77.3 — op een GESPREKSREGEL valt het potlood weg, om exact dezelfde reden als
          bij het gesprekje in §53.1: de editor van §11 kent enkel «woord» en «zin», en de bron
          van een gespreksregel is `data/conv.js`, niet de eigen opslag. */
@@ -2715,19 +2832,43 @@ function cardHTML(it){
      +'<div class="cell col-nb '+r[2]+hb+((!rev&&bl)?' blur':'')+((!rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[1]+bmLine(r[3])+'</div>'
      +((i===0&&!conv)?lnkrows:''); }).join('');
   const note=corrOf(it)?('✏️ '+corrOf(it)):noteOf(it);
-  const cmt=note?'<div class="cmt">💡 '+esc(note)+'</div>':'';
+  /* v11.40 §83.4 — JHS, 30/08: «het weetje/comments verdwijnen onder elke rij/kaartje».
+     Bij een gesprek (conv en gsp) valt de 💡-noot dus weg. Bij woorden en zinnen blijft
+     ze onveranderd staan. De noot zelf wordt NIET gewist — enkel niet meer getekend.
+     TERUGROLBAAR: ja — `&&!conv&&it.type!=='gsp'` weghalen. */
+  const cmt=(note&&!conv&&it.type!=='gsp')?'<div class="cmt">💡 '+esc(note)+'</div>':'';
   /* v11.2 §29.6 — klein merkje zodat je ziet waarom een woord zónder score toch bij «zwak» staat */
   const nx=(isNextNow(it)&&isFresh(it))?'<span class="nx">next</span>':'';
   return '<div class="card'+(fav?' starred':'')+'" data-id="'+it.id+'">'+hdr
     +'<div class="grid">'+cells+'</div>'
     +'<div class="meta"><span class="src">'+src+'</span>'+nx+'<span class="eps">'+eps+'</span></div>'+cmt+'</div>';
 }
-function itemHTML(it){
+/* ===== v11.40 §83.7 · DE DIKKE SCHEIDINGSBALK TUSSEN TWEE GESPREKKEN =====
+   JHS, 30/08: «opeenvolgende gesprekken worden duidelijk afgescheiden van elkaar door een
+   dikke balk met de gesprekstitel», en op 30/08 bevestigd: ALLEEN in stand 2 (regel per
+   regel). In stand 1 is elke kaart al één heel gesprek, dan zou de balk dubbelop staan.
+   ⚠ DE BALK STAAT BÍNNEN DE KAART, NIET ERTUSSEN. Een los element tussen de kaarten leek
+   het meest voor de hand liggend, maar ZES plaatsen in de app knippen op de buurman
+   (`nextElementSibling`/`previousElementSibling` in de beurtstand en de autoscroll) en
+   `asRefreshCards()` neemt letterlijk `host.children` als de kaartenlijst. Een tussenliggend
+   `<div>` zou daar overal als «de volgende kaart» meetellen. Binnen de kaart verandert er
+   aan die structuur niets. (Les 8: verander je de vorm, kijk dan wie erop knipt.)
+   TERUGROLBAAR: ja — `gsep` weer op de lege string. */
+function gsepHTML(it,first){
+  if(!first || it.type!=='gsp' || gmodeCur()!==2) return '';
+  return '<div class="gsep">\uD83D\uDCAC '+esc(it.titleNO||it.title||'Gesprekje')
+    +(it.title&&it.titleNO?'<small> · '+esc(it.title)+'</small>':'')+'</div>';
+}
+function itemHTML(it,first){
   const fav=FAV.has(it.id);
   /* v11.32 §75.2 — in grote letter valt de ster weg: op de fiets is er niets te mikken. De
      swipe-wikkel blijft staan, want vegen moet blijven werken (§75.2.4). */
   const star=BIG?'':'<div class="starwrap"><span class="star'+(fav?' on':'')+'" data-fav="'+it.id+'">'+(fav?'★':'☆')+'</span></div>';
-  return '<div class="scrollcard" data-sc="'+it.id+'">'+star
+  /* v11.40 §83.8 — `gcard` merkt de gesprekskaarten (conv en gsp); `seen` staat er zodra
+     de kaart al eens in focus is geweest, zodat een herteken haar niet weer dichtdoet. */
+  const gc=(it.type==='conv'||it.type==='gsp')?' gcard':'';
+  const sn=(gc&&GSEEN.has(it.id))?' seen':'';
+  return '<div class="scrollcard'+gc+sn+'" data-sc="'+it.id+'">'+gsepHTML(it,first)+star
     +'<div class="swwrap"><div class="swtint left"><b>✓</b></div><div class="swtint right"><b>✗</b></div>'
     +(BIG?bigCardHTML(it):cardHTML(it))+'</div></div>';
 }
@@ -3045,6 +3186,7 @@ function render(){
   /* v11.25 §65.2 — buiten de woordenlijst horen de twee grote knoppen er niet te staan. */
   $('phone').classList.toggle('novoc',mode!=='voc');
   if(typeof listFocus==='function') setTimeout(listFocus,0);
+  if(typeof paintConv==='function') paintConv();   /* v11.40 §83.1/§83.2 */
   renderPin();
   /* v11.10 §44.13 — in de beurtstand moet er altijd precies één kaart in focus staan */
   if(typeof turnFocus==='function') turnFocus();
@@ -3065,7 +3207,13 @@ function renderList(){
 function appendMore(){
   const host=$('lst'); if(!host||shown>=deck.length) return;
   const start=host.children.length;
-  host.insertAdjacentHTML('beforeend', deck.slice(shown,shown+PAGE).map(itemHTML).join(''));
+  /* v11.40 §83.7 — met de ABSOLUTE plaats in het deck, anders zou de eerste regel van elk
+     blok van 50 ten onrechte een scheidingsbalk krijgen. `deckSort()` (§81.6) houdt de regels
+     van een gesprek bij elkaar, dus «de vorige heeft een andere grp» = «hier begint er een». */
+  host.insertAdjacentHTML('beforeend', deck.slice(shown,shown+PAGE).map(function(it,k){
+    const i=shown+k, pv=(i>0)?deck[i-1]:null;
+    return itemHTML(it, !pv || pv.grp!==it.grp);
+  }).join(''));
   shown=Math.min(shown+PAGE,deck.length);
   const fresh=[].slice.call(host.children,start);
   requestAnimationFrame(function(){ fresh.forEach(function(c){ c.querySelectorAll('.cell.w,.cell.f').forEach(fit); }); });
@@ -3465,7 +3613,7 @@ $('btnAdd').onclick=()=>openEditor(null);
    `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
    Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
    dat zo. */
-const APPVER='v11.39';   /* v11.38 §81 — stond sinds v11.29 op v11.29 en werd nergens gebruikt (dode code, gemeld in de handover van 30/08). Nu tenminste niet meer MISLEIDEND; wie hem ooit gebruikt, krijgt de juiste waarde. */
+const APPVER='v11.40';   /* v11.38 §81 — stond sinds v11.29 op v11.29 en werd nergens gebruikt (dode code, gemeld in de handover van 30/08). Nu tenminste niet meer MISLEIDEND; wie hem ooit gebruikt, krijgt de juiste waarde. */
 let FRESHBUSY=false;
 async function hardRefresh(){
   if(FRESHBUSY) return; FRESHBUSY=true;
@@ -3555,8 +3703,19 @@ $('fgrid').addEventListener('click',e=>{
   /* v11.5.1 §40.3 — binnen ÉÉN kolom mogen wrd en zin samen aanstaan; ze schakelen elk apart
      aan en uit. Klik je in een andere kolom, dan begint de keuze daar helemaal opnieuw. */
   if(SET.fsel && SET.fsel.s===s){
-    const ts=SET.fsel.t.slice(), i=ts.indexOf(t);
+    let ts=SET.fsel.t.slice(); const i=ts.indexOf(t);
     if(i>=0) ts.splice(i,1); else ts.push(t);
+    /* ===== v11.40 §83.1b · GSP EN WOORD/ZIN SLUITEN ELKAAR UIT =====
+       Gevonden door de proef van §83, niet door een klacht. §40.3 laat binnen ÉÉN kolom
+       meerdere rijen samen aanstaan (wrd + zin), en sinds §77.3 kon je daar «gsp» bij zetten:
+       dan stonden er 1634 woorden ÉN 171 gespreksregels tegelijk in de lijst, terwijl de
+       \uD83D\uDCAC-knop «regel per regel» toonde. JHS, 30/08 op de vraag of raster en knop in twee
+       richtingen meelopen: «als ik op gesprek in raster klik, wil ik ook geen woorden/zinnen
+       zien, nee? logisch?» — dus die combinatie hoort niet te bestaan.
+       wrd + zin samen blijft ONVERANDERD; enkel gsp staat voortaan alleen.
+       TERUGROLBAAR: ja — deze twee regels weghalen; §40.3 werkt dan weer als vóór §83. */
+    if(t==='gsp') ts=['gsp'];
+    else ts=ts.filter(function(x){ return x!=='gsp'; });
     SET.fsel = ts.length ? {s:s,t:ts} : null;
   } else SET.fsel={s:s,t:[t]};
   /* v11.5 §38.1 — in de filterbalk staat er maar ÉÉN knop tegelijk aan. setPick() zette
@@ -3569,8 +3728,10 @@ $('fgrid').addEventListener('click',e=>{
   asResetCount();
   /* v11.7 §42.3 — kies je IN DB of TO DO terwijl de autoscroll loopt, dan val je zonder
      melding terug in de lijst. asExit() doet zelf de render en zet de scroll bovenaan. */
-  if(AS.on && asBlocked()){ asExit(); return; }
-  mode='voc'; render(); $('stage').scrollTop=0; });
+  /* v11.40 §83.1 — de tweede richting: het raster stuurt, de knop volgt. */
+  gSeenClear();
+  if(AS.on && asBlocked()){ asExit(); paintConv(); return; }
+  mode='voc'; render(); $('stage').scrollTop=0; paintConv(); });
 
 /* ---- v11.10 §44.12 · open / dicht van de selectierij ---- */
 $('fpack').addEventListener('click',function(e){ e.stopPropagation(); setCompact(false); });
@@ -3644,6 +3805,9 @@ $('stage').addEventListener('scroll',function(){
      de kaarten (pointerdown, hieronder) in plaats van aan de scrollpositie: een scroll die de
      app zelf veroorzaakt telt dan niet meer mee. */
   if(mode!=='voc') return;
+  /* v11.40 §83.2 — de semi-statische titel volgt de lijst. `gbarSync()` tekent enkel opnieuw
+     als het gesprek ÉCHT verandert, dus dit kost per scrollbeeldje één vergelijking. */
+  if(typeof gbarSync==='function') gbarSync();
   const st=$('stage'); if(st.scrollTop+st.clientHeight > st.scrollHeight-700) appendMore();
   if(!topTick){ topTick=true; requestAnimationFrame(function(){ topTick=false; renderTop();
     if(typeof listFocus==='function') listFocus();   /* v11.25 §65.2 */
@@ -3899,6 +4063,12 @@ $('stage').addEventListener('click',e=>{
 /* v11.11 §45.2 — negen snelheden, 6s is de traagste en 0,8s de snelste. Dezelfde reeks
    stuurt de autoscroll én de beurtstand (één knop voor allebei). */
 const SPEEDS=[6,5,4,3,2,1.5,1.2,1,.8];                       /* §28.3 — seconden per kaart */
+/* v11.40 §83.6 — welke van de twee tijden geldt voor DEZE kaart? Woorden houden `asSpeed`;
+   zinnen, gesprekskaarten en gespreksregels volgen `asSpeedZ`. Eén functie, zodat de
+   autoscroll en de beurtstand nooit uit elkaar kunnen lopen (les 18). */
+function asSpeedIx(it){ return (it&&it.type&&it.type!=='woord')?SET.asSpeedZ:SET.asSpeed; }
+function asSpeedSec(it){ return SPEEDS[asSpeedIx(it)]||2; }
+function asItemOf(el){ return (el&&el.dataset&&el.dataset.sc)?ITEMS.find(function(x){ return x.id===el.dataset.sc; }):null; }
 /* v11.10 §44.7 — korte etiketten voor het zwevende menu en de knop zelf */
 const SPEEDSHORT=['6','5','4','3','2','1,5','1,2','1','0,8'];
 /* v11.11 §45.3 — de standen van het onthulpercentage in de beurtstand */
@@ -4042,7 +4212,8 @@ function asNewSegment(){                       /* ook na pauze, snelheidswissel 
      het einde van de lijst; daar neemt asTick() over met asRound(). */
   if(d<=0) d=(st.scrollHeight-st.clientHeight)-AS.s0;
   AS.d=Math.max(1,d);
-  AS.dur=Math.max(.05,(SPEEDS[SET.asSpeed]||2)*AS.d/asSegLen(i));
+  /* v11.40 §83.6 — de duur van DIT segment volgt de soort van DEZE kaart. */
+  AS.dur=Math.max(.05,asSpeedSec(asItemOf(AS.cards[i]))*AS.d/asSegLen(i));
 }
 function asPick(){
   if(!AS.cards.length) asRefreshCards();
@@ -4069,6 +4240,7 @@ function asSetFocus(){
   if(AS.cur) AS.cur.classList.remove('focus');
   AS.cur=best;
   if(AS.cur){ AS.cur.classList.toggle('focus',asStarted(AS.idx));
+    if(typeof gSeenMark==='function') gSeenMark(AS.cur);   /* v11.40 §83.8 */
     asFill(ITEMS.find(x=>x.id===AS.cur.dataset.sc)); }
   asDrawBar(); asNewSegment();
   if(typeof convSync==='function') convSync();   /* v11.28 §71.2 */
@@ -4358,7 +4530,10 @@ function asPaintPlay(){
   const sp=$('spbtn');
   /* v11.11 §45.2 — dezelfde knop stuurt de autoscroll én de beurtstand, dus hij is ook
      bruikbaar zodra de beurtstand aanstaat (§44.7 grijsde hem buiten de autoscroll uit). */
-  if(sp){ sp.disabled=!(AS.on||TURN); sp.textContent=SPEEDSHORT[SET.asSpeed]; }
+  /* v11.40 §83.6 — de knop toont de tijd die NU geldt: die van de kaart in focus. */
+  if(sp){ sp.disabled=!(AS.on||TURN);
+    const cur=(TURN&&typeof turnCard==='function')?turnCard():(AS.cur||null);
+    sp.textContent=SPEEDSHORT[asSpeedIx(asItemOf(cur))]; }
   asPaintRows();
 }
 /* ---- v11.10 §44.7 · het zwevende snelheidsmenu ----
@@ -4372,9 +4547,16 @@ let SPRESUME=false;
 function closeSpeed(){ const m=$('spmenu'); if(m) m.classList.remove('open'); }
 function asRenderSpeedMenu(){
   const m=$('spmenu'); if(!m) return;
-  m.innerHTML='<div class="splb">seconden per kaart</div>'
-   +'<div class="spgrid">'+SPEEDSHORT.map(function(l,i){
-       return '<button data-sp="'+i+'"'+(i===SET.asSpeed?' class="on"':'')+'>'+l+'</button>'; }).join('')+'</div>'
+  /* v11.40 §83.6 — twee reeksen NAAST ELKAAR, dezelfde negen waarden (JHS: «de sec schaal
+     blijft wel dezelfde; zet ze naast elkaar»). Het percentage eronder geldt voor allebei
+     (JHS: «de % blijft zelfde voor allemaal») en blijft dus ÉÉN blok. */
+  const col=function(lb,sw,ix){
+    return '<div class="spcol"><div class="splb">'+lb+'</div><div class="spgrid sp2">'
+      +SPEEDSHORT.map(function(l,i){
+        return '<button data-sp="'+i+'" data-sw="'+sw+'"'+(i===ix?' class="on"':'')+'>'+l+'</button>';
+      }).join('')+'</div></div>'; };
+  m.innerHTML='<div class="splb spttl">seconden per kaart</div>'
+   +'<div class="sptwo">'+col('woord','w',SET.asSpeed)+col('zin · gesprek','z',SET.asSpeedZ)+'</div>'
    +'<div class="spsep"></div>'
    +'<div class="pcblk'+(TURN?'':' dim')+'"><div class="splb">onthullen na — enkel beurtstand</div>'
    +'<div class="pcgrid">'+TPCTS.map(function(p){
@@ -4384,6 +4566,7 @@ function asRenderSpeedMenu(){
 function asRound(){
   AS.round++; AS.roundAt=performance.now();
   shuffleSeed=Math.random(); order={};   /* nieuwe schudbeurt, net als 🔀 */
+  if(typeof gSeenClear==='function') gSeenClear();   /* v11.40 §83.8 — nieuwe ronde, alles weer dicht */
   asMakeHide();                          /* wat je deze ronde geleerd hebt, valt nu weg */
   if(AS.cur) AS.cur.classList.remove('focus');
   AS.cur=null; AS.idx=0;
@@ -4585,6 +4768,155 @@ function bigToggle(){
   toastn(BIG?'Grote letter — enkel de hoofdwoorden.':'Gewone kaart.');
 }
 $('btnBig').onclick=function(){ bigToggle(); };
+
+/* ===== v11.40 §83.1 · DE 💬-KNOP: UIT → GESPREK PER GESPREK → REGEL PER REGEL → UIT =====
+   JHS, 30/08: «zeker geen aparte rij maken; maar mss in de 2 menu rows wel een chat icoon
+   knopje bijmaken. zet dat tussen big font en turning mode», en op 30/08 bevestigd:
+   «enkel gesprekken» — de twee aanstaande standen VERVANGEN woorden en zinnen, ze komen er
+   niet bij.
+     stand 0 · uit                 → SET.types=['woord','zin']
+     stand 1 · gesprek per gesprek → SET.types=['conv']  (19 kaarten, alle regels op één kaart)
+     stand 2 · regel per regel     → SET.types=['gsp']   (171 losse regels)
+   ⚠ DE TWEE RICHTINGEN (JHS, 30/08: «ze lopen in 2 richtingen mee»):
+     · de KNOP stuurt `SET.types` en wist `SET.fsel` — exact wat setPick() sinds §38.1 doet,
+       want in de filterbalk staat er maar één keuze tegelijk aan;
+     · het RASTER stuurt `SET.fsel`, en de knop LEEST die en toont de bijhorende stand.
+       Klik je gsp in het raster aan, dan filtert `buildDeck()` al op `fsel.t` en zie je
+       vanzelf geen woorden of zinnen meer — dat was er dus al; nieuw is dat de knop het toont.
+   Zo kan er nooit een stand ontstaan die de knop niet kan tonen.
+   TERUGROLBAAR: ja — de knop uit de markup, dit blok weg, en de uitgezette regel bij §83.1
+   bovenaan weer aanzetten. Er komt GEEN nieuwe opslagsleutel bij: alles leeft in `SET.types`
+   en `SET.fsel`, twee velden die er sinds v11.5 al staan. */
+const GTYPES=[['woord','zin'],['conv'],['gsp']];
+const GTITLES=['gesprekken uit','gesprek per gesprek','regel per regel'];
+function gmodeCur(){
+  /* het raster heeft voorrang, want `buildDeck()` geeft `SET.fsel` ook voorrang */
+  if(SET.fsel){ const t=SET.fsel.t||[];
+    if(t.indexOf('gsp')>=0) return 2;
+    if(t.indexOf('conv')>=0) return 1;
+    return 0; }
+  const t=SET.types||[];
+  if(t.indexOf('gsp')>=0) return 2;
+  /* ⚠ 'conv' Óók naast 'woord' betekent de GEMENGDE zoekstand (§53.1, regel 5319): dan
+     staat de knop uit, want dat is geen van de drie standen. Eerlijk, geen halve waarheid. */
+  if(t.indexOf('conv')>=0 && t.indexOf('woord')<0) return 1;
+  return 0;
+}
+function paintConv(){
+  const b=$('btnConv'); if(!b) return;
+  const m=gmodeCur();
+  b.classList.toggle('on',m>0);
+  b.classList.toggle('g2',m===2);
+  b.title=GTITLES[m];
+  gbarSync();
+}
+function gmodeSet(m){
+  SET.types=GTYPES[m].slice();
+  SET.fsel=null;                 /* §38.1 — één keuze tegelijk */
+  SET.pick=null;
+  saveSet();
+  asResetCount();                /* §42.9 — nieuwe selectie = nieuwe beurt */
+  gSeenClear();                  /* §83.8 — wat je gezien had, telt niet meer mee */
+  if(AS.on && asBlocked()){ asExit(); paintConv(); renderFgrid(); return; }
+  mode='voc'; render(); $('stage').scrollTop=0;
+  paintConv(); renderFgrid();
+}
+$('btnConv').onclick=function(){ closeGMenu(); gmodeSet((gmodeCur()+1)%3); };
+
+/* ===== v11.40 §83.2/§83.3 · DE SEMI-STATISCHE GESPREKSKOP =====
+   JHS, 30/08: «de titel van het gesprek wordt maar 1 keer herhaald en blijft bovenaan als
+   statische tekst staan (boven buiten de kaartjes)» · «de source komt links van de titel te
+   staan (dus niet per kaartje/rij)» · «op het moment dat het 1ste kaartje van een gesprek
+   zichtbaar/actief wordt tijdens het scrollen, verandert de semi-statische titel ook bovenaan».
+   De kop leest dus niet de KEUZE maar de LIJST: welk gesprek staat er bovenaan in beeld.
+   ⚠ De titel is het NOORS (JHS: «keep NO as titel») — dezelfde keuze als in §81.3.
+   ⚠ Ze staat ONDER de bovenbalk en verdringt die niet (JHS, 30/08, uitdrukkelijk).
+   TERUGROLBAAR: ja — de twee elementen uit de markup, dit blok weg. Geen opslag. */
+const GSRCLB={sos:'SoS',nils:'Nils',somme:'Somme',jan:'Jan',own:'Jan'};
+function gItem(id){ return ITEMS.find(function(x){ return x.id===id; })||null; }
+function gGrpOf(it){ return it?((it.type==='conv')?it.id:(it.type==='gsp'?it.grp:null)):null; }
+function gConvItem(grp){ return grp?gItem(grp):null; }
+/* welk gesprek staat er BOVENAAN in beeld? De eerste gesprekskaart waarvan de onderkant nog
+   onder de bovenrand van #stage ligt. Tijdens het spelen wint de kaart in focus, want dat is
+   de kaart die «actief» is (JHS' woord). */
+function gTopGrp(){
+  const host=$('lst'); if(!host) return null;
+  if(typeof AS!=='undefined' && AS.on && AS.cur && AS.cur.classList.contains('gcard'))
+    return gGrpOf(gItem(AS.cur.dataset.sc));
+  const st=$('stage'); if(!st) return null;
+  const top=st.getBoundingClientRect().top;
+  const cs=host.querySelectorAll('.scrollcard.gcard');
+  for(let i=0;i<cs.length;i++){ const r=cs[i].getBoundingClientRect();
+    if(r.bottom>top+2) return gGrpOf(gItem(cs[i].dataset.sc)); }
+  return cs.length?gGrpOf(gItem(cs[cs.length-1].dataset.sc)):null;
+}
+let GBARG=null;
+function gbarSync(){
+  const bar=$('gbar'); if(!bar) return;
+  const on=gmodeCur()>0;
+  bar.classList.toggle('on',on);
+  if(!on){ GBARG=null; closeGMenu(); return; }
+  const grp=gTopGrp();
+  if(grp===GBARG) return;                 /* niets veranderd — niet nodeloos hertekenen */
+  GBARG=grp;
+  const cv=gConvItem(grp);
+  $('gbtl').textContent = cv?(cv.titleNO||cv.title||'Gesprekje'):'Gesprekken';
+  $('gbsrc').textContent = cv?(GSRCLB[cv.src]||''):'';
+}
+/* ---- §83.2 · het keuzelijstje van alle gesprekken ---- */
+function closeGMenu(){ const m=$('gmenu'); if(m) m.classList.remove('open'); }
+function gConvList(){ return ITEMS.filter(function(x){ return x.type==='conv'; }); }
+function openGMenu(){
+  const m=$('gmenu'); if(!m) return;
+  const bar=$('gbar'), r=bar.getBoundingClientRect();
+  /* de hoogte wordt GEMETEN, niet geraden: wat er onder de kop overblijft tot boven de
+     knoppenrij. Met een vaste 62vh liep het lijstje van 19 gesprekken van het scherm af. */
+  const pin=document.querySelector('.prow');
+  const onder=pin?pin.getBoundingClientRect().top:window.innerHeight;
+  m.style.top=(r.bottom+3)+'px';
+  m.style.maxHeight=Math.max(120,Math.round(onder-r.bottom-14))+'px';
+  m.innerHTML=gConvList().map(function(c){
+    return '<button data-gjump="'+c.id+'"'+(c.id===GBARG?' class="on"':'')+'>'
+      +esc(c.titleNO||c.title||'Gesprekje')
+      +'<span class="gm2">'+esc(GSRCLB[c.src]||'')+(c.title?' · '+esc(c.title):'')+'</span></button>';
+  }).join('');
+  m.classList.add('open');
+}
+$('gbar').addEventListener('click',function(e){ e.stopPropagation();
+  const m=$('gmenu'); if(m&&m.classList.contains('open')) closeGMenu(); else openGMenu(); });
+/* ---- §83.2 · «titel klikken: gaan naar» — springen, niet filteren (JHS, 30/08) ---- */
+$('gmenu').addEventListener('click',function(e){ e.stopPropagation();
+  const b=e.target.closest('[data-gjump]'); if(!b) return;
+  closeGMenu(); gJump(b.dataset.gjump); });
+function gJump(grp){
+  /* de kaart kan nog niet getekend zijn (lazy rendering, §28.5): eerst bijladen tot ze bestaat */
+  let guard=0;
+  const want=function(){ return (deck||[]).findIndex(function(x){ return gGrpOf(x)===grp; }); };
+  const k=want(); if(k<0) return;
+  while(shown<=k && guard++<200) appendMore();
+  const host=$('lst'); if(!host) return;
+  const cs=host.querySelectorAll('.scrollcard.gcard');
+  for(let i=0;i<cs.length;i++){ const it=gItem(cs[i].dataset.sc);
+    if(gGrpOf(it)===grp){
+      /* ⚠ in GROTE letter helpt scrollIntoView() niet (valkuil uit de handover) — refreshCard
+         zet de kaart daar in beeld, en werkt ook in kleine letter. */
+      if(BIG && typeof refreshCard==='function'){ refreshCard(host.querySelector('.scrollcard .card'),cs[i].dataset.sc); }
+      else cs[i].scrollIntoView({block:'start'});
+      gbarSync(); return; }
+  }
+}
+/* ===== v11.40 §83.8 · WAT JE AL GEZIEN HEBT, BLIJFT OPEN =====
+   Zie de CSS bij §83.8. Hier staat enkel het GEHEUGEN: welke gesprekskaarten al eens in
+   focus zijn geweest. Het leeft uitsluitend in het geheugen — geen opslagsleutel, dus na
+   herladen begin je weer met een dichte lijst, net als vandaag. */
+const GSEEN=new Set();
+function gSeenClear(){ GSEEN.clear(); }
+function gSeenMark(el){
+  if(!el||!el.classList.contains('gcard')) return;
+  const id=el.dataset.sc; if(!id) return;
+  GSEEN.add(id); el.classList.add('seen');
+}
+
 /* ---- v11.10 §44.13 · v11.11 §45.1/§45.4 · DE BEURTSTAND ----
    Eén kaart, geen scrollen. v11.10 bouwde de VORM; v11.11 bouwt het GEDRAG:
    - §45.1 de stand loopt vanzelf door op dezelfde klok als de autoscroll (SPEEDS), en de
@@ -4597,7 +4929,8 @@ $('btnBig').onclick=function(){ bigToggle(); };
    rekenen. */
 /* `TURN` en `TU` staan bewust hoger in het bestand (bij de instellingen): asRenderSpeedMenu()
    en render() lezen ze al vóór dit blok, en een `let` hier zou daar een TDZ-fout geven. */
-function turnPer(){ return (SPEEDS[SET.asSpeed]||2)*1000; }
+/* v11.40 §83.6 — ook hier de tijd van de kaart die NU aan de beurt is. */
+function turnPer(){ return asSpeedSec(asItemOf(typeof turnCard==='function'?turnCard():null))*1000; }
 /* v11.29 §72.2.12 — de volle duur van de kaart die er staat: bij een gesprekje n × per. */
 function turnDur(){ const sc=(typeof turnCard==='function')?turnCard():null;
   const it=sc?BYID[sc.dataset.sc]:null;
@@ -5263,7 +5596,9 @@ $('spmenu').addEventListener('click',function(e){
     if(TURN&&AS.on&&!TU.shown&&turnPct()===0) turnReveal();
     return; }
   const b=e.target.closest('[data-sp]'); if(!b) return;
-  SET.asSpeed=+b.dataset.sp; SET.asSpeedV=SPEEDV; saveSet();  /* §38.13 — blijft over sessies heen staan */
+  /* v11.40 §83.6 — welke van de twee reeksen je aantikt, staat op de knop zelf. */
+  if(b.dataset.sw==='z') SET.asSpeedZ=+b.dataset.sp; else SET.asSpeed=+b.dataset.sp;
+  SET.asSpeedV=SPEEDV; saveSet();  /* §38.13 — blijft over sessies heen staan */
   asRenderSpeeds(); asPaintPlay(); closeSpeed();
   /* v11.11 §45.1 — in de beurtstand is er geen scroll-segment; de klok van de kaart begint
      gewoon opnieuw met de nieuwe duur. */
