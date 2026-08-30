@@ -227,7 +227,7 @@ window.WORDS = [
  W({id:'skjønne', nch:[7], ngp:207, kern:true, labels:['ep1','nils'], episodes:[], src:'sos', tlbl:'ww. · regelm.',
    phNB:'SJEUN-ne', phNL:'be-KHRÆI-pen',
    hnb:'å <b>skjønne</b>', hnl:'<b>begrijpen / snappen</b>',
-   forms:[['skjønn'+E+'er'+_,'begrijp / snapt'],['skjønn'+E+'te'+_,'begreep'],['har skjønn'+E+'t'+_,'heeft begrepen']],
+   forms:[['skjønn'+E+'er'+_,'begrijp / snapt'],['skjøn'+E+'te'+_,'begreep'],['har skjøn'+E+'t'+_,'heeft begrepen']],   /* v11.36 §79.3 — skjønnte/skjønnt was fout: de stam verliest één n (skjønne – skjønte – skjønt) */
    bm:{s:'Jeg skjønner ikke.'}, snb:'Eg skjønner ikkje.', snl:'Ik snap het niet.', cmt:'"skj" spreek je uit als "sj".'}),
  W({id:'gang', nch:[9], ngp:200, kern:false, labels:['ep1','nils'], episodes:[], src:'sos', tlbl:'zn.',
    phNB:'gang', phNL:'keer',
@@ -263,7 +263,7 @@ window.WORDS = [
  W({id:'morsom', kern:false, labels:['ep1'], episodes:[], src:'sos', tlbl:'bnw.',
    phNB:'MO-shom', phNL:'KHRAP-pikh',
    hnb:'<b>morsom</b> '+G+'♂'+_, hnl:'<b>grappig / leuk</b>',
-   forms:[['morsom'+E+'t'+_+' '+G+'φ'+_,'grappig'],['morsom'+E+'me'+_+' '+N+'mv.'+_,'grappige']],
+   forms:[['morsom'+E+'t'+_+' '+G+'φ'+_,'grappig'],['morsom'+E+'me'+_+' '+N+'mv.'+_,'grappige'],[X+'morsommere – morsomste'+_,'grappiger – grappigst']],   /* v11.36 §79.3 */
    snb:'Så morsomt!', snl:'Wat grappig!', cmt:'"rs" klinkt als "sj": MO-sjom.'}),
  W({id:'holde', nch:[13], ngp:201, kern:false, labels:['ep1','hart','nils'], episodes:[], src:'sos', tlbl:'ww. · onregelm.',
    phNB:'HOL-le', phNL:'HOU-den / VAST-hou-den',
@@ -288,7 +288,7 @@ window.WORDS = [
  W({id:'liten', kern:false, labels:['ep1','nils'], episodes:[], src:'sos', tlbl:'bnw. · onregelm.',
    phNB:'LIE-tn', phNL:'klein',
    hnb:'<b>liten</b> '+G+'♂'+_, hnl:'<b>klein</b>',
-   forms:[[X+'lita/lite'+_+' '+G+'♀/φ'+_,'klein'],[X+'små'+_+' '+N+'mv.'+_,'kleine'],[X+'mindre'+_,'kleiner'],[X+'minst'+_,'kleinst'],[X+'den lille'+_,'de kleine']],
+   forms:[[X+'lita/lite'+_+' '+G+'♀/φ'+_,'klein'],[X+'små'+_+' '+N+'mv.'+_,'kleine'],[X+'mindre'+_,'kleiner'],[X+'minst'+_,'kleinst'],[X+'den lille'+_,'de kleine'],[X+'bitteliten/bittelite'+_,'piepklein']],   /* v11.36 §79.3 */
    snb:'Et lite kyss.', snl:'Een klein kusje.', cmt:'Heel onregelmatig: liten / lita / lite / små. Bij aantallen gebruik je "færre" in plaats van "mindre". Ook: "Leiligheten er mindre enn huset." = Het appartement is kleiner dan het huis. En: "Barna er små." = De kinderen zijn klein.'}),
  W({id:'viktig', nch:[8], ngp:210, kern:false, labels:['ep1','nils'], episodes:[], src:'sos', tlbl:'bnw.',
    phNB:'VIK-ti', phNL:'be-LANK-rijk',
@@ -324,7 +324,7 @@ window.WORDS = [
  W({id:'kaffe', nch:[2], ngp:202, kern:false, labels:['ep1','keuken','nils'], episodes:[], src:'sos', tlbl:'zn.',
    phNB:'KAF-fe', phNL:'KO-fie',
    hnb:'en <b>kaffe</b> '+G+'♂'+_, hnl:'<b>koffie</b>',
-   forms:[['kaffe'+E+'n'+_,'de koffie'],['<span class="inv">/</span>'+' '+N+'geen meervoud'+_,'<span class="inv">/</span>'],['<span class="inv">/</span>','<span class="inv">/</span>'],['en kopp kaffe','een kopje koffie']],
+   forms:[['kaffe'+E+'n'+_,'de koffie'],['<span class="inv">/</span>'+' '+N+'geen meervoud'+_,'<span class="inv">/</span>'],[X+'kaffi'+_,'koffie '+N+'(Bergens · tbc)'+_],['en kopp kaffe','een kopje koffie']],   /* v11.36 §79.3 */
    snb:'Vil du ha kaffe?', snl:'Wil je koffie?',
   cmt:'Ontelbaar; “kaffer” alleen voor koffiesoorten.'}),
  W({id:'kveld', nch:[20], ngp:203, kern:false, labels:['ep1','nils'], episodes:[], src:'sos', tlbl:'zn.',
@@ -709,7 +709,7 @@ W({id:'smak', kern:false, labels:['ep2'], episodes:[2], src:'sos', tlbl:'zn.',
 W({id:'darlig', nch:[4], ngp:199, kern:false, labels:['ep2','nils'], episodes:[2], src:'sos', tlbl:'bn.',
   phNB:'DOR-li', phNL:'SLEKHT',
   hnb:'<b>dårlig</b>', hnl:'<b>slecht</b>',
-  forms:[['dårlig','slecht (onz.)'],['dårlige','slechte (mv.)'],[X+'dårligere'+_,'slechter'],[X+'verst'+_,'ergst']],
+  forms:[['dårlig','slecht (onz.)'],['dårlige','slechte (mv.)'],[X+'dårligere'+_,'slechter'],[X+'verst'+_,'ergst'],[X+'verste'+_+' '+N+'na den/det/de'+_,'ergste']],   /* v11.36 §79.3 */
   snb:'Får dårlige tenner.', snl:'Je krijgt slechte tanden.',
   cmt:'Onregelmatige trappen: dårlig – verre – verst. De e klinkt als ae. Ook: "Det er verre i dag." = Het is vandaag erger.'}),
 
@@ -769,7 +769,7 @@ W({id:'barnevakt', kern:false, labels:['ep3'], episodes:[3], src:'sos', tlbl:'zn
 W({id:'danse', kern:false, labels:['ep3'], episodes:[3], src:'sos', tlbl:'ww.',
   phNB:'DAN-se', phNL:'DAN-se',
   hnb:'å <b>danse</b>', hnl:'<b>dansen</b>',
-  forms:[['danse'+X+'r'+_,'danst'],['danset','danste'],['har danset','heeft gedanst']],
+  forms:[['danse'+X+'r'+_,'danst'],['danset','danste'],['har danset','heeft gedanst'],['dansing'+E+'en'+_,'het dansen']],   /* v11.36 §79.3 */
   snb:'Skal vi danse?', snl:'Zullen we dansen?'}),
 
 W({id:'karaoke', kern:false, labels:['ep3'], episodes:[3], src:'sos', tlbl:'zn.',
@@ -1030,7 +1030,7 @@ W({id:'sitte', nch:[1], ngp:207, kern:false, labels:['ep5','nils'], episodes:[5]
 W({id:'selv', nch:[9], ngp:206, kern:false, labels:['ep5','nils'], episodes:[5], src:'sos', tlbl:'vnw. · nadruk',
   phNB:'SEL', phNL:'ZELF',
   hnb:'<b>selv</b>', hnl:'<b>zelf</b>',
-  forms:[['selv','zelf'],['selv'+N+'følgelig'+_,'natuurlijk / vanzelf']],
+  forms:[['selv','zelf'],['selv'+N+'følgelig'+_,'natuurlijk / vanzelf'],[X+'selve'+_+' '+N+'vóór het zn.'+_,'de/het … zelf']],   /* v11.36 §79.3 */
   bm:{s:'Jeg syns det selv.'}, snb:'Eg syns det selv.', snl:'Dat vind ik zelf ook.'}),
 
 W({id:'skam', kern:false, labels:['ep5'], episodes:[5], src:'sos', tlbl:'zn.',

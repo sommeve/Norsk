@@ -1481,7 +1481,7 @@ H({id:'sm_h_vekkerklokke', prio:3, tlbl:'zn.', labels:['somme','home','morgen'],
  H({id:'sm_h_sykle', prio:3, tlbl:'ww.', labels:['somme','home','woordenschat'],
    phNB:'SUUK-le', phNL:'FIET-sen',
    hnb:'å '+X+'<b>sykle</b>'+_, hnl:'<b>fietsen</b>',
-   forms:[[X+'sykler'+_,'fietst'], [X+'syklet'+_,'fietste'], [X+'har syklet'+_,'heeft gefietst']],
+   forms:[[X+'sykler'+_,'fietst'], [X+'syklet'+_,'fietste'], [X+'har syklet'+_,'heeft gefietst'], [X+'syklingen'+_,'het fietsen']],   /* v11.36 §79.3 */
    snb:'Skal vi sykle en tur?', snl:'Zullen we gaan fietsen?',
    cmt:'In Bergen hoor je de verleden tijd op «-et»; elders zeggen ze vaak «sykla».'}),
  H({id:'sm_h_hjelm', prio:3, tlbl:'zn.', labels:['somme','home','woordenschat'],

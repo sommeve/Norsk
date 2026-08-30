@@ -14,11 +14,11 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <meta name="application-version" content="v11.17">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.35 (§78) — service-worker cache: sos-v11-42 -->
+<!-- Side om side · v11.37 (§80) — service-worker cache: sos-v11-44 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
-    --nb-bg:#d9e9fb; --nl-bg:#f7edcf; --ink:#1b2334; --nlink:#3d4658;   /* v11.35 §78.3 — het NL-woord op de grote kaart: donkergrijs, niet puur zwart */ --muted:#6b7a90; --hair:#dce3ef; --ring:#98a6bd;
+    --nb-bg:#d9e9fb; --nl-bg:#f7edcf; --ink:#1b2334; --nlink:#5b667c;   /* v11.35 §78.3 — het NL-woord op de grote kaart: donkergrijs, niet puur zwart · v11.37 §80.1 — één stap lichter (was #3d4658) */ --muted:#6b7a90; --hair:#dce3ef; --ring:#98a6bd;
     --en:#1565c0; --ex:#d61f2b; --g:#7a3fb0; --sep:#c7d0e0;
     --ok:#2e9e5b; --half:#e08b2b; --wrong:#d94b46; --accent:#2f6fd6; --purple:#6b4fd6;
     --ok-lt:#a6dcbc; --wrong-lt:#f0b0ad;   /* v11.2 §29.5 — autoscroll-swipes in de grafiek */
@@ -44,7 +44,7 @@
   .dark{
     --w:#d7d7d7; --w2:#9d9d9d; --w3:#5d5d5d;
     --pg:#000; --surface:#000;
-    --nb-bg:transparent; --nl-bg:transparent; --ink:#d7d7d7; --nlink:#c2c2c2;   /* v11.35 §78.3 */ --muted:#9d9d9d;
+    --nb-bg:transparent; --nl-bg:transparent; --ink:#d7d7d7; --nlink:#a9a9a9;   /* v11.35 §78.3 · v11.37 §80.1 — één stap zachter (was #c2c2c2); in donkere modus is «lichter grijs» = verder van het wit af, anders valt het samen met --ink */ --muted:#9d9d9d;
     --hair:#5d5d5d; --ring:#5d5d5d; --sep:#5d5d5d;
     --en:#d7d7d7; --ex:#d7d7d7; --g:#d7d7d7;
     /* de scores blijven in kleur — uitdrukkelijke keuze van JHS */
@@ -894,7 +894,10 @@
   /* v11.35 §78.4 — GEZIEN OP EEN SCHERMAFDRUK (les 1): de bokmål-klank van een gespreksregel
      plakte tegen de bokmål-zin aan («Jeg er sulten.jaei aer SUL-ten»). Op de gewone kaart staat
      `.cph` op een eigen regel (`.cell.conv .cph`); binnen de grote kaart valt die regel weg. */
-  .bsub .bm .cph{display:block;font-weight:400;opacity:.85;margin-top:1px;}
+  /* v11.37 §80.2 — de klankspelling BINNEN het bokmål-subkaartje staat lichter dan de
+     bokmål-zin zelf: opacity .85 → .58. Opacity en niet een eigen kleur, want `--bmc` verschilt
+     per thema; zo blijft het in beide modi één stap lichter dan zijn buur. */
+  .bsub .bm .cph{display:block;font-weight:400;opacity:.58;margin-top:1px;}
   /* dicht = de helft achter dezelfde waas als op de gewone kaart */
   .bhalf.bblur>*{visibility:hidden;}
   .bhalf.bblur{position:relative;}
@@ -1013,12 +1016,35 @@
      liggen zolang het open staat; `fullOpen()` zet de onderrand van het paneel er net boven. */
   .phone.fullon .pin{position:relative;z-index:41;}
 
+  /* ============ v11.37 §80.3 · ALLE KLANKSPELLING TUSSEN [ … ] ============
+     JHS, 30/08: «alle FON tekst op alle kaartjes tussen "[.....]" (maar met spatie tussen
+     haakje en eerste/laatste letter) en in italic en nooit in het vet».
+     De haakjes staan in CSS (`::before`/`::after`), niet in de gegevens: geen enkel `ph`-veld
+     is aangeraakt, zoeken blijft werken en het is met één regel terug te draaien.
+     Vier plaatsen dragen klankspelling — `.pho` (de kop van de gewone kaart), `.cph` (per
+     gesprekjesregel én binnen het bokmål-subkaartje), `.bph` (de grote kaart) en `.bmp` (de
+     bokmål-klank in de kop). ⚠ `.pho` en `.bmp` bevatten NIET alleen klank: `.pho` draagt ook
+     de `.bmp`-span en `.bmp` begint met het BM-plaatje. Daarom staat de zuivere klanktekst
+     daar in een eigen `<span class="phtx">` en niet op de ouder — anders kwam het haakje vóór
+     het BM-plaatje te staan.
+     ⚠ `.bsub` staat op font-weight 600; `.bph` erft dat. Vandaar het uitdrukkelijke 400. */
+  .phtx,.cph,.bph{font-style:italic;font-weight:400;}
+  .phtx::before,.cph::before,.bph::before{content:'[\00a0';}
+  .phtx::after,.cph::after,.bph::after{content:'\00a0]';}
+  /* een leeg vak krijgt géén haakjes */
+  .phtx:empty::before,.cph:empty::before,.bph:empty::before,
+  .phtx:empty::after,.cph:empty::after,.bph:empty::after{content:'';}
   /* v11.20 §57.5 (D1.10) — FON uit = alle klankspelling weg, in de kop (`.pho`), per
      gesprekjesregel (`.cph`) en de bokmål-klank (`.bmp`, uitdrukkelijk bevestigd door JHS). */
   /* v11.35 §78.5 — `.bph` erbij: de klankspelling op de GROTE kaart stond in een gewone
      `.bsub` en bleef dus staan als FON uit stond. JHS zag daardoor «de FON knop doet niks».
      Op de gewone kaart werkte hij wél — het was enkel de grote kaart. */
-  .phone.nofon .pho,.phone.nofon .cph,.phone.nofon .bmp,.phone.nofon .bph{display:none!important;}
+  /* v11.37 §80.4 — `.phtx` erbij. GEVONDEN BIJ HET BOUWEN VAN §80.3, niet gemeld: de
+     klankspelling in de SYNONIEM-/AFLEIDINGSrij (§72.4) stond niet in deze lijst en bleef dus
+     staan als FON uit was. Vóór §80.3 viel dat nauwelijks op — een grijze `<small>`; met de
+     haakjes eromheen is het meteen zichtbaar. Dezelfde fout als §78.5, één rij verderop. */
+  .phone.nofon .pho,.phone.nofon .cph,.phone.nofon .bmp,.phone.nofon .bph,
+  .phone.nofon .phtx{display:none!important;}
   /* v11.28 §71.3 — de marge hoort op de WRAPPER, niet op het raster: anders rekt het
      balkje ernaast 6 px verder uit dan de rij waar het bij hoort. */
   .fullsel #fwrap,.fullsel #swrap{margin-bottom:6px;}
@@ -1163,7 +1189,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.35</span>
+    <span class="vers" id="vers">v11.37</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -2073,7 +2099,7 @@ let ITEMS=[], SOSALL=[];
 function buildPool(){
   const eps=[].concat(window.EP01||[],window.EP02||[],window.EP03||[]);
   SOSALL=eps;
-  ITEMS=[...WORDS,...SENTENCES,...eps,...(window.NILS||[]),...(window.SOMME||[]),...(window.CONV||[]),...(window.GSP||[]),...(window.HOME||[]),...(window.TID||[]),...USER].filter(x=>!x.deleted&&!DUPOF[x.id]);   /* v11.12 §47 — DUPOF houdt de dubbels blijvend buiten de poel · v11.16 §53.1 — CONV = de gesprekjes */
+  ITEMS=[...WORDS,...SENTENCES,...eps,...(window.NILS||[]),...(window.SOMME||[]),...(window.CONV||[]),...(window.GWORDS||[]),...(window.GSP||[]),...(window.HOME||[]),...(window.TID||[]),...USER].filter(x=>!x.deleted&&!DUPOF[x.id]);   /* v11.12 §47 — DUPOF houdt de dubbels blijvend buiten de poel · v11.16 §53.1 — CONV = de gesprekjes · v11.36 §79 — GWORDS = de 37 woordkaarten uit de gesprekjes */
   /* v11.24 §63 — een id→item kaart. `needsMet()` zoekt per zin meerdere woorden op; met
      `ITEMS.find()` was dat 1.991 × per woord × per zin bij élke opbouw van de dagset. */
   BYID={}; for(let i=0;i<ITEMS.length;i++) BYID[ITEMS[i].id]=ITEMS[i];
@@ -2510,7 +2536,7 @@ function linkRowsHTML(it,rev,blur){
     return '<div class="lnk'+(afl?' afl':'')+(first?'':' second')+'" data-lnk="'+o.id+'" data-kind="'+o.kind+'">'
       +'<span class="lnkico" title="ontkoppelen">'+(first?(afl?AFLICO:LNKICO):'')+'</span>'
       +'<span class="c'+((rev&&blur)?' blur':'')+'">'+nl+'<small>'+(afl?'afleiding':'synoniem')+'</small></span>'
-      +'<span class="c'+((!rev&&blur)?' blur':'')+'">'+nb+(ph?'<small>'+esc(ph)+'</small>':'')+'</span>'
+      +'<span class="c'+((!rev&&blur)?' blur':'')+'">'+nb+(ph?'<small class="phtx">'+esc(ph)+'</small>':'')+'</span>'   /* v11.37 §80.3 */
       +'</div>';
   }).join('');
 }
@@ -2521,7 +2547,11 @@ function cardHTML(it){
   const blur = SET.showAns ? hidden.has(it.id) : !revealed.has(it.id);
   const fav=FAV.has(it.id);
   const fl=new Set(FLUO[it.id]||[]);
-  const ph=(it.phNB||it.ph||'')+((SET.showBM&&it.bm&&it.bm.ph)?'<span class="bmp"><i>BM</i>'+it.bm.ph+'</span>':'');
+  /* v11.37 §80.3 — de zuivere klanktekst krijgt een eigen `.phtx`, zodat de haakjes ERROND
+     komen en niet rond het BM-plaatje. Leeg blijft leeg: geen span, dus geen haakjes. */
+  const phn=(it.phNB||it.ph||'');
+  const ph=(phn?'<span class="phtx">'+phn+'</span>':'')
+          +((SET.showBM&&it.bm&&it.bm.ph)?'<span class="bmp"><i>BM</i><span class="phtx">'+it.bm.ph+'</span></span>':'');
   const src = isSommeSrc(it)?'Somme':(it.src==='sos'?'SoS':(isNilsSrc(it)&&it.src==='nils'?'Nils':(isSos(it)?'SoS':(isNilsSrc(it)?'Nils':'Jan'))));
   let eps=(it.episodes&&it.episodes.length)?('S1E'+it.episodes.join(' · S1E')):'';
   if(it.nch&&it.nch.length){ const t='📘 '+it.nch.map(c=>'N1K'+c).join(' · ');
@@ -2735,7 +2765,11 @@ function needsLeft(it){ return needsOf(it).filter(function(id){ const w=BYID[id]
    valt ze terug op de rest van «Later». Ze wordt dus NIET aangevuld tot N wanneer next kleiner
    is dan N — dat is de bedoeling: de ☀-knop is dan gewoon korter, en JHS vult next zelf aan. */
 function newPool(){
-  const p=ITEMS.filter(x=>isFresh(x)&&(x.type==='woord'||x.who==='home'));
+  /* v11.36 §79.2 — DE ☀-POORT GAAT OPEN VOOR GESPREKSREGELS. §77.5 hield ze bewust buiten
+     omdat geen enkele regel een `needs`-lijst droeg; ze zouden dan ALLEMAAL tegelijk door de
+     poort komen. Sinds §79.1 draagt elke regel haar `needs` (gemiddeld 5,7 woordkaarten), dus
+     een regel komt er pas door als je haar woorden kent — precies de afspraak van §63. */
+  const p=ITEMS.filter(x=>isFresh(x)&&(x.type==='woord'||x.who==='home'||x.type==='gsp'));
   if(SET.needs===false) return p;                 /* v11.24 §63 — poort uit */
   const g=p.filter(needsMet);
   return g.length?g:p;                            /* nooit een lege dagset door deze regel */
