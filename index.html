@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <meta name="application-version" content="v11.17">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.40 (§83) — service-worker cache: sos-v11-47 -->
+<!-- Side om side · v11.41 (§84) — service-worker cache: sos-v11-48 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -222,6 +222,16 @@
   .phone:not(.land):not(.novoc) .thinpz.pale{opacity:.40;box-shadow:none;}
   .phone:not(.land):not(.novoc) .thinpz.down{filter:brightness(.82);}
   .phone.fin .thinpz{display:none!important;}
+  /* ===== v11.41 §84.6 · GEEN SCOREKNOPPEN IN DE LEESMODUS =====
+     JHS, 30/08: «in deze modus zijn er geen score buttons, maar ik kan een heel gesprek wel
+     score swipen». Dezelfde weg als `.novoc` (§65.2) en `.fin`: één klasse op #phone, geen
+     tweede machinerie. `.swwrap`/`.swtint` blijven ONGEMOEID — vegen blijft dus scoren.
+     ⚠ !important, want de poort van §65/§75.1 is `.phone:not(.land):not(.novoc)` (0,4,0) en
+     die weegt zwaarder dan `.phone.gread .bigsw` (0,3,0). Les 4: gelijk staat = later wint,
+     maar hier staan ze NIET gelijk.
+     TERUGROLBAAR: ja — deze twee regels weg en `greadSync()` weg. */
+  .phone.gread .bigsw{display:none!important;}
+  .phone.gread .thinpz{display:none!important;}
   /* v11.30 §73.1 — #btnTurn IS TERUG. v11.29 §72.1.1 verborg de knop met
      `#btnTurn{display:none!important}`; die regel is geschrapt, want er zijn weer twee
      standen om tussen te schakelen. TERUGROLBAAR: ja — de regel weer bijzetten.
@@ -1311,7 +1321,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.40</span>
+    <span class="vers" id="vers">v11.41</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -2855,6 +2865,20 @@ function cardHTML(it){
    aan die structuur niets. (Les 8: verander je de vorm, kijk dan wie erop knipt.)
    TERUGROLBAAR: ja — `gsep` weer op de lege string. */
 function gsepHTML(it,first){
+  /* v11.41 §84.3 — JHS, 30/08: «een duidelijke titelbalk tussen de gesprekken (en bovenaan
+     het 1ste gesprek — ja, ik weet dat dat ff dubbel is met de absolute boventitel)».
+     In stand 1 is ELKE kaart precies één heel gesprek, dus de balk hoort er ALTIJD bij, ook
+     bij de eerste. `first` speelt daar geen rol — en dat is geen luiheid: een `conv`-item
+     draagt géén `grp`, dus `pv.grp!==it.grp` (appendMore) is bij twee opeenvolgende
+     gesprekskaarten `undefined!==undefined` = false. Zou ik op `first` steunen, dan kreeg
+     enkel de allereerste kaart een balk. Nagemeten, niet geraden.
+     De dubbeling met de semi-statische kop van §83.2 is door JHS uitdrukkelijk aanvaard.
+     ⚠ De balk blijft BÍNNEN de kaart (§83.7, les 8): zes plaatsen knippen op
+     `nextElementSibling` en `asRefreshCards()` neemt `host.children`.
+     TERUGROLBAAR: ja — de conv-tak hieronder weg. */
+  if(it.type==='conv' && gmodeCur()===1)
+    return '<div class="gsep">\uD83D\uDCAC '+esc(it.titleNO||it.title||'Gesprekje')
+      +(it.title&&it.titleNO?'<small> · '+esc(it.title)+'</small>':'')+'</div>';
   if(!first || it.type!=='gsp' || gmodeCur()!==2) return '';
   return '<div class="gsep">\uD83D\uDCAC '+esc(it.titleNO||it.title||'Gesprekje')
     +(it.title&&it.titleNO?'<small> · '+esc(it.title)+'</small>':'')+'</div>';
@@ -3589,8 +3613,15 @@ $('subrows').addEventListener('click',e=>{
   if(e.target.closest('[data-songs]')){ setMode(mode==='songs'?'voc':'songs'); return; }
   const bw=e.target.closest('[data-w]');
   if(bw){ const v=bw.dataset.w, st=new Set(SET.who||[]);
+    /* v11.41 §84.1/§84.2 — JHS, 30/08: «als ik op gesprekken selecteer in de categorie
+       lijst, preselect dan al standaard de volgende modus». Geen nieuwe knop: deze bestaande
+       chip krijgt er een voorinstelling bij, en enkel bij het AANzetten. Bij het UITzetten
+       gebeurt er niets extra's — uitdrukkelijke keuze van JHS op 30/08. */
+    const aan=!st.has(v);
     st.has(v)?st.delete(v):st.add(v);
-    SET.who=[...st]; saveSet(); mode='voc'; render(); } });
+    SET.who=[...st]; saveSet();
+    if(v==='conv'&&aan){ gReadPreset(); return; }
+    mode='voc'; render(); } });
 $('btnAdd').onclick=()=>openEditor(null);
 /* v11.3 §32.5 — instellingen; voorlopig één rij, bedoeld om verder aan te groeien */
 /* ============ v11.19 §56.4 · «NIEUWE VERSIE OPHALEN» ============
@@ -3613,7 +3644,7 @@ $('btnAdd').onclick=()=>openEditor(null);
    `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
    Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
    dat zo. */
-const APPVER='v11.40';   /* v11.38 §81 — stond sinds v11.29 op v11.29 en werd nergens gebruikt (dode code, gemeld in de handover van 30/08). Nu tenminste niet meer MISLEIDEND; wie hem ooit gebruikt, krijgt de juiste waarde. */
+const APPVER='v11.41';   /* v11.38 §81 — stond sinds v11.29 op v11.29 en werd nergens gebruikt (dode code, gemeld in de handover van 30/08). Nu tenminste niet meer MISLEIDEND; wie hem ooit gebruikt, krijgt de juiste waarde. */
 let FRESHBUSY=false;
 async function hardRefresh(){
   if(FRESHBUSY) return; FRESHBUSY=true;
@@ -3988,14 +4019,31 @@ $('stage').addEventListener('pointerup',e=>{
     /* §72.1.6 — fluo enkel als er NIET gespeeld wordt, en enkel op de kolom die dicht stond
        (de antwoordkolom), precies zoals vandaag. Een rij die nog achter de waas zit, kan je
        niet markeren. */
-    const cell=d.tgt.closest&&d.tgt.closest('.cell.hidecol');
-    if(cell && !cell.classList.contains('blur')){
-      const id=sc.dataset.sc, i=+cell.dataset.row, arr=new Set(FLUO[id]||[]);
-      arr.has(i)?arr.delete(i):arr.add(i);
-      FLUO[id]=[...arr]; if(!FLUO[id].length) delete FLUO[id];
-      saveFluo(); cell.classList.toggle('fluo');
-    }
+    fluoToggle(d.tgt.closest&&d.tgt.closest('.cell.hidecol'));   /* v11.41 §84.4b — één plaats */
     return;
+  }
+  /* ===== v11.41 §84.4/§84.5 · IN DE LEESMODUS ONTHULT EEN TIK LINKS RIJ PER RIJ =====
+     Deze tak staat VÓÓR §81.5 (fluo) en vóór de gewone lijst-tik, want in de leesmodus is
+     dit wat de LINKERhelft moet doen. De RECHTERhelft valt gewoon door naar wat er stond.
+     ⚠ Een tik op de LINKERbovenhoek van een gesprekskaart raakt `.scoreblk`; die tak staat
+     hierboven en vangt hem af — bestaande valkuil, ongewijzigd gelaten.
+     ⚠ De links/rechts-grens is het midden van het TOESTEL, exact zoals in §72.1.
+     TERUGROLBAAR: ja — dit blok weg. */
+  if(greadOn() && !held){
+    const gsc=d.tgt&&d.tgt.closest&&d.tgt.closest('.scrollcard.gcard');
+    const git=gsc?BYID[gsc.dataset.sc]:null;
+    if(gsc&&git&&git.type==='conv'){
+      const gbx=$('phone').getBoundingClientRect();
+      if(d.x0<gbx.left+gbx.width/2){ gReadStep(gsc); return; }
+      /* §84.4b — DE RECHTERHELFT MARKEERT, ZE ONTHULT NIET (JHS, 30/08, na de meting: de
+         oude lijstregel «wat dicht staat, gaat open» zette hier het HELE gesprek in één
+         keer open, en dat maakte het rij-per-rij lezen met één misgetikte tik ongedaan).
+         Dezelfde taal als de beurtstand (§72.1): links onthult, rechts markeert. De tak
+         eindigt hier ALTIJD, ook als er niets te markeren viel — anders valt hij alsnog
+         door naar «alles open». */
+      fluoToggle(d.tgt.closest&&d.tgt.closest('.cell.hidecol'));
+      return;
+    }
   }
   /* ===== v11.38 §81.5 · EEN TIK IN DE SCROLLSTAND PAUZEERT NIET MEER, MAAR MARKEERT =====
      Hier stond `if(AS.on){ if(!held) asToggle(); return; }` — élke tik op de kaartenzone
@@ -4010,13 +4058,7 @@ $('stage').addEventListener('pointerup',e=>{
      TERUGROLBAAR: ja — dit blok terug op de ene oude regel. */
   if(AS.on){
     if(held) return;
-    const cel=d.tgt&&d.tgt.closest&&d.tgt.closest('.cell.hidecol');
-    if(!cel||cel.classList.contains('blur')) return;
-    const cd=cel.closest('.card'); if(!cd) return;
-    const cid=cd.dataset.id, ci=+cel.dataset.row, carr=new Set(FLUO[cid]||[]);
-    carr.has(ci)?carr.delete(ci):carr.add(ci);
-    FLUO[cid]=[...carr]; if(!FLUO[cid].length) delete FLUO[cid];
-    saveFluo(); cel.classList.toggle('fluo');
+    fluoToggle(d.tgt&&d.tgt.closest&&d.tgt.closest('.cell.hidecol'));   /* v11.41 §84.4b */
     return;
   }
   subOpen.clear();
@@ -4809,6 +4851,7 @@ function paintConv(){
   b.classList.toggle('g2',m===2);
   b.title=GTITLES[m];
   gbarSync();
+  greadSync();                     /* v11.41 §84.6 */
 }
 function gmodeSet(m){
   SET.types=GTYPES[m].slice();
@@ -4915,6 +4958,107 @@ function gSeenMark(el){
   if(!el||!el.classList.contains('gcard')) return;
   const id=el.dataset.sc; if(!id) return;
   GSEEN.add(id); el.classList.add('seen');
+}
+
+/* ===================== v11.41 §84 · DE LEESMODUS VOOR GESPREKKEN =====================
+   Één samenhangende modus, geen losse punten. Spec: REQUIREMENTS.md §84.1 t/m §84.8.
+   DE STAND: gesprek per gesprek (§83.1 stand 1) + de SCROLLSTAND + BM uit + FON uit.
+   `greadOn()` is de ééne waarheid over «staan we in de leesmodus» (les 18) — de CSS-klasse
+   `gread` en de tik-afhandeling lezen allebei die functie, nooit hun eigen voorwaarden.
+   ⚠ In LANDSCAPE bestaat de scrollstand niet (§51), dus daar staat de leesmodus altijd uit.
+   TERUGROLBAAR: ja — dit blok weg, de twee CSS-regels van §84.6 weg, de conv-tak in
+   `gsepHTML()` weg, het §84-blok in de tik-afhandeling weg en de chip-tak terug op haar
+   ene regel. Er komt GEEN opslagsleutel en GEEN veld bij: alles leeft in `SET.types`,
+   `SET.turn`, `SET.showBM` en `SET.showPH`, vier velden die er al stonden. */
+/* v11.41 §84.4b — ÉÉN PLAATS VOOR «MARKEER DEZE RIJ FLUO» (les 18: twee plaatsen die
+   hetzelfde moeten weten, lopen vroeg of laat uit elkaar). De beurtstand (§72.1.6), de
+   scrollstand (§81.5) en de leesmodus (§84.4b) deden/doen exact hetzelfde; het stond op twee
+   plaatsen uitgeschreven, nu op één. Gedrag ongewijzigd: enkel op de ANTWOORDkolom, en enkel
+   als ze NIET meer achter de waas zit — wat je niet ziet, kan je niet markeren.
+   Geeft true als er iets gemarkeerd of ontmarkeerd is. */
+function fluoToggle(cell){
+  if(!cell||cell.classList.contains('blur')) return false;
+  const cd=cell.closest('.card'); if(!cd) return false;
+  const id=cd.dataset.id, i=+cell.dataset.row, arr=new Set(FLUO[id]||[]);
+  arr.has(i)?arr.delete(i):arr.add(i);
+  FLUO[id]=[...arr]; if(!FLUO[id].length) delete FLUO[id];
+  saveFluo(); cell.classList.toggle('fluo'); return true;
+}
+function greadOn(){
+  return (typeof mode==='undefined'||mode==='voc') && gmodeCur()===1 && !TURN && !LAND;
+}
+function greadSync(){
+  const p=$('phone'); if(!p) return;
+  p.classList.toggle('gread',greadOn());
+}
+/* §84.2 — DE VOORINSTELLING BIJ EEN TIK OP DE CHIP 💬 Gesprekjes.
+   Vier standen in één keer. Het is een VOORINSTELLING, geen dwangbuis: ze wordt gezet bij
+   de TIK, niet bij elke render, dus elke knop blijft daarna met de hand verzetbaar.
+   ⚠ JHS koos op 30/08 uitdrukkelijk: een TWEEDE tik (die de bronkeuze weer uitzet) draait
+   NIETS terug — de knoppen blijven staan zoals ze staan. Daarom staat er hier geen geheugen. */
+function gReadPreset(){
+  /* de app start in de BEURTSTAND (les 20) — die moet hier uitdrukkelijk uit. `turnToggle()`
+     is de ééne plaats die dat correct doet (focus, klok, autoscroll, landschap). */
+  if(TURN && !LAND && typeof turnToggle==='function') turnToggle();
+  SET.showBM=false; SET.showPH=false;   /* §57.5 / §80.4 */
+  saveSet();
+  if(gmodeCur()!==1){ gmodeSet(1); }    /* gmodeSet() rendert zelf */
+  else { mode='voc'; render(); $('stage').scrollTop=0; }
+  greadSync();
+}
+/* §84.4 — ÉÉN TIK LINKS = ÉÉN RIJ ERBIJ, EN DE LIJST SCHUIFT MEE.
+   ⚠ `CROW`, `convOpen()` en `convRevealTo()` (§72.2.11) doen het onthullen al, maar werden
+   tot nu toe UITSLUITEND vanuit de beurtstand bereikt. Hier komt er dus geen tweede
+   onthulmachine bij — enkel een tweede WEG ernaartoe. `convRevealTo()` roept `turnFit()`
+   aan; die zet buiten de beurtstand alle transforms leeg en stopt (nagekeken), dus in de
+   scrollstand is dat een lege bewerking. */
+const GREADPAD=8;
+function gReadStep(sc){
+  if(!sc) return false;
+  const id=sc.dataset.sc, it=BYID[id];
+  if(!it||it.type!=='conv') return false;
+  const n=convRows(it)||0, k=convOpen(id);
+  /* niets meer te onthullen (de kaart ligt helemaal open) → §84.5: naar het volgende gesprek */
+  if(!turnIsHidden(sc) || k>=n){ return gReadNext(sc); }
+  if(!convRevealTo(sc,k+1)){ return gReadNext(sc); }
+  gSeenMark(sc);                       /* §83.8 — wat open is, blijft open */
+  gReadScroll(sc,k);                   /* de NIEUWE rij heeft index k (0-based) */
+  return true;
+}
+/* DE SCROLREGEL, letterlijk uit §84.4: «de actieve rij wordt unhidet, maar de zin/rij boven
+   de actieve rij blijft wel zichtbaar (dus niet autodoorscrollen tot de actieve rij helemaal
+   bovenaan staat)». Dus: onderkant van de nieuwe rij net binnen beeld, en niet verder
+   doorschuiven dan de bovenkant van de VORIGE rij toelaat. Met rechthoeken, niet met vaste
+   coördinaten (les 14: een lijst die scrolt meet je niet met vaste getallen). */
+function gReadScroll(sc,rowIdx){
+  const st=$('stage'); if(!st||!sc) return;
+  const nw=sc.querySelector('.cell[data-row="'+rowIdx+'"]'); if(!nw) return;
+  const pv=(rowIdx>0)?sc.querySelector('.cell[data-row="'+(rowIdx-1)+'"]'):null;
+  const sr=st.getBoundingClientRect(), rn=nw.getBoundingClientRect();
+  let d=rn.bottom+GREADPAD-sr.bottom;      /* > 0 → de nieuwe rij hangt onder de onderrand */
+  if(d<=0) return;                          /* ze staat al in beeld — niet nodeloos schuiven */
+  if(pv){
+    const room=pv.getBoundingClientRect().top-(sr.top+GREADPAD);
+    /* zoveel mogen we hoogstens opschuiven zónder de vorige rij uit beeld te duwen. Past het
+       paar niet samen in het venster (room<=0), dan wint de nieuwe rij — anders zou ze
+       nooit in beeld komen. */
+    if(room>0) d=Math.min(d,room);
+  }
+  st.scrollTop+=d;
+  if(typeof gbarSync==='function') gbarSync();
+}
+/* §84.5 — op de laatste rij springt de volgende tik naar het VOLGENDE gesprek.
+   `gJump()` (§83.2) doet dit al voor het keuzelijstje, inclusief `appendMore()` bij lazy
+   rendering en de uitzondering voor grote letter. Hergebruikt, geen tweede versie (les 18). */
+function gReadNext(sc){
+  const id=sc.dataset.sc, here=gGrpOf(BYID[id]);
+  const i=(deck||[]).findIndex(function(x){ return x.id===id; });
+  if(i<0) return false;
+  for(let j=i+1;j<deck.length;j++){
+    const g=gGrpOf(deck[j]);
+    if(g && g!==here){ gJump(g); return true; }
+  }
+  return false;                             /* het laatste gesprek — blijf staan */
 }
 
 /* ---- v11.10 §44.13 · v11.11 §45.1/§45.4 · DE BEURTSTAND ----
@@ -5331,7 +5475,7 @@ function turnToggle(){
     if(AS.on && asBlocked()){ asExit(); }
     else if(AS.on){ asApplyLead(); asRefreshCards(); asSetFocus(); asNewSegment(); }
   }
-  asRenderSpeeds(); asPaintPlay(); asDrawBar(); landPaint();
+  asRenderSpeeds(); asPaintPlay(); asDrawBar(); landPaint(); greadSync();   /* v11.41 §84.6 */
   toastn(TURN?'Beurtstand — één kaart, geen scrollen.':'Lijst.');
 }
 
