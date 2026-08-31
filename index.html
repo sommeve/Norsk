@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fd0'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
 <meta name="application-version" content="v11.17">
 <title>Side om side — Noors leren</title>
-<!-- Side om side · v11.41 (§84) — service-worker cache: sos-v11-48 -->
+<!-- Side om side · v11.42 (§85) — service-worker cache: sos-v11-49 -->
 <style>
   :root{
     --pg:#eef1f7; --surface:#ffffff;
@@ -243,6 +243,21 @@
   .cell.blur::after{content:'';position:absolute;inset:0;visibility:visible;
                     background:inherit;border-radius:4px;}
   .cell.fluo{background:var(--fluo);color:#111;box-shadow:0 0 0 1px var(--fluobd) inset;}
+  /* ===== v11.42 §85.3 · HET KADER ROND DE ACTIEVE RIJ =====
+     JHS, 30/08: «maak sowieso visueel duidelijk wat de actieve focus rij is», en op de vraag
+     hóé: «volledig kader rond de rij».
+     ⚠ `outline`, GEEN `border` en GEEN `box-shadow`.
+     · een border zou 2 px breed worden en de tekst verschuiven — de positietest van §45 zou
+       daarop rood vallen. `outline` neemt geen plaats in.
+     · `box-shadow` is al bezet: `.cell.gr-*` (§77.2) tekent er het toestandsstreepje mee en
+       `.cell.fluo` het fluokader. Een tweede box-shadow zou die overschrijven, en dan verliest
+       de actieve rij juist haar kleurstreepje.
+     `outline-offset:-2px` legt het kader BINNEN de cel, zodat het niet over de buurcel valt.
+     De twee helften krijgen elk hun kader: er zit 3 px `gap` tussen de kolommen (`.grid`), dus
+     één doorlopend kader rond de hele rij bestaat niet zonder een extra element — en dat zou
+     de structuur van de lijst veranderen (les 8).
+     TERUGROLBAAR: ja — deze regel weg. */
+  .cell.rowact{outline:2px solid var(--accent);outline-offset:-2px;}
   .en{color:var(--en);font-weight:700;} .ex{color:var(--ex);font-weight:700;} .g{color:var(--g);font-weight:700;}
   /* v11.20 §57.6 (D1.11) — JHS: «de voorbeeldzinnen: zet die in zelfde fontsize als de andere
      niet-hoofdlijnen». Dat is de maat van `.cell.f`, dus 13,5 px in plaats van 11,5 px. */
@@ -1321,7 +1336,7 @@
     <!-- v11.6 §41.16 — ◀▶ (links vegen = juist, rechts = fout) verhuist naar de bovenbalk -->
     <!-- v11.7 §42.6 — zichtbaar versienummer, links van ◀▶ -->
     <!-- v11.11 §45.6 — gewone tekst: de terugrolknop van §44.2 is volledig verwijderd -->
-    <span class="vers" id="vers">v11.41</span>
+    <span class="vers" id="vers">v11.42</span>
     <div class="topicons"><span class="swin" id="swin" title="links vegen = juist · rechts = fout"><span class="gg">◀</span><span class="rr">▶</span></span><button id="dk" title="dag / nacht">🌙</button></div>
   </div>
 
@@ -1668,6 +1683,10 @@ function gspTarget(id){
   const it=BYID[id]; if(!it||it.type!=='conv') return id;
   const L=it.lines||[]; if(!L.length) return id;
   let i=Math.max(0,convOpen(id)-1);
+  /* v11.42 §85.4 — in de LEESMODUS scoort de veeg de ACTIEVE rij (JHS: «ik kan de actieve rij
+     wel score swipen»). Buiten die modus verandert er niets: dan is het nog altijd de rij die
+     als laatste openging. `GACT` bestaat enkel in de leesmodus. */
+  if(typeof greadOn==='function' && greadOn() && GACT[id]!=null) i=GACT[id];
   if(i>L.length-1) i=L.length-1;
   let j=i; while(j>=0 && !gspRow(id,j)) j--;           /* terug tot een echte regel */
   if(j<0){ j=i; while(j<L.length && !gspRow(id,j)) j++; }
@@ -2838,8 +2857,12 @@ function cardHTML(it){
        Met `box-shadow: inset` (CSS), dus zonder één pixel verschuiving: de positietest van
        §45 blijft gelden. */
     const gr=conv?gspRowCls(it.id,i):'';
-    return '<div class="cell col-nl '+r[2]+gr+hl+((rev&&bl)?' blur':'')+((rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[0]+'</div>'
-     +'<div class="cell col-nb '+r[2]+hb+((!rev&&bl)?' blur':'')+((!rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[1]+bmLine(r[3])+'</div>'
+    /* v11.42 §85.3 — het kader rond de ACTIEVE rij. Wordt hier meegetekend zodat een
+       herteken (na elke onthulling) het kader niet kwijtraakt; `greadPaintAct()` verzet het
+       live tijdens het scrollen. Allebei lezen ze `GACT` — één waarheid, twee tekenaars. */
+    const ra=(conv && typeof greadOn==='function' && greadOn() && GACT[it.id]===i)?' rowact':'';
+    return '<div class="cell col-nl '+r[2]+gr+hl+ra+((rev&&bl)?' blur':'')+((rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[0]+'</div>'
+     +'<div class="cell col-nb '+r[2]+hb+ra+((!rev&&bl)?' blur':'')+((!rev&&fl.has(i))?' fluo':'')+'" data-row="'+i+'">'+r[1]+bmLine(r[3])+'</div>'
      +((i===0&&!conv)?lnkrows:''); }).join('');
   const note=corrOf(it)?('✏️ '+corrOf(it)):noteOf(it);
   /* v11.40 §83.4 — JHS, 30/08: «het weetje/comments verdwijnen onder elke rij/kaartje».
@@ -3644,7 +3667,7 @@ $('btnAdd').onclick=()=>openEditor(null);
    `localStorage` zijn twee volledig gescheiden opslagplaatsen. En de scores staan bovendien in
    Supabase. Deze knop mag dus nooit «scores wissen» gaan doen; wie hem later uitbreidt, houdt
    dat zo. */
-const APPVER='v11.41';   /* v11.38 §81 — stond sinds v11.29 op v11.29 en werd nergens gebruikt (dode code, gemeld in de handover van 30/08). Nu tenminste niet meer MISLEIDEND; wie hem ooit gebruikt, krijgt de juiste waarde. */
+const APPVER='v11.42';   /* v11.38 §81 — stond sinds v11.29 op v11.29 en werd nergens gebruikt (dode code, gemeld in de handover van 30/08). Nu tenminste niet meer MISLEIDEND; wie hem ooit gebruikt, krijgt de juiste waarde. */
 let FRESHBUSY=false;
 async function hardRefresh(){
   if(FRESHBUSY) return; FRESHBUSY=true;
@@ -3845,6 +3868,7 @@ $('stage').addEventListener('scroll',function(){
     /* v11.6 §41.9 — met de vinger omhoog scrollen om iets te herlezen mag: de focus (en dus de
        wazigheid) volgt gewoon je scrollpositie, ook wanneer de autoscroll stilstaat. */
     if(AS.on) asSetFocus();
+    if(typeof greadScrollSync==='function') greadScrollSync();   /* v11.42 §85.2 */
     if(!AS.on) asDrawBar();      /* v11.5.1 §40.5 — de balk volgt je plaats in de lijst */ }); } },{passive:true});
 $('stage').addEventListener('pointerdown',e=>{
   closeSpeed();                        /* v11.11 §45.7 — een vinger op de kaarten sluit het menu */
@@ -4029,22 +4053,16 @@ $('stage').addEventListener('pointerup',e=>{
      hierboven en vangt hem af — bestaande valkuil, ongewijzigd gelaten.
      ⚠ De links/rechts-grens is het midden van het TOESTEL, exact zoals in §72.1.
      TERUGROLBAAR: ja — dit blok weg. */
-  if(greadOn() && !held){
-    const gsc=d.tgt&&d.tgt.closest&&d.tgt.closest('.scrollcard.gcard');
-    const git=gsc?BYID[gsc.dataset.sc]:null;
-    if(gsc&&git&&git.type==='conv'){
-      const gbx=$('phone').getBoundingClientRect();
-      if(d.x0<gbx.left+gbx.width/2){ gReadStep(gsc); return; }
-      /* §84.4b — DE RECHTERHELFT MARKEERT, ZE ONTHULT NIET (JHS, 30/08, na de meting: de
-         oude lijstregel «wat dicht staat, gaat open» zette hier het HELE gesprek in één
-         keer open, en dat maakte het rij-per-rij lezen met één misgetikte tik ongedaan).
-         Dezelfde taal als de beurtstand (§72.1): links onthult, rechts markeert. De tak
-         eindigt hier ALTIJD, ook als er niets te markeren viel — anders valt hij alsnog
-         door naar «alles open». */
-      fluoToggle(d.tgt.closest&&d.tgt.closest('.cell.hidecol'));
-      return;
-    }
-  }
+  /* ===== v11.41 §84.4/§84.4b · IN DE LEESMODUS ONTHULT EEN TIK LINKS RIJ PER RIJ =====
+     Deze tak staat VÓÓR §81.5 (fluo) en vóór de gewone lijst-tik, want in de leesmodus is
+     dit wat de LINKERhelft moet doen; de RECHTERhelft markeert (§84.4b).
+     ⚠ De tak zelf staat als functie `greadPointerEnd()` verderop, want v11.42 §85.5 roept
+     hem OOK aan vanuit `pointercancel` — op een aanraakscherm pakt de browser een tik boven
+     een scrollende lijst soms af en stuurt ze `pointercancel` in plaats van `pointerup`.
+     ⚠ Een tik op de LINKERbovenhoek van een gesprekskaart raakt `.scoreblk`; die tak staat
+     hierboven en vangt hem af — bestaande valkuil, ongewijzigd gelaten.
+     TERUGROLBAAR: ja — deze ene regel weg. */
+  if(greadPointerEnd(d,held)) return;
   /* ===== v11.38 §81.5 · EEN TIK IN DE SCROLLSTAND PAUZEERT NIET MEER, MAAR MARKEERT =====
      Hier stond `if(AS.on){ if(!held) asToggle(); return; }` — élke tik op de kaartenzone
      schakelde de autoscroll aan of uit (§29.7). Daardoor kon JHS in die stand geen cel meer
@@ -4075,7 +4093,31 @@ $('stage').addEventListener('pointerup',e=>{
     FLUO[d.id]=[...arr]; if(!FLUO[d.id].length) delete FLUO[d.id];
     saveFluo(); cell.classList.toggle('fluo'); }
 });
+/* ===== v11.42 §85.5 · EEN TIK DIE DE BROWSER AFPAKT, TELT TOCH =====
+   ⚠ JHS meldde op 30/08 dat het onthullen «niet werkt» op zijn toestel, terwijl vijf gemeten
+   tikken in de container wél vijf rijen openden. Het verschil is ECHT en zit in de browser:
+   op een aanraakscherm boven een scrollende lijst besluit de browser bij de minste beweging
+   dat het gebaar een SCROLL is. Ze neemt het gebaar dan over en stuurt `pointercancel` in
+   plaats van `pointerup` — de tik-afhandeling wordt dus nooit bereikt. Een CDP-tik in de
+   container beweegt geen pixel en heeft dat probleem niet; daarom stond de proef groen.
+   Was de beweging klein (≤ 8 px in beide richtingen), dan was het gebaar een TIK en geen
+   scroll, en telt hij alsnog — enkel in de leesmodus, zodat de rest van de app onaangeroerd
+   blijft.
+   TERUGROLBAAR: ja — de twee regels met `greadPointerEnd` hieronder weg. */
+function greadPointerEnd(d,held){
+  if(!greadOn()||held||!d) return false;
+  const gsc=d.tgt&&d.tgt.closest&&d.tgt.closest('.scrollcard.gcard');
+  const git=gsc?BYID[gsc.dataset.sc]:null;
+  if(!gsc||!git||git.type!=='conv') return false;
+  const gbx=$('phone').getBoundingClientRect();
+  /* LINKS onthult de volgende rij (§84.4), RECHTS markeert fluo (§84.4b). De tak eindigt
+     altijd, ook als er niets te markeren viel — anders valt hij door naar «alles open». */
+  if(d.x0<gbx.left+gbx.width/2) gReadStep(gsc);
+  else fluoToggle(d.tgt.closest&&d.tgt.closest('.cell.hidecol'));
+  return true;
+}
 $('stage').addEventListener('pointercancel',()=>{ asRelease(); if(!drag)return; const d=drag; drag=null;
+  if(Math.abs(d.dx||0)<=8 && Math.abs(d.dy||0)<=8) greadPointerEnd(d,false);   /* v11.42 §85.5 */
   /* v11.7 §42.5 — er hoeft geen kaart onder je vinger te zitten; zet altijd de kaart terug die
      effectief meebewoog (d.scard). */
   const back=d.scard||d.card;
@@ -4860,6 +4902,7 @@ function gmodeSet(m){
   saveSet();
   asResetCount();                /* §42.9 — nieuwe selectie = nieuwe beurt */
   gSeenClear();                  /* §83.8 — wat je gezien had, telt niet meer mee */
+  gactClear();                   /* v11.42 §85 — en de actieve rij begint opnieuw */
   if(AS.on && asBlocked()){ asExit(); paintConv(); renderFgrid(); return; }
   mode='voc'; render(); $('stage').scrollTop=0;
   paintConv(); renderFgrid();
@@ -4945,6 +4988,7 @@ function gJump(grp){
          zet de kaart daar in beeld, en werkt ook in kleine letter. */
       if(BIG && typeof refreshCard==='function'){ refreshCard(host.querySelector('.scrollcard .card'),cs[i].dataset.sc); }
       else cs[i].scrollIntoView({block:'start'});
+      if(typeof greadQuiet==='function') greadQuiet();   /* v11.42 §85.2 */
       gbarSync(); return; }
   }
 }
@@ -5013,17 +5057,98 @@ function gReadPreset(){
    aan; die zet buiten de beurtstand alle transforms leeg en stopt (nagekeken), dus in de
    scrollstand is dat een lege bewerking. */
 const GREADPAD=8;
+/* ===================== v11.42 §85 · DE ACTIEVE RIJ =====================
+   JHS, 30/08, na het proberen van v11.41: «2 manieren om de rechterkant — per rij! dus per
+   zin! — te unhiden: als ik aan linkerkant klik … [of] gewoon manueel scrollen ipv te klikken,
+   en dan ook wordt de actieve focus rij autom geunhided» + «maak sowieso visueel duidelijk wat
+   de actieve focus rij is».
+   ⚠ **ÉÉN WAARHEID: `GACT[id]`** — de index van de actieve rij van dat gesprek (les 18).
+   Alles leest die ene waarde: het kader (`rowact`), het onthullen (`convRevealTo`), waar de
+   veeg naartoe scoort (`gspTarget`) en waar de tik verder telt. Er is dus geen tweede teller
+   die uit de pas kan lopen met `CROW`.
+   **WAT IS DE ACTIEVE RIJ?** De laatste rij waarvan de ONDERKANT nog volledig in beeld staat —
+   de leesfrontlijn. Dat is met opzet exact de plaats waar §84.4 een pas onthulde rij parkeert
+   («de onderkant net binnen beeld»), zodat tikken en scrollen het over dezelfde rij hebben en
+   ze elkaar nooit tegenspreken. Ware de lijn hoger gelegd, dan zou elke tik ze meteen weer
+   verzetten.
+   ⚠ Het onthullen is EENRICHTING: scroll je terug omhoog, dan verspringt het kader mee, maar
+   er gaat niets terug dicht (`convRevealTo` weigert een lagere stand uit zichzelf).
+   GEEN opslag: `GACT` leeft enkel in het geheugen, net als `CROW` en `GSEEN`.
+   TERUGROLBAAR: ja — dit blok weg, de CSS-regel `.cell.rowact` weg, `rowact` uit `cardHTML()`,
+   de GACT-regel uit `gspTarget()`, de oproep in de scroll-luisteraar weg en `gReadStep()`
+   terug op zijn v11.41-vorm. */
+const GACT={};
+function gactClear(){ Object.keys(GACT).forEach(function(k){ delete GACT[k]; }); }
+/* het kader LIVE verzetten, zonder de kaart te hertekenen. `cardHTML()` zet dezelfde klasse
+   bij een verse tekening; allebei lezen ze `GACT`, dus er is één waarheid en twee tekenaars. */
+function greadPaintAct(sc){
+  if(!sc) return;
+  const idx=GACT[sc.dataset.sc];
+  [].slice.call(sc.querySelectorAll('.cell.rowact')).forEach(function(e){ e.classList.remove('rowact'); });
+  if(idx==null) return;
+  [].slice.call(sc.querySelectorAll('.cell[data-row="'+idx+'"]')).forEach(function(e){ e.classList.add('rowact'); });
+}
+/* de actieve rij zetten: kader, onthullen tot en met die rij, en (enkel bij een TIK) meescrollen */
+function greadAct(sc,idx,mee){
+  if(!sc) return false;
+  const id=sc.dataset.sc, it=BYID[id];
+  if(!it||it.type!=='conv') return false;
+  const n=convRows(it)||0; if(!n) return false;
+  if(idx<0) idx=0; if(idx>n-1) idx=n-1;
+  GACT[id]=idx;
+  gSeenMark(sc);                       /* §83.8 — wat open is, blijft open */
+  convRevealTo(sc,idx+1);              /* onthult tot en met idx; weigert zelf wat al open staat */
+  greadPaintAct(sc);
+  if(mee) gReadScroll(sc,idx);
+  return true;
+}
+/* ---- §85.2 · MANUEEL SCROLLEN ONTHULT ZELF ----
+   Hangt aan de bestaande scroll-luisteraar van #stage, binnen dezelfde `requestAnimationFrame`
+   als `renderTop()`/`listFocus()` — dus hoogstens één meting per beeldje.
+   ⚠ Een scroll die de APP zelf veroorzaakt telt niet mee (zelfde valkuil als §45.7 en §52.2):
+   `gReadScroll()` en `gJump()` zetten daarom `GREADQUIET`. */
+const GREADEDGE=6;
+let GREADQUIET=0;
+function greadQuiet(){ GREADQUIET=performance.now(); }
+function greadScrollSync(){
+  if(!greadOn()) return;
+  if(performance.now()-GREADQUIET<250) return;
+  const st=$('stage'), host=$('lst'); if(!st||!host) return;
+  const sr=st.getBoundingClientRect();
+  const lijn=sr.bottom-GREADEDGE;                 /* de leesfrontlijn */
+  const cs=host.querySelectorAll('.scrollcard.gcard');
+  for(let i=0;i<cs.length;i++){
+    const r=cs[i].getBoundingClientRect();
+    if(r.top>lijn || r.bottom<lijn) continue;     /* enkel de kaart ÓP de frontlijn */
+    const sc=cs[i], id=sc.dataset.sc, it=BYID[id];
+    if(!it||it.type!=='conv') return;
+    const cells=sc.querySelectorAll('.cell.col-nl[data-row]');
+    let want=-1;
+    for(let k=0;k<cells.length;k++){
+      const rr=cells[k].getBoundingClientRect();
+      if(rr.bottom<=lijn) want=+cells[k].dataset.row;
+    }
+    if(want<0) return;                            /* nog geen enkele rij helemaal in beeld */
+    if(GACT[id]!==want) greadAct(sc,want,false);
+    return;
+  }
+}
+/* ---- §84.4 + §85.1 · ÉÉN TIK LINKS = ÉÉN RIJ ERBIJ ---- */
 function gReadStep(sc){
   if(!sc) return false;
   const id=sc.dataset.sc, it=BYID[id];
   if(!it||it.type!=='conv') return false;
-  const n=convRows(it)||0, k=convOpen(id);
-  /* niets meer te onthullen (de kaart ligt helemaal open) → §84.5: naar het volgende gesprek */
-  if(!turnIsHidden(sc) || k>=n){ return gReadNext(sc); }
-  if(!convRevealTo(sc,k+1)){ return gReadNext(sc); }
-  gSeenMark(sc);                       /* §83.8 — wat open is, blijft open */
-  gReadScroll(sc,k);                   /* de NIEUWE rij heeft index k (0-based) */
-  return true;
+  const n=convRows(it)||0; if(!n) return false;
+  /* v11.42 §85.1 — de tik telt voortaan verder op de ACTIEVE rij, niet op `CROW`. Zo tellen
+     tikken en scrollen op hetzelfde: scroll je met de hand tot rij 5 en tik je dan, dan kom je
+     op rij 6 uit en niet terug op rij 1. */
+  /* Is er nog geen actieve rij (net in de modus gekomen, of van stand gewisseld), dan telt
+     `CROW` als vertrekpunt: staan er al drie rijen open, dan is rij 3 de volgende. Zo begint
+     de tik nooit terug van voren af aan op een kaart die al half openligt. */
+  const cur=(GACT[id]!=null)?GACT[id]
+           :(turnIsHidden(sc)?(convOpen(id)-1):(n-1));   /* ligt ze al helemaal open: de laatste rij */
+  if(cur+1>=n) return gReadNext(sc);   /* voorbij de laatste rij → §84.5: volgend gesprek */
+  return greadAct(sc,cur+1,true);
 }
 /* DE SCROLREGEL, letterlijk uit §84.4: «de actieve rij wordt unhidet, maar de zin/rij boven
    de actieve rij blijft wel zichtbaar (dus niet autodoorscrollen tot de actieve rij helemaal
@@ -5045,6 +5170,7 @@ function gReadScroll(sc,rowIdx){
     if(room>0) d=Math.min(d,room);
   }
   st.scrollTop+=d;
+  if(typeof greadQuiet==='function') greadQuiet();   /* v11.42 §85.2 — eigen scroll telt niet mee */
   if(typeof gbarSync==='function') gbarSync();
 }
 /* §84.5 — op de laatste rij springt de volgende tik naar het VOLGENDE gesprek.
